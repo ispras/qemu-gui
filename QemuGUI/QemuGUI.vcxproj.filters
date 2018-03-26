@@ -50,31 +50,31 @@
     <ClCompile Include="GeneratedFiles\qrc_qemugui.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="qemusettings.cpp">
+    <ClCompile Include="vmsettingsform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_qemusettings.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_vmsettingsform.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_qemusettings.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_vmsettingsform.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="createvm.cpp">
+    <ClCompile Include="createvmform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_createvm.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_createvmform.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_createvm.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_createvmform.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="recordreplay.cpp">
+    <ClCompile Include="recordreplaytab.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_recordreplay.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_recordreplaytab.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_recordreplay.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_recordreplaytab.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
   </ItemGroup>
@@ -88,40 +88,28 @@
     <CustomBuild Include="qemugui.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="qemusettings.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="qemusettings.ui">
       <Filter>Form Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="createvm.h">
-      <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="createvm.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="recordreplay.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="recordreplay.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="vmsettingsform.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="createvmform.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="recordreplaytab.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GeneratedFiles\ui_qemugui.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_qemusettings.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_createvm.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_recordreplay.h">
-      <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

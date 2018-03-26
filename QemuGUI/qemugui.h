@@ -3,47 +3,49 @@
 
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets>
-#include "ui_qemugui.h"
 
-#include "qemusettings.h"
-#include "createvm.h"
-#include "recordreplay.h"
+#include "vmsettingsform.h"
+#include "createvmform.h"
+#include "recordreplaytab.h"
 
 class QemuGUI : public QMainWindow
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	QemuGUI(QWidget *parent = 0);
-	~QemuGUI();
+    QemuGUI(QWidget *parent = 0);
+    ~QemuGUI();
 
 private:
-	Ui::QemuGUIClass ui;
+    QMenuBar *menuBar;
+    QToolBar *mainToolBar;
+    QWidget *centralWidget;
+    QStatusBar *statusBar;
 
-	QemuSettings *settingsWindow;
-	CreateVM *createVMDlg;
-	RecordReplay *recReplay;
+    QListWidget *listVM;
+    QListWidgetItem *selected_item;
+    QGroupBox *propBox;
+    QLabel *info_lbl;
+    QPushButton *edit_btn;
+    QTabWidget *tab;
+    QWidget *tab_info;
 
-	QListWidget *listVM;
-	QGroupBox *propBox;
-	QLabel *info_lbl;
-	QPushButton *edit_btn;
-	QTabWidget *tab;
-	QWidget *tab_info;
-
+    VMSettingsForm *settingsWindow;
+    CreateVMForm *createVMWindow;
+    RecordReplayTab *recReplayTab;
 
 private:
-	void connect_signals();
-	void widget_placement();
+    void connect_signals();
+    void widget_placement();
 
-private slots:
-	void play_machine();
-	void pause_machine();
-	void stop_machine();
-	void create_machine();
-	void import_machine();
-	void edit_settings();
-	void onListVMItemClicked(QListWidgetItem *item);
+    private slots:
+    void play_machine();
+    void pause_machine();
+    void stop_machine();
+    void create_machine();
+    void import_machine();
+    void edit_settings();
+    void onListVMItemClicked(QListWidgetItem *item);
 
 };
 

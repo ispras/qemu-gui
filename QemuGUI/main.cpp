@@ -3,9 +3,9 @@
 
 int main(int argc, char *argv[])
 {
-	QApplication a(argc, argv);
-	QemuGUI w;
-	w.setWindowIcon(QIcon("qemu_.png"));
-	w.show();
-	return a.exec();
+    QApplication a(argc, argv);
+    QemuGUI w;
+    w.setWindowIcon(QIcon("Resources/qemu_.png"));
+    w.show();
+    return a.exec();
 }
