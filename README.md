@@ -1,4 +1,4 @@
-#qemu-gui
+# qemu-gui &mdash; GUI for running and recording QEMU virtual machines
 
 Building and running the project:
 ```shell
