@@ -146,7 +146,7 @@ void CreateVMForm::connect_signals()
     connect(place_btn, SIGNAL(clicked()), this, SLOT(place_disk_or_project()));
 }
 
-void CreateVMForm::setVisibleWidgets_pt1(bool isVisible)
+void CreateVMForm::setVisibleWidgetsForNewHDD(bool isVisible)
 {
     format_combo->setVisible(isVisible);
     hdsize_spin->setVisible(isVisible);
@@ -154,7 +154,7 @@ void CreateVMForm::setVisibleWidgets_pt1(bool isVisible)
     hddsize_lbl->setVisible(isVisible);
 }
 
-void CreateVMForm::setVisibleWidgets_pt2(bool isVisible)
+void CreateVMForm::setVisibleWidgetsForExistedHDD(bool isVisible)
 {
     place_lbl->setVisible(isVisible);
     place_edit->setVisible(isVisible);
@@ -165,8 +165,8 @@ void CreateVMForm::hdd_no(bool state)
 {
     if (state)
     {
-        setVisibleWidgets_pt1(false);
-        setVisibleWidgets_pt2(false);
+        setVisibleWidgetsForNewHDD(false);
+        setVisibleWidgetsForExistedHDD(false);
     }
 }
 
@@ -175,8 +175,8 @@ void CreateVMForm::hdd_exist(bool state)
     if (state)
     {
         place_edit->clear();
-        setVisibleWidgets_pt1(false);
-        setVisibleWidgets_pt2(true);
+        setVisibleWidgetsForNewHDD(false);
+        setVisibleWidgetsForExistedHDD(true);
     }
 }
 
@@ -185,8 +185,8 @@ void CreateVMForm::hdd_new(bool state)
     if (state)
     {
         place_edit->clear();
-        setVisibleWidgets_pt1(true);
-        setVisibleWidgets_pt2(true);
+        setVisibleWidgetsForNewHDD(true);
+        setVisibleWidgetsForExistedHDD(true);
     }
 }
 

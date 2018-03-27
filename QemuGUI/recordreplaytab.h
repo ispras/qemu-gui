@@ -16,14 +16,14 @@ private:
     void widget_placement();
 
     private slots:
-    void record_journal();
-    void replay_journal();
-    void onJournalListtemClicked(QListWidgetItem *item);
+    void record_execution();
+    void replay_execution();
+    void onExecutionListItemClicked(QListWidgetItem *item);
     void rename_ctxmenu();
     void delete_ctxmenu();
 
 private:
-    QListWidget *journal_list;
+    QListWidget *execution_list;
     QListWidgetItem *selected_item;
     QPushButton *rec_btn;
     QPushButton *rpl_btn;

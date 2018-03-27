@@ -34,8 +34,8 @@ private:
 private:
     void connect_signals();
     void widget_placement();
-    void setVisibleWidgets_pt1(bool isVisible);
-    void setVisibleWidgets_pt2(bool isVisible);
+    void setVisibleWidgetsForNewHDD(bool isVisible);
+    void setVisibleWidgetsForExistedHDD(bool isVisible);
 
     private slots:
     void hdd_no(bool state);

@@ -39,7 +39,8 @@ VMSettingsForm::~VMSettingsForm()
 
 void VMSettingsForm::connect_signals()
 {
-    connect(deviceTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(onDeviceTreeItemClicked(QTreeWidgetItem *, int)));
+    connect(deviceTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, 
+        SLOT(onDeviceTreeItemClicked(QTreeWidgetItem *, int)));
 
     connect(saveCancelBtn, &QDialogButtonBox::accepted, this, &VMSettingsForm::save_settings);
     connect(saveCancelBtn, &QDialogButtonBox::rejected, this, &QWidget::close);
