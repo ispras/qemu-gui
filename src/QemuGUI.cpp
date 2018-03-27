@@ -62,9 +62,7 @@ QemuGUI::QemuGUI(QWidget *parent)
 
 QemuGUI::~QemuGUI()
 {
-    delete settingsWindow;
-    delete createVMWindow;
-    delete recReplayTab;
+
 }
 
 void QemuGUI::widget_placement()
