@@ -1,4 +1,4 @@
-#include "recordreplaytab.h"
+#include "RecordReplayTab.h"
 
 RecordReplayTab::RecordReplayTab(QWidget *parent)
     : QWidget(parent)
@@ -13,8 +13,8 @@ RecordReplayTab::RecordReplayTab(QWidget *parent)
     rec_btn = new QPushButton("Start record");
     rpl_btn = new QPushButton("Start replay");
 
-    rename_act = new QAction("Rename");
-    delete_act = new QAction("Delete");
+    rename_act = new QAction("Rename", execution_list);
+    delete_act = new QAction("Delete", execution_list);
     rename_act->setDisabled(true);
     delete_act->setDisabled(true);
 

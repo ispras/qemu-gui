@@ -1,6 +1,5 @@
 #include "CreateVMForm.h"
 
-
 CreateVMForm::CreateVMForm(QWidget *parent)
     : QWidget(parent)
 {
@@ -8,7 +7,7 @@ CreateVMForm::CreateVMForm(QWidget *parent)
         CreateVMForm::setObjectName(QStringLiteral("CreateVMForm"));
     resize(400, 340);
     setWindowTitle(QApplication::translate("CreateVMForm", "Create Virtual Machine", Q_NULLPTR));
-    setWindowModality(Qt::WindowModality::ApplicationModal);
+    setWindowModality(Qt::ApplicationModal);
     setWindowFlags(Qt::MSWindowsFixedSizeDialogHint);
 
     QStringList format = { "RAW", "QCOW2", "QCOW", "COW", "VMDK", "CLOOP", "VPC(VHD)?" };
@@ -130,6 +129,15 @@ void CreateVMForm::widget_placement()
     main_lay->addStretch(50);
     main_lay->addWidget(okCancelBtn);
 }
+
+#if QT_VERSION < 0x050700
+template<typename... Args> struct QOverload { 
+    template<typename C, typename R> 
+    static constexpr auto of(R (C::*pmf)(Args...))->decltype(pmf) { 
+        return pmf;
+    } 
+};
+#endif
 
 void CreateVMForm::connect_signals()
 {

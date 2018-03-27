@@ -4,9 +4,9 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets>
 
-#include "vmsettingsform.h"
-#include "createvmform.h"
-#include "recordreplaytab.h"
+#include "VMSettingsForm.h"
+#include "CreateVMForm.h"
+#include "RecordReplayTab.h"
 
 class QemuGUI : public QMainWindow
 {

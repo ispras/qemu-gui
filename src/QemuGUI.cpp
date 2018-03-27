@@ -1,4 +1,4 @@
-#include "qemugui.h"
+#include "QemuGUI.h"
 
 
 QemuGUI::QemuGUI(QWidget *parent)
@@ -28,9 +28,9 @@ QemuGUI::QemuGUI(QWidget *parent)
     menuBar->addMenu("want?");
 
     // tool menu
-    mainToolBar->addAction(QIcon("Resources/play.png"), "Play VM", this, SLOT(play_machine()));
-    mainToolBar->addAction(QIcon("Resources/pause.png"), "Pause VM", this, SLOT(pause_machine()));
-    mainToolBar->addAction(QIcon("Resources/stop.png"), "Stop VM", this, SLOT(stop_machine()));
+    mainToolBar->addAction(QIcon(":Resources/play.png"), "Play VM", this, SLOT(play_machine()));
+    mainToolBar->addAction(QIcon(":Resources/pause.png"), "Pause VM", this, SLOT(pause_machine()));
+    mainToolBar->addAction(QIcon(":Resources/stop.png"), "Stop VM", this, SLOT(stop_machine()));
     mainToolBar->addSeparator();
     mainToolBar->addAction("Create machine", this, SLOT(create_machine()));
     mainToolBar->addAction("Import machine", this, SLOT(import_machine()));
