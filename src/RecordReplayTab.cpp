@@ -54,7 +54,7 @@ void RecordReplayTab::widget_placement()
 {
     QVBoxLayout *main_lay = new QVBoxLayout(this);
 
-    QHBoxLayout *lay_btn = new QHBoxLayout(this);
+    QHBoxLayout *lay_btn = new QHBoxLayout();
     lay_btn->addWidget(rec_btn);
     lay_btn->addWidget(rpl_btn);
 

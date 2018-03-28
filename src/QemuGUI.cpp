@@ -77,10 +77,10 @@ void QemuGUI::widget_placement()
 
     QHBoxLayout *one = new QHBoxLayout(centralWidget);
 
-    QVBoxLayout *lay = new QVBoxLayout(centralWidget);
+    QVBoxLayout *lay = new QVBoxLayout();
     lay->addWidget(listVM);
 
-    QVBoxLayout *lay2 = new QVBoxLayout(centralWidget);
+    QVBoxLayout *lay2 = new QVBoxLayout();
     lay2->addWidget(tab);
 
     one->addLayout(lay);
