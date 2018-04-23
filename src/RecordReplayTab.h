@@ -18,13 +18,12 @@ private:
     private slots:
     void record_execution();
     void replay_execution();
-    void onExecutionListItemClicked(QListWidgetItem *item);
+    void execution_listItemSelectionChanged();
     void rename_ctxmenu();
     void delete_ctxmenu();
 
 private:
     QListWidget *execution_list;
-    QListWidgetItem *selected_item;
     QPushButton *rec_btn;
     QPushButton *rpl_btn;
     QAction *rename_act;

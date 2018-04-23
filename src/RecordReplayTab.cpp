@@ -7,8 +7,6 @@ RecordReplayTab::RecordReplayTab(QWidget *parent)
         RecordReplayTab::setObjectName(QStringLiteral("RecordReplayTab"));
     resize(400, 300);
     
-    selected_item = NULL;
-
     execution_list = new QListWidget();
     rec_btn = new QPushButton("Start record");
     rpl_btn = new QPushButton("Start replay");
@@ -20,7 +18,7 @@ RecordReplayTab::RecordReplayTab(QWidget *parent)
 
     execution_list->setEditTriggers(QAbstractItemView::AnyKeyPressed | 
         QAbstractItemView::SelectedClicked | QAbstractItemView::DoubleClicked);
-
+ 
     execution_list->addItem("First");
     execution_list->addItem("Second");
     execution_list->addItem("Third");
@@ -43,8 +41,7 @@ void RecordReplayTab::connect_signals()
     connect(rec_btn, SIGNAL(clicked()), this, SLOT(record_execution()));
     connect(rpl_btn, SIGNAL(clicked()), this, SLOT(replay_execution()));
 
-    connect(execution_list, SIGNAL(itemClicked(QListWidgetItem *)), this, 
-        SLOT(onExecutionListItemClicked(QListWidgetItem *)));
+    connect(execution_list, SIGNAL(itemSelectionChanged()), this, SLOT(execution_listItemSelectionChanged()));
 
     connect(rename_act, SIGNAL(triggered()), this, SLOT(rename_ctxmenu()));
     connect(delete_act, SIGNAL(triggered()), this, SLOT(delete_ctxmenu()));
@@ -73,28 +70,26 @@ void RecordReplayTab::replay_execution()
     QMessageBox::about(this, "", "replay");
 }
 
-void RecordReplayTab::onExecutionListItemClicked(QListWidgetItem *item)
+void RecordReplayTab::execution_listItemSelectionChanged()
 {
     rename_act->setDisabled(false);
     delete_act->setDisabled(false);
-    selected_item = item;
 }
 
 void RecordReplayTab::rename_ctxmenu()
 {
-    if (selected_item)
+    if (execution_list->currentItem())
     {
-        selected_item->setFlags(selected_item->flags() | Qt::ItemIsEditable);
+        execution_list->currentItem()->setFlags(execution_list->currentItem()->flags() | Qt::ItemIsEditable);
     }
 }
 
 void RecordReplayTab::delete_ctxmenu()
 {    
-    if (selected_item)
+    if (execution_list->currentItem())
     {
-        delete selected_item;
+        delete execution_list->currentItem();
         execution_list->clearSelection();
-        selected_item = NULL;
         rename_act->setDisabled(true);
         delete_act->setDisabled(true);
     }
