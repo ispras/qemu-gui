@@ -5,12 +5,6 @@
 
 #include <QtWidgets>
 
-struct VM_Information
-{
-    QStringList name;
-    QStringList path;
-};
-
 
 class GlobalConfig : public QObject
 {
@@ -39,7 +33,6 @@ public slots:
 private:
     QFile *vm_config_file;
     QString path_to_home_dir;
-    VM_Information vm_info;
 
 signals:
     void globalConfig_new_vm_is_complete();

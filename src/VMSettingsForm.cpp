@@ -75,3 +75,4 @@ void VMSettingsForm::onDeviceTreeItemClicked(QTreeWidgetItem *item, int column)
 {
     QMessageBox::about(this, "hello", item->text(0));
 }
+
