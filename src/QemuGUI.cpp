@@ -21,7 +21,7 @@ QemuGUI::QemuGUI(QWidget *parent)
     statusBar->setObjectName(QStringLiteral("statusBar"));
     setStatusBar(statusBar);
 
-    global_config = new GlobalConfig();
+    global_config = new GlobalConfig(this);
 
     //main menu
     menuBar->addMenu("What");
@@ -50,6 +50,7 @@ QemuGUI::QemuGUI(QWidget *parent)
     propBox->setMinimumWidth(300);
     propBox->setVisible(false);
     edit_btn->setVisible(false);
+    edit_btn->setAutoDefault(true);
 
     listVM = new QListWidget();
     QFont listVMfont;
@@ -123,9 +124,9 @@ void QemuGUI::connect_signals()
     /* edit machine */
     connect(edit_btn, SIGNAL(clicked()), this, SLOT(edit_settings()));
     /* list of machines */
-    connect(listVM, SIGNAL(itemSelectionChanged()), this, SLOT(listVMItemSelectionChanged()));
+    connect(listVM, SIGNAL(itemSelectionChanged()), this, SLOT(listVM_item_selection_changed()));
     connect(listVM, SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)), 
-        this, SLOT(listVMcurrentItemChanged(QListWidgetItem *, QListWidgetItem *)));
+        this, SLOT(listVM_current_item_changed(QListWidgetItem *, QListWidgetItem *)));
     /* delete VM */
     connect(delete_act, SIGNAL(triggered()), this, SLOT(delete_vm_ctxmenu()));
     /* exclude VM */
@@ -148,7 +149,7 @@ void QemuGUI::delete_vm_ctxmenu()
         {
             listVM->setCurrentRow(0);
         }
-        QMessageBox::information(this, "Success", "Virtual machine " + del_vm_name.toUpper() + " was deleted");
+        QMessageBox::information(this, "Success", "Virtual machine " + del_vm_name + " was deleted");
     }
 }
 
@@ -167,7 +168,7 @@ void QemuGUI::exclude_vm_ctxmenu()
         {
             listVM->setCurrentRow(0);
         }
-        QMessageBox::information(this, "Success", "Virtual machine " + del_vm_name.toUpper() + " was excluded");
+        QMessageBox::information(this, "Success", "Virtual machine " + del_vm_name + " was excluded");
     }
 }
 
@@ -222,7 +223,7 @@ void QemuGUI::edit_settings()
     settingsWindow = new VMSettingsForm();
 }
 
-void QemuGUI::listVMItemSelectionChanged()
+void QemuGUI::listVM_item_selection_changed()
 {
     if (listVM->currentItem())
     {
@@ -241,7 +242,7 @@ void QemuGUI::listVMItemSelectionChanged()
     }
 }
 
-void QemuGUI::listVMcurrentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
+void QemuGUI::listVM_current_item_changed(QListWidgetItem *current, QListWidgetItem *previous)
 {
     QFont font;
     QFont font_old = listVM->font();
@@ -249,7 +250,6 @@ void QemuGUI::listVMcurrentItemChanged(QListWidgetItem *current, QListWidgetItem
     
     if (previous)
     {
-        qDebug() << "current" << current->text() << "previous" << previous->text();
         previous->setTextColor(Qt::GlobalColor::black);
         previous->setFont(font_old);
     }

@@ -64,7 +64,6 @@ GlobalConfig::GlobalConfig(QObject *parent)
         {
             QString path_to_vm = vm_config_file->readLine();
             path_to_vm.chop(1);
-            names_VM.append(parse_vm_dir(path_to_vm));
             vm_info.name.append(parse_vm_dir(path_to_vm));
             vm_info.path.append(path_to_vm);
         }
@@ -198,11 +197,11 @@ void GlobalConfig::vm_is_created(VMConfig *vm_config)
     
     if (vm_config_file->open(QIODevice::Append))
     {
-        if (vm_config->vm_config_make(new_vm_path))
+        if (vm_config->save_vm_config(new_vm_path))
         {
             vm_config->setParent(this);
+            virtual_machines.append(vm_config);
 
-            names_VM.append(new_vm_path);
             vm_info.name.append(parse_vm_dir(new_vm_path));
             vm_info.path.append(new_vm_path);
             QTextStream stream(vm_config_file);

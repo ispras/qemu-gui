@@ -13,8 +13,13 @@ VMSettingsForm::VMSettingsForm(QWidget *parent)
     deviceTree = new QTreeWidget(this);
     new_component_line = new QLineEdit(this);
     new_component_btn = new QPushButton("Add");
+    savecancel_btn = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
+
+    savecancel_btn->button(QDialogButtonBox::Save)->setDefault(true);
+    savecancel_btn->button(QDialogButtonBox::Cancel)->setAutoDefault(true);
+
     new_component_btn->setFixedWidth(40);
-    saveCancelBtn = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    new_component_btn->setAutoDefault(true);
 
     deviceTree->setHeaderHidden(1);
     deviceTree->setColumnCount(1);
@@ -42,8 +47,8 @@ void VMSettingsForm::connect_signals()
     connect(deviceTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, 
         SLOT(onDeviceTreeItemClicked(QTreeWidgetItem *, int)));
 
-    connect(saveCancelBtn, &QDialogButtonBox::accepted, this, &VMSettingsForm::save_settings);
-    connect(saveCancelBtn, &QDialogButtonBox::rejected, this, &QWidget::close);
+    connect(savecancel_btn, &QDialogButtonBox::accepted, this, &VMSettingsForm::save_settings);
+    connect(savecancel_btn, &QDialogButtonBox::rejected, this, &QWidget::close);
 }
 
 void VMSettingsForm::widget_placement()
@@ -57,7 +62,7 @@ void VMSettingsForm::widget_placement()
     one->addWidget(deviceTree);
     one->addLayout(edit_comp_lay);
     one->addSpacing(20);
-    one->addWidget(saveCancelBtn);
+    one->addWidget(savecancel_btn);
 }
 
 void VMSettingsForm::save_settings()

@@ -13,12 +13,12 @@ public:
     ~VMConfig();
 
 public:
-    bool vm_config_make(QString path);
-    void vm_config_set_name(QString name_vm_);
-    void vm_config_set_dir_path(QString dir_path_);
-    void vm_config_set_ram_size(int ram_size_);
-    void vm_config_set_image_path(QString image_path_);
-    void vm_config_set_hdd(int hdd);
+    bool save_vm_config(QString path);
+    void set_name(QString name_vm_);
+    void set_dir_path(QString dir_path_);
+    void set_ram_size(int ram_size_);
+    void add_image_path(QString image_path_);
+    void set_hdd(int hdd);
 
     QString vm_config_get_name();
     QString vm_config_get_dir_path();
@@ -30,9 +30,6 @@ private:
     QString dir_path;
     int ram_size;
     QString image_path;
-    QString image_size;
-    QString image_format;
-    int hdd_type;
 
 };
 

@@ -57,8 +57,8 @@ private:
     void create_machine();
     void add_machine();
     void edit_settings();
-    void listVMItemSelectionChanged();
-    void listVMcurrentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
+    void listVM_item_selection_changed();
+    void listVM_current_item_changed(QListWidgetItem *current, QListWidgetItem *previous);
 
 };
 

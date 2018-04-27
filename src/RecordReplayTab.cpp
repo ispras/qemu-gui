@@ -27,6 +27,9 @@ RecordReplayTab::RecordReplayTab(QWidget *parent)
     execution_list->addAction(delete_act);
     execution_list->setContextMenuPolicy(Qt::ActionsContextMenu);
 
+    rec_btn->setAutoDefault(true);
+    rpl_btn->setAutoDefault(true);
+
     widget_placement();
     connect_signals();
 }
@@ -94,3 +97,4 @@ void RecordReplayTab::delete_ctxmenu()
         delete_act->setDisabled(true);
     }
 }
+

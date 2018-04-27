@@ -17,7 +17,7 @@ class CreateVMForm : public QWidget
     Q_OBJECT
 
 public:
-    CreateVMForm(QString home_dir = "");
+    CreateVMForm(const QString &home_dir = "");
     ~CreateVMForm();
 
 private:
@@ -37,16 +37,19 @@ private:
     QRadioButton *hdd_no_rb;
     QRadioButton *hdd_exist_rb;
     QRadioButton *hdd_new_rb;
-    QDialogButtonBox *okCancelBtn;
+    QDialogButtonBox *okcancel_btn;
+    QLabel *error_lbl;
 
     QString default_path;
+    QString path_to_vm;
 
 
 private:
     void connect_signals();
     void widget_placement();
-    void setVisibleWidgetsForNewHDD(bool isVisible);
-    void setVisibleWidgetsForExistedHDD(bool isVisible);
+    void set_visible_widgets_for_new_hdd(bool isVisible);
+    void set_visible_widgets_for_existed_hdd(bool isVisible);
+    void show_error_message(QString error_text);
 
     private slots:
     void hdd_no(bool state);

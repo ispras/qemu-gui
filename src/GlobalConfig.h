@@ -1,5 +1,5 @@
-#ifndef CREATEVM_H
-#define CREATEVM_H
+#ifndef GLOBALCONFIG_H
+#define GLOBALCONFIG_H
 
 #include "VMConfig.h"
 
@@ -27,6 +27,9 @@ public:
     bool add_exist_vm(QString path);
     void delete_vm(QString del_vm_name);
     void exclude_vm(QString del_vm_name);
+
+private:
+    QList<VMConfig *> virtual_machines;
     
 
 public slots:
@@ -36,7 +39,6 @@ public slots:
 private:
     QFile *vm_config_file;
     QString path_to_home_dir;
-    QStringList names_VM;
     VM_Information vm_info;
 
 signals:
@@ -45,5 +47,5 @@ signals:
 };
 
 
-#endif // CREATEVM_H
+#endif // GLOBALCONFIG_H
 

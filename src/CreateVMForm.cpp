@@ -1,12 +1,12 @@
 #include "CreateVMForm.h"
 
 
-CreateVMForm::CreateVMForm(QString home_dir)
+CreateVMForm::CreateVMForm(const QString &home_dir)
     : QWidget()
 {
     if (CreateVMForm::objectName().isEmpty())
         CreateVMForm::setObjectName(QStringLiteral("CreateVMForm"));
-    resize(400, 380);
+    resize(400, 400);
     setWindowTitle(QApplication::translate("CreateVMForm", "Create Virtual Machine", Q_NULLPTR));
     setWindowIcon(QIcon(":Resources/qemu.png"));
     setWindowModality(Qt::ApplicationModal);
@@ -29,7 +29,7 @@ CreateVMForm::CreateVMForm(QString home_dir)
     hddsize_spin = new QSpinBox(this);
     imageplace_edit = new QLineEdit(this);
     imageplace_btn = new QPushButton("...");
-    imageplace_lbl = new QLabel("Image place");
+    imageplace_lbl = new QLabel("Image path");
     format_lbl = new QLabel("Format");
     hddsize_lbl = new QLabel("Size");
 
@@ -37,7 +37,11 @@ CreateVMForm::CreateVMForm(QString home_dir)
     hdd_exist_rb = new QRadioButton("Select exist disk");
     hdd_new_rb = new QRadioButton("Create new disk");
 
-    okCancelBtn = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    error_lbl = new QLabel("");
+    okcancel_btn = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+
+    okcancel_btn->button(QDialogButtonBox::Ok)->setDefault(true);
+    okcancel_btn->button(QDialogButtonBox::Cancel)->setAutoDefault(true);
 
     hddsize_spin->setMaximum(50000);
     hddsize_spin->setValue(1024);
@@ -45,7 +49,9 @@ CreateVMForm::CreateVMForm(QString home_dir)
     hddsize_slider->setValue(hddsize_spin->value());
 
     imageplace_btn->setFixedWidth(30);
+    imageplace_btn->setAutoDefault(true);
     pathtovm_btn->setFixedWidth(30);
+    pathtovm_btn->setAutoDefault(true);
 
     format_combo->addItems(format);
 
@@ -151,16 +157,24 @@ void CreateVMForm::widget_placement()
     hdd_all->addLayout(new_hdd_lay);
 
     hdd_gr->setLayout(hdd_all);
-
-
+    
     QVBoxLayout *main_lay = new QVBoxLayout(this);
     main_lay->addWidget(common_gr);
     main_lay->addWidget(memory_gr);
     main_lay->addWidget(hdd_gr);
-    main_lay->addStretch(50);
-    main_lay->addWidget(okCancelBtn);
+    main_lay->addStretch(10);
+    main_lay->addWidget(error_lbl);
+    main_lay->addWidget(okcancel_btn);
 }
 
+#if QT_VERSION < 0x050700
+template<typename... Args> struct QOverload {
+    template<typename C, typename R>
+    static constexpr auto of(R(C::*pmf)(Args...))->decltype(pmf) {
+        return pmf;
+    }
+};
+#endif
 
 void CreateVMForm::connect_signals()
 {
@@ -177,8 +191,8 @@ void CreateVMForm::connect_signals()
     connect(hdd_exist_rb, &QRadioButton::toggled, this, &CreateVMForm::hdd_exist);
     connect(hdd_new_rb, &QRadioButton::toggled, this, &CreateVMForm::hdd_new);
 
-    connect(okCancelBtn, &QDialogButtonBox::accepted, this, &CreateVMForm::create_vm);
-    connect(okCancelBtn, &QDialogButtonBox::rejected, this, &QWidget::close);
+    connect(okcancel_btn, &QDialogButtonBox::accepted, this, &CreateVMForm::create_vm);
+    connect(okcancel_btn, &QDialogButtonBox::rejected, this, &QWidget::close);
 
     connect(imageplace_btn, SIGNAL(clicked()), this, SLOT(place_disk_or_project()));
 }
@@ -188,11 +202,12 @@ void CreateVMForm::select_dir()
     QString directory_name = QFileDialog::getExistingDirectory(this, "Select directory", default_path);
     if (directory_name != "")
     {
+        path_to_vm = directory_name;
         QString path = directory_name + "/" + name_edit->text();
         pathtovm_edit->setText(path);
         if (QDir(path).exists() && name_edit->text() != "")
         {
-            QMessageBox::critical(this, "Error", "Directory with this name already exists");
+            show_error_message("Directory with this name already exists");
             name_edit->setFocus();
         }
     }
@@ -200,22 +215,40 @@ void CreateVMForm::select_dir()
 
 void CreateVMForm::change_path(const QString &name)
 {
-    if (pathtovm_edit->text() != "")
+    if (!pathtovm_edit->text().isEmpty())
     {
-        QString path = pathtovm_edit->text();
-        int index = path.lastIndexOf('/');
-        path = path.left(index + 1);
-        path.append(name);
-        pathtovm_edit->setText(path);
-        if (QDir(path).exists())
+        QString new_name = name;
+        if (!name.isEmpty() && (name[name.length() - 1].category() == QChar::Punctuation_Other || name[name.length() - 1].category() == QChar::Symbol_Math))
         {
-            QMessageBox::critical(this, "Error", "Directory with this name already exists");
+            new_name = name.left(name.length() - 1);
+            name_edit->setText(new_name);
+            QToolTip::showText(QPoint(pos().x() + name_edit->pos().x(), pos().ry() + name_edit->pos().y()), "Please use next symbols: letter, digit, bracket, -, _", this);
+        }
+
+        QString path;
+        if (!path_to_vm.isEmpty())
+        {
+            path = path_to_vm + "/" + new_name;
+        }
+        else
+        {
+            path = default_path + "/" + new_name;
+        }
+
+        pathtovm_edit->setText(path);
+        if (QDir(path).exists() && !name_edit->text().isEmpty())
+        {
+            show_error_message("Directory with this name already exists");
             name_edit->setFocus();
+        }
+        else
+        {
+            show_error_message("");
         }
     }
 }
 
-void CreateVMForm::setVisibleWidgetsForNewHDD(bool isVisible)
+void CreateVMForm::set_visible_widgets_for_new_hdd(bool isVisible)
 {
     format_combo->setVisible(isVisible);
     hddsize_spin->setVisible(isVisible);
@@ -224,19 +257,26 @@ void CreateVMForm::setVisibleWidgetsForNewHDD(bool isVisible)
     hddsize_slider->setVisible(isVisible);
 }
 
-void CreateVMForm::setVisibleWidgetsForExistedHDD(bool isVisible)
+void CreateVMForm::set_visible_widgets_for_existed_hdd(bool isVisible)
 {
     imageplace_lbl->setVisible(isVisible);
     imageplace_edit->setVisible(isVisible);
     imageplace_btn->setVisible(isVisible);
 }
 
+void CreateVMForm::show_error_message(QString error_text)
+{
+    error_lbl->setStyleSheet("color: rgb(255, 0, 0); font: 12px");
+    error_lbl->setText("  " + error_text);
+}
+
 void CreateVMForm::hdd_no(bool state)
 {
     if (state)
     {
-        setVisibleWidgetsForNewHDD(false);
-        setVisibleWidgetsForExistedHDD(false);
+        show_error_message("");
+        set_visible_widgets_for_new_hdd(false);
+        set_visible_widgets_for_existed_hdd(false);
     }
 }
 
@@ -245,8 +285,8 @@ void CreateVMForm::hdd_exist(bool state)
     if (state)
     {
         imageplace_edit->clear();
-        setVisibleWidgetsForNewHDD(false);
-        setVisibleWidgetsForExistedHDD(true);
+        set_visible_widgets_for_new_hdd(false);
+        set_visible_widgets_for_existed_hdd(true);
     }
 }
 
@@ -254,9 +294,10 @@ void CreateVMForm::hdd_new(bool state)
 {
     if (state)
     {
+        show_error_message("");
         imageplace_edit->clear();
-        setVisibleWidgetsForNewHDD(true);
-        setVisibleWidgetsForExistedHDD(false);
+        set_visible_widgets_for_new_hdd(true);
+        set_visible_widgets_for_existed_hdd(false);
     }
 }
 
@@ -274,47 +315,35 @@ void CreateVMForm::place_disk_or_project()
 
 void CreateVMForm::create_vm()
 {
-    bool form_is_complete = false;
-    if (name_edit->text() != "" && !QDir(pathtovm_edit->text()).exists())
+    if (name_edit->text().isEmpty())
     {
-        if (imageplace_edit->isVisible())
-        {
-            if (imageplace_edit->text() != "")
-            {
-                form_is_complete = true;
-            }
-        }
-        else 
-        {
-            form_is_complete = true;
-        }
+        show_error_message("Field 'Name' must be filled");
+        name_edit->setFocus();
+        return;
     }
-    
-    if (form_is_complete)
+
+    if (QDir(pathtovm_edit->text()).exists())
     {
-        VMConfig *configVM = new VMConfig();
-
-        configVM->vm_config_set_name(name_edit->text());
-        configVM->vm_config_set_dir_path(pathtovm_edit->text());
-        configVM->vm_config_set_ram_size(ram_spin->value());
-
-        if (!hdd_new_rb->isChecked())
-        {
-            configVM->vm_config_set_hdd(NEW_HDD);
-            configVM->vm_config_set_image_path(imageplace_edit->text());
-        }
-        else if (hdd_exist_rb->isChecked())
-        {
-            configVM->vm_config_set_hdd(EXIST_HDD);
-            configVM->vm_config_set_image_path(imageplace_edit->text());
-        }
-
-        emit createVM_new_vm_is_complete(configVM);
-        close();
+        show_error_message("Directory with this name already exists");
+        pathtovm_btn->setFocus();
+        return;
     }
-    else
+
+    if (imageplace_edit->isVisible() && imageplace_edit->text().isEmpty())
     {
-        QMessageBox::critical(this, "Error", "Not all fields have been filled right");
+        show_error_message("Field 'Image path' must be filled");
+        imageplace_btn->setFocus();
+        return;
     }
+
+    VMConfig *configVM = new VMConfig();
+
+    configVM->set_name(name_edit->text());
+    configVM->set_dir_path(pathtovm_edit->text());
+    configVM->set_ram_size(ram_spin->value());
+    configVM->add_image_path(imageplace_edit->text());
+      
+    emit createVM_new_vm_is_complete(configVM);
+    close();
 }
 
