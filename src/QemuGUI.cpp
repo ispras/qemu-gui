@@ -133,20 +133,27 @@ void QemuGUI::connect_signals()
     connect(global_config, SIGNAL(globalConfig_new_vm_is_complete()), this, SLOT(refresh()));
 }
 
+QString QemuGUI::delete_exclude_vm(bool delete_vm)
+{
+    QString del_vm_name = listVM->currentItem()->text();
+    global_config->delete_exclude_vm(del_vm_name, delete_vm);
+    // may be return value if all ok, exclude from list
+
+    delete listVM->currentItem();
+
+    if (listVM->count() != 0)
+    {
+        listVM->setCurrentRow(0);
+    }
+    return del_vm_name;
+}
+
 void QemuGUI::delete_vm_ctxmenu()
 {
     int answer = QMessageBox::question(this, "Deleting", "Are you sure?", QMessageBox::Yes, QMessageBox::No);
     if (answer == QMessageBox::Yes)
     {
-        QString del_vm_name = listVM->currentItem()->text();
-        global_config->delete_vm(del_vm_name);
-        // may be return value if all ok, delete from list
-        delete listVM->currentItem();
-
-        if (listVM->count() != 0)
-        {
-            listVM->setCurrentRow(0);
-        }
+        QString del_vm_name = delete_exclude_vm(true);
         QMessageBox::information(this, "Success", "Virtual machine " + del_vm_name + " was deleted");
     }
 }
@@ -156,16 +163,7 @@ void QemuGUI::exclude_vm_ctxmenu()
     int answer = QMessageBox::question(this, "Excluding", "Are you sure?", QMessageBox::Yes, QMessageBox::No);
     if (answer == QMessageBox::Yes)
     {
-        QString del_vm_name = listVM->currentItem()->text();
-        global_config->exclude_vm(del_vm_name);
-        // may be return value if all ok, exclude from list
-
-        delete listVM->currentItem();
-
-        if (listVM->count() != 0)
-        {
-            listVM->setCurrentRow(0);
-        }
+        QString del_vm_name = delete_exclude_vm(false);
         QMessageBox::information(this, "Success", "Virtual machine " + del_vm_name + " was excluded");
     }
 }

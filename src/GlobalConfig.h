@@ -17,7 +17,7 @@ public:
     QList<VMConfig *> get_exist_vm();
     
     bool add_exist_vm(const QString &path);
-    void delete_vm(const QString &del_vm_name);
+    void delete_exclude_vm(const QString &del_vm_name, bool delete_vm);
     void exclude_vm(const QString &del_vm_name);
 
 private:

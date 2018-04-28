@@ -1,6 +1,9 @@
 #include "VMConfig.h"
 #include "CreateVMForm.h"
 
+
+const QString const_xml_name = "vm.xml";
+
 static bool remove_directory(QDir dir);
 
 
@@ -8,10 +11,9 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
     : QObject(parent)
 {
     QString path = path_vm;
-    if (path.contains(".xml", Qt::CaseSensitivity::CaseInsensitive))
+    if (path.contains(const_xml_name, Qt::CaseSensitivity::CaseInsensitive))
     {
-        int index = path.lastIndexOf('/');
-        path = path.left(index);
+        path.chop(const_xml_name.length());
     }
 
     QDir home_dir(path);
@@ -19,9 +21,9 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
 
     foreach(const QString vm_file, vm_files)
     {
-        if (vm_file.contains(".xml", Qt::CaseSensitivity::CaseInsensitive))
+        if (vm_file == const_xml_name)
         {
-            QString xml_name = path + "/" + vm_file;
+            QString xml_name = path + "/" + const_xml_name;
 
             QFile file(xml_name);
             if (file.open(QIODevice::ReadOnly))
@@ -64,8 +66,14 @@ VMConfig::~VMConfig()
 
 bool VMConfig::save_vm_config(const QString &path)
 {
+    QDir vm_dir(path);
+    if (!vm_dir.exists())
+    {
+        QDir().mkdir(path);
+    }
+
     QString xml_name;
-    xml_name = path + "/" + name_vm + ".xml";
+    xml_name = path + "/" + const_xml_name;
 
     QFile file(xml_name);
     if (file.open(QIODevice::WriteOnly))

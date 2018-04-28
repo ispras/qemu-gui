@@ -88,29 +88,16 @@ bool GlobalConfig::add_exist_vm(const QString &path)
     return true;
 }
 
-void GlobalConfig::delete_vm(const QString &del_vm_name)
-{
-    QString del_path;
-
-    foreach(VMConfig *vm, virtual_machines)
-    {
-        if (vm->get_name() == del_vm_name)
-        {
-            vm->remove_directory_vm();
-            virtual_machines.removeOne(vm);
-            break;
-        }
-    }
-    save_config_file();
-}
-
-void GlobalConfig::exclude_vm(const QString &del_vm_name)
+void GlobalConfig::delete_exclude_vm(const QString &del_vm_name, bool delete_vm)
 {
     foreach(VMConfig *vm, virtual_machines)
     {
         if (vm->get_name() == del_vm_name)
         {
+            if (delete_vm)
+                vm->remove_directory_vm();
             virtual_machines.removeOne(vm);
+            delete vm;
             break;
         }
     }
@@ -119,22 +106,7 @@ void GlobalConfig::exclude_vm(const QString &del_vm_name)
 
 void GlobalConfig::vm_is_created(VMConfig *vm_config)
 {
-    QString new_vm_path;
-    if (!vm_config->get_dir_path().isEmpty())
-    {
-        new_vm_path = vm_config->get_dir_path();
-    }
-    else
-    {
-        new_vm_path = path_to_home_dir + "/" + vm_config->get_name();
-    }
-    QDir new_vm_dir(new_vm_path);
-    if (!new_vm_dir.exists())
-    {
-        QDir().mkdir(new_vm_path);
-    }
-    
-    if (vm_config->save_vm_config(new_vm_path))
+    if (vm_config->save_vm_config(vm_config->get_dir_path()))
     {
         vm_config->setParent(this);
         virtual_machines.append(vm_config);

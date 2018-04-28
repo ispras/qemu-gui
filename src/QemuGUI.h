@@ -47,6 +47,7 @@ private:
 
     private slots:
     void refresh();
+    QString delete_exclude_vm(bool delete_vm);
     void delete_vm_ctxmenu();
     void exclude_vm_ctxmenu();
     void play_machine();
