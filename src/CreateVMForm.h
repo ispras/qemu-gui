@@ -55,10 +55,11 @@ private:
     void hdd_no(bool state);
     void hdd_exist(bool state);
     void hdd_new(bool state);
-    void place_disk_or_project();
+    void place_disk();
     void create_vm();
     void select_dir();
     void change_path(const QString &name);
+    bool input_verification(QString path);
 
 
 signals:

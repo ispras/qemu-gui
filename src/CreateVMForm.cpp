@@ -194,7 +194,7 @@ void CreateVMForm::connect_signals()
     connect(okcancel_btn, &QDialogButtonBox::accepted, this, &CreateVMForm::create_vm);
     connect(okcancel_btn, &QDialogButtonBox::rejected, this, &QWidget::close);
 
-    connect(imageplace_btn, SIGNAL(clicked()), this, SLOT(place_disk_or_project()));
+    connect(imageplace_btn, SIGNAL(clicked()), this, SLOT(place_disk()));
 }
 
 void CreateVMForm::select_dir()
@@ -205,11 +205,7 @@ void CreateVMForm::select_dir()
         path_to_vm = directory_name;
         QString path = directory_name + "/" + name_edit->text();
         pathtovm_edit->setText(path);
-        if (QDir(path).exists() && name_edit->text() != "")
-        {
-            show_error_message("Directory with this name already exists");
-            name_edit->setFocus();
-        }
+        input_verification(path);
     }
 }
 
@@ -239,16 +235,48 @@ void CreateVMForm::change_path(const QString &name)
         }
 
         pathtovm_edit->setText(path);
+        input_verification(path);
+    }
+}
+
+bool CreateVMForm::input_verification(QString path)
+{
+    if (!path.isEmpty())
+    {
         if (QDir(path).exists() && !name_edit->text().isEmpty())
         {
             show_error_message("Virtual machine with this name already exists");
             name_edit->setFocus();
+            return false;
         }
         else
         {
             show_error_message("");
+            return true;
         }
     }
+
+    if (name_edit->text().isEmpty())
+    {
+        show_error_message("Field 'Name' must be filled");
+        name_edit->setFocus();
+        return false;
+    }
+
+    if (QDir(pathtovm_edit->text()).exists())
+    {
+        show_error_message("Vitrual machine with this name already exists");
+        pathtovm_btn->setFocus();
+        return false;
+    }
+
+    if (imageplace_edit->isVisible() && imageplace_edit->text().isEmpty())
+    {
+        show_error_message("Field 'Image path' must be filled");
+        imageplace_btn->setFocus();
+        return false;
+    }
+    return true;
 }
 
 void CreateVMForm::set_visible_widgets_for_new_hdd(bool isVisible)
@@ -304,7 +332,7 @@ void CreateVMForm::hdd_new(bool state)
     }
 }
 
-void CreateVMForm::place_disk_or_project()
+void CreateVMForm::place_disk()
 {
     if (hdd_exist_rb->isChecked())
     {
@@ -318,26 +346,8 @@ void CreateVMForm::place_disk_or_project()
 
 void CreateVMForm::create_vm()
 {
-    if (name_edit->text().isEmpty())
-    {
-        show_error_message("Field 'Name' must be filled");
-        name_edit->setFocus();
+    if (!input_verification(""))
         return;
-    }
-
-    if (QDir(pathtovm_edit->text()).exists())
-    {
-        show_error_message("Vitrual machine with this name already exists");
-        pathtovm_btn->setFocus();
-        return;
-    }
-
-    if (imageplace_edit->isVisible() && imageplace_edit->text().isEmpty())
-    {
-        show_error_message("Field 'Image path' must be filled");
-        imageplace_btn->setFocus();
-        return;
-    }
 
     VMConfig *configVM = new VMConfig(nullptr, pathtovm_edit->text());
 
