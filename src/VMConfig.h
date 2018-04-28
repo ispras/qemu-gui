@@ -9,14 +9,14 @@ class VMConfig : public QObject
     Q_OBJECT
 
 public:
-    VMConfig(QObject *parent, QString path);
+    VMConfig(QObject *parent, const QString &path);
     ~VMConfig();
 
 public:
-    bool save_vm_config(QString path);
-    void set_name(QString name_vm_);
-    void set_dir_path(QString dir_path_);
-    void add_image_path(QString image_path_);
+    bool save_vm_config(const QString &path);
+    void set_name(const QString &name_vm_);
+    void set_dir_path(const QString &dir_path_);
+    void add_image_path(const QString &image_path_);
     void set_hdd(int hdd);
 
     QString get_name();

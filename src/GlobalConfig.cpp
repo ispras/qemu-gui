@@ -64,29 +64,31 @@ bool GlobalConfig::save_config_file()
     return false;
 }
 
-bool GlobalConfig::add_exist_vm(QString path)
+bool GlobalConfig::add_exist_vm(const QString &path)
 {
     VMConfig *vm = new VMConfig(this, path);
 
+    if (vm->get_name().isEmpty() || vm->get_dir_path().isEmpty())
+    {
+        delete vm;
+        return false;
+    }
+
     foreach(VMConfig *vm_exist, virtual_machines)
     {
-        if (vm->get_name().isEmpty() || vm->get_dir_path().isEmpty())
-            return false;
         if (vm_exist->get_name() == vm->get_name() || vm_exist->get_dir_path() == vm->get_dir_path())
+        {
+            delete vm;
             return false;
+        }
     }
     virtual_machines.append(vm);
-
-    if (vm_config_file->open(QIODevice::Append))
-    {
-        QTextStream stream(vm_config_file);
-        stream << vm->get_dir_path() << endl;
-        vm_config_file->close();
-    }
+    save_config_file();
+    
     return true;
 }
 
-void GlobalConfig::delete_vm(QString del_vm_name)
+void GlobalConfig::delete_vm(const QString &del_vm_name)
 {
     QString del_path;
 
@@ -102,7 +104,7 @@ void GlobalConfig::delete_vm(QString del_vm_name)
     save_config_file();
 }
 
-void GlobalConfig::exclude_vm(QString del_vm_name)
+void GlobalConfig::exclude_vm(const QString &del_vm_name)
 {
     foreach(VMConfig *vm, virtual_machines)
     {
@@ -142,6 +144,5 @@ void GlobalConfig::vm_is_created(VMConfig *vm_config)
         emit globalConfig_new_vm_is_complete();
     }
 }
-
 
 

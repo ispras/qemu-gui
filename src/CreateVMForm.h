@@ -9,8 +9,6 @@
 #define MAX_RAM_VALUE 32768 / 2
 #define MIN_RAM_VALUE 4
 
-enum HDD_STATE {NO_HDD, EXIST_HDD, NEW_HDD};
-
 
 class CreateVMForm : public QWidget
 {
@@ -49,7 +47,7 @@ private:
     void widget_placement();
     void set_visible_widgets_for_new_hdd(bool isVisible);
     void set_visible_widgets_for_existed_hdd(bool isVisible);
-    void show_error_message(QString error_text);
+    void show_error_message(const QString &error_text);
 
     private slots:
     void hdd_no(bool state);
@@ -59,7 +57,7 @@ private:
     void create_vm();
     void select_dir();
     void change_path(const QString &name);
-    bool input_verification(QString path);
+    bool input_verification(const QString &path);
 
 
 signals:

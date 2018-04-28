@@ -4,9 +4,10 @@
 static bool remove_directory(QDir dir);
 
 
-VMConfig::VMConfig(QObject *parent, QString path)
+VMConfig::VMConfig(QObject *parent, const QString &path_vm)
     : QObject(parent)
 {
+    QString path = path_vm;
     if (path.contains(".xml", Qt::CaseSensitivity::CaseInsensitive))
     {
         int index = path.lastIndexOf('/');
@@ -61,7 +62,7 @@ VMConfig::~VMConfig()
 }
 
 
-bool VMConfig::save_vm_config(QString path)
+bool VMConfig::save_vm_config(const QString &path)
 {
     QString xml_name;
     xml_name = path + "/" + name_vm + ".xml";
@@ -100,17 +101,17 @@ bool VMConfig::save_vm_config(QString path)
     return false;
 }
 
-void VMConfig::set_name(QString name_vm_)
+void VMConfig::set_name(const QString &name_vm_)
 {
     name_vm = name_vm_;
 }
 
-void VMConfig::set_dir_path(QString dir_path_)
+void VMConfig::set_dir_path(const QString &dir_path_)
 {
     dir_path = dir_path_;
 }
 
-void VMConfig::add_image_path(QString image_path_)
+void VMConfig::add_image_path(const QString &image_path_)
 {
     image_path = image_path_;
 }

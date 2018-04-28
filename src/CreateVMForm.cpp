@@ -239,14 +239,13 @@ void CreateVMForm::change_path(const QString &name)
     }
 }
 
-bool CreateVMForm::input_verification(QString path)
+bool CreateVMForm::input_verification(const QString &path)
 {
     if (!path.isEmpty())
     {
         if (QDir(path).exists() && !name_edit->text().isEmpty())
         {
             show_error_message("Virtual machine with this name already exists");
-            name_edit->setFocus();
             return false;
         }
         else
@@ -259,21 +258,18 @@ bool CreateVMForm::input_verification(QString path)
     if (name_edit->text().isEmpty())
     {
         show_error_message("Field 'Name' must be filled");
-        name_edit->setFocus();
         return false;
     }
 
     if (QDir(pathtovm_edit->text()).exists())
     {
         show_error_message("Vitrual machine with this name already exists");
-        pathtovm_btn->setFocus();
         return false;
     }
 
     if (imageplace_edit->isVisible() && imageplace_edit->text().isEmpty())
     {
         show_error_message("Field 'Image path' must be filled");
-        imageplace_btn->setFocus();
         return false;
     }
     return true;
@@ -295,7 +291,7 @@ void CreateVMForm::set_visible_widgets_for_existed_hdd(bool isVisible)
     imageplace_btn->setVisible(isVisible);
 }
 
-void CreateVMForm::show_error_message(QString error_text)
+void CreateVMForm::show_error_message(const QString &error_text)
 {
     error_lbl->setStyleSheet("color: rgb(255, 0, 0); font: 12px");
     error_lbl->setText("  " + error_text);

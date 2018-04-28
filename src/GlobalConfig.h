@@ -16,9 +16,9 @@ public:
     QString get_home_dir();
     QList<VMConfig *> get_exist_vm();
     
-    bool add_exist_vm(QString path);
-    void delete_vm(QString del_vm_name);
-    void exclude_vm(QString del_vm_name);
+    bool add_exist_vm(const QString &path);
+    void delete_vm(const QString &del_vm_name);
+    void exclude_vm(const QString &del_vm_name);
 
 private:
     QList<VMConfig *> virtual_machines;
