@@ -53,6 +53,8 @@ QemuGUI::QemuGUI(QWidget *parent)
     edit_btn->setAutoDefault(true);
 
     listVM = new QListWidget();
+    listVM->setMaximumWidth(300);
+    listVM->setUniformItemSizes(true);
     QFont listVMfont;
     listVMfont.setPointSize(10);
     listVM->setFont(listVMfont);
@@ -80,20 +82,16 @@ QemuGUI::~QemuGUI()
 
 void QemuGUI::fill_listVM_from_config()
 {
-    listVM->setMaximumWidth(300);
-    listVM->setUniformItemSizes(true);
+    QList<VMConfig *> exist_vm = global_config->get_exist_vm();
+    int i = 0;
 
-    QStringList exist_vm = global_config->get_exist_vm();
-    if (!exist_vm.isEmpty())
+    foreach(VMConfig *vm, exist_vm)
     {
-        listVM->addItems(exist_vm);
-        listVM->setCurrentRow(0);
-    }
-
-    for (int i = 0; i < listVM->count(); i++)
-    {
+        listVM->addItem(vm->get_name());
         listVM->item(i)->setSizeHint(QSize(0, 20));
+        i++;
     }
+    listVM->setCurrentRow(0);
     listVM->setFocus();
 }
 
@@ -244,27 +242,29 @@ void QemuGUI::listVM_item_selection_changed()
 
 void QemuGUI::listVM_current_item_changed(QListWidgetItem *current, QListWidgetItem *previous)
 {
-    QFont font;
-    QFont font_old = listVM->font();
-    int x = font_old.pointSize();
-    
-    if (previous)
+    if (current)
     {
-        previous->setTextColor(Qt::GlobalColor::black);
-        previous->setFont(font_old);
-    }
+        QFont font;
+        QFont font_old = listVM->font();
+        int x = font_old.pointSize();
 
-    font.setBold(true);
-    current->setTextColor(Qt::GlobalColor::darkRed);
-    current->setFont(font);
+        if (previous)
+        {
+            previous->setTextColor(Qt::GlobalColor::black);
+            previous->setFont(font_old);
+        }
+
+        font.setBold(true);
+        current->setTextColor(Qt::GlobalColor::darkRed);
+        current->setFont(font);
+    }
 }
 
 void QemuGUI::refresh()
 {
-    QString new_vm_name = global_config->get_created_vm_name();
-    listVM->addItem(new_vm_name);
+    listVM->clear();
+    fill_listVM_from_config();
     listVM->setCurrentItem(listVM->item(listVM->count() - 1));
-    listVM->currentItem()->setSizeHint(QSize(0, 20));
 }
 
 

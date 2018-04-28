@@ -26,8 +26,7 @@ GlobalConfig::GlobalConfig(QObject *parent)
         {
             QString path_to_vm = vm_config_file->readLine();
             path_to_vm.chop(1);
-            VMConfig *vm = new VMConfig(this);
-            vm->set_vm_info_from_xml(path_to_vm);
+            VMConfig *vm = new VMConfig(this, path_to_vm);
             virtual_machines.append(vm);
         }
         vm_config_file->close();
@@ -45,25 +44,29 @@ QString GlobalConfig::get_home_dir()
     return path_to_home_dir;
 }
 
-QStringList GlobalConfig::get_exist_vm()
+QList<VMConfig *> GlobalConfig::get_exist_vm()
 {
-    QStringList names;
-    foreach (VMConfig *vm, virtual_machines)
-    {
-        names.append(vm->get_name());
-    }
-    return names;
+    return virtual_machines;
 }
 
-QString GlobalConfig::get_created_vm_name()
+bool GlobalConfig::save_config_file()
 {
-    return virtual_machines.back()->get_name();
+    if (vm_config_file->open(QIODevice::WriteOnly))
+    {
+        QTextStream stream(vm_config_file);
+        foreach(VMConfig *vm, virtual_machines)
+        {
+            stream << vm->get_dir_path() << endl;
+        }
+        vm_config_file->close();
+        return true;
+    }
+    return false;
 }
 
 bool GlobalConfig::add_exist_vm(QString path)
 {
-    VMConfig *vm = new VMConfig(this);
-    vm->set_vm_info_from_xml(path);
+    VMConfig *vm = new VMConfig(this, path);
 
     foreach(VMConfig *vm_exist, virtual_machines)
     {
@@ -91,22 +94,12 @@ void GlobalConfig::delete_vm(QString del_vm_name)
     {
         if (vm->get_name() == del_vm_name)
         {
-            del_path = vm->get_dir_path();
-            vm->remove_directory_vm(del_path);
+            vm->remove_directory_vm();
             virtual_machines.removeOne(vm);
             break;
         }
     }
-
-    if (vm_config_file->open(QIODevice::WriteOnly))
-    {
-        QTextStream stream(vm_config_file);
-        foreach(VMConfig *vm, virtual_machines)
-        {
-            stream << vm->get_dir_path() << endl;
-        }
-        vm_config_file->close();
-    }
+    save_config_file();
 }
 
 void GlobalConfig::exclude_vm(QString del_vm_name)
@@ -119,16 +112,7 @@ void GlobalConfig::exclude_vm(QString del_vm_name)
             break;
         }
     }
-
-    if (vm_config_file->open(QIODevice::WriteOnly))
-    {
-        QTextStream stream(vm_config_file);
-        foreach(VMConfig *vm, virtual_machines)
-        {
-            stream << vm->get_dir_path() << endl;
-        }
-        vm_config_file->close();
-    }
+    save_config_file();
 }
 
 void GlobalConfig::vm_is_created(VMConfig *vm_config)
@@ -148,23 +132,14 @@ void GlobalConfig::vm_is_created(VMConfig *vm_config)
         QDir().mkdir(new_vm_path);
     }
     
-    if (vm_config_file->open(QIODevice::Append))
+    if (vm_config->save_vm_config(new_vm_path))
     {
-        if (vm_config->save_vm_config(new_vm_path))
-        {
-            vm_config->setParent(this);
-            virtual_machines.append(vm_config);
-            
-            QTextStream stream(vm_config_file);
-            stream << new_vm_path << endl;
-            vm_config_file->close();
-            
-            emit globalConfig_new_vm_is_complete();
-        }
-    }
-    else
-    {
-        QMessageBox::critical(nullptr, "Error", "Config file doesn't open");
+        vm_config->setParent(this);
+        virtual_machines.append(vm_config);
+
+        save_config_file();
+
+        emit globalConfig_new_vm_is_complete();
     }
 }
 

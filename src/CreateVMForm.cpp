@@ -110,7 +110,7 @@ void CreateVMForm::widget_placement()
     common_lay->addWidget(new QLabel("OS version"), 3, 0, Qt::AlignmentFlag::AlignLeft);
     common_lay->addWidget(verOS_combo, 3, 1, Qt::AlignmentFlag::AlignLeft);
     common_lay->setColumnStretch(1, 100);
-    
+
     common_gr->setLayout(common_lay);
 
     QGroupBox *memory_gr = new QGroupBox("Memory size");
@@ -218,11 +218,14 @@ void CreateVMForm::change_path(const QString &name)
     if (!pathtovm_edit->text().isEmpty())
     {
         QString new_name = name;
-        if (!name.isEmpty() && (name[name.length() - 1].category() == QChar::Punctuation_Other || name[name.length() - 1].category() == QChar::Symbol_Math))
+        if (!name.isEmpty() && 
+            (name[name.length() - 1].category() == QChar::Punctuation_Other || 
+            name[name.length() - 1].category() == QChar::Symbol_Math))
         {
             new_name = name.left(name.length() - 1);
             name_edit->setText(new_name);
-            QToolTip::showText(QPoint(pos().x() + name_edit->pos().x(), pos().ry() + name_edit->pos().y()), "Please use next symbols: letter, digit, bracket, -, _", this);
+            QToolTip::showText(QPoint(pos().x() + name_edit->pos().x(), pos().ry() + name_edit->pos().y()), 
+                "Please use next symbols: letter, digit, bracket, -, _", this);
         }
 
         QString path;
@@ -238,7 +241,7 @@ void CreateVMForm::change_path(const QString &name)
         pathtovm_edit->setText(path);
         if (QDir(path).exists() && !name_edit->text().isEmpty())
         {
-            show_error_message("Directory with this name already exists");
+            show_error_message("Virtual machine with this name already exists");
             name_edit->setFocus();
         }
         else
@@ -324,7 +327,7 @@ void CreateVMForm::create_vm()
 
     if (QDir(pathtovm_edit->text()).exists())
     {
-        show_error_message("Directory with this name already exists");
+        show_error_message("Vitrual machine with this name already exists");
         pathtovm_btn->setFocus();
         return;
     }
@@ -336,7 +339,7 @@ void CreateVMForm::create_vm()
         return;
     }
 
-    VMConfig *configVM = new VMConfig();
+    VMConfig *configVM = new VMConfig(nullptr, pathtovm_edit->text());
 
     configVM->set_name(name_edit->text());
     configVM->set_dir_path(pathtovm_edit->text());

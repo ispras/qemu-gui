@@ -18,8 +18,6 @@ public:
     QemuGUI(QWidget *parent = 0);
     ~QemuGUI();
 
-public:
-
 private:
     GlobalConfig *global_config;
 

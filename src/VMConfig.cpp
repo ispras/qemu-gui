@@ -4,58 +4,8 @@
 static bool remove_directory(QDir dir);
 
 
-VMConfig::VMConfig(QObject *parent)
+VMConfig::VMConfig(QObject *parent, QString path)
     : QObject(parent)
-{
-
-}
-
-VMConfig::~VMConfig()
-{
-
-}
-
-
-bool VMConfig::save_vm_config(QString path)
-{
-    QString xml_name;
-    xml_name = path + "/" + name_vm + ".xml";
-
-    QFile file(xml_name);
-    if (file.open(QIODevice::WriteOnly))
-    {
-        QXmlStreamWriter xmlWriter(&file);
-
-        QString string_for_digit_params;
-
-        xmlWriter.setAutoFormatting(true);
-        xmlWriter.writeStartDocument();
-        xmlWriter.writeStartElement("VMParameters");
-
-        xmlWriter.writeStartElement("Name");
-        xmlWriter.writeCharacters(name_vm);
-        xmlWriter.writeEndElement();
-
-        xmlWriter.writeStartElement("Directory_path");
-        if (dir_path != "")
-            xmlWriter.writeCharacters(dir_path);
-        else
-            xmlWriter.writeCharacters(path);
-        xmlWriter.writeEndElement();
-
-        xmlWriter.writeStartElement("Image_path");
-        xmlWriter.writeCharacters(image_path);
-        xmlWriter.writeEndElement();
-
-        xmlWriter.writeEndElement();
-        xmlWriter.writeEndDocument();
-        file.close();
-        return true;
-    }
-    return false;
-}
-
-void VMConfig::set_vm_info_from_xml(QString path)
 {
     if (path.contains(".xml", Qt::CaseSensitivity::CaseInsensitive))
     {
@@ -105,6 +55,51 @@ void VMConfig::set_vm_info_from_xml(QString path)
     }
 }
 
+VMConfig::~VMConfig()
+{
+
+}
+
+
+bool VMConfig::save_vm_config(QString path)
+{
+    QString xml_name;
+    xml_name = path + "/" + name_vm + ".xml";
+
+    QFile file(xml_name);
+    if (file.open(QIODevice::WriteOnly))
+    {
+        QXmlStreamWriter xmlWriter(&file);
+
+        QString string_for_digit_params;
+
+        xmlWriter.setAutoFormatting(true);
+        xmlWriter.writeStartDocument();
+        xmlWriter.writeStartElement("VMParameters");
+
+        xmlWriter.writeStartElement("Name");
+        xmlWriter.writeCharacters(name_vm);
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement("Directory_path");
+        if (dir_path != "")
+            xmlWriter.writeCharacters(dir_path);
+        else
+            xmlWriter.writeCharacters(path);
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement("Image_path");
+        xmlWriter.writeCharacters(image_path);
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeEndElement();
+        xmlWriter.writeEndDocument();
+        file.close();
+        return true;
+    }
+    return false;
+}
+
 void VMConfig::set_name(QString name_vm_)
 {
     name_vm = name_vm_;
@@ -115,12 +110,10 @@ void VMConfig::set_dir_path(QString dir_path_)
     dir_path = dir_path_;
 }
 
-
 void VMConfig::add_image_path(QString image_path_)
 {
     image_path = image_path_;
 }
-
 
 QString VMConfig::get_name()
 {
@@ -132,10 +125,9 @@ QString VMConfig::get_dir_path()
     return dir_path;
 }
 
-
-void VMConfig::remove_directory_vm(QString path)
+void VMConfig::remove_directory_vm()
 {
-    QDir del_dir(path);
+    QDir del_dir(dir_path);
     if (del_dir.exists())
         remove_directory(del_dir);
 }

@@ -2,7 +2,6 @@
 #define GLOBALCONFIG_H
 
 #include "VMConfig.h"
-
 #include <QtWidgets>
 
 
@@ -15,8 +14,7 @@ public:
     ~GlobalConfig();
 
     QString get_home_dir();
-    QStringList get_exist_vm();
-    QString get_created_vm_name();
+    QList<VMConfig *> get_exist_vm();
     
     bool add_exist_vm(QString path);
     void delete_vm(QString del_vm_name);
@@ -24,15 +22,15 @@ public:
 
 private:
     QList<VMConfig *> virtual_machines;
-    
+    QFile *vm_config_file;
+    QString path_to_home_dir;
+
+private:
+    bool save_config_file();
 
 public slots:
     void vm_is_created(VMConfig *vm_config);
 
-
-private:
-    QFile *vm_config_file;
-    QString path_to_home_dir;
 
 signals:
     void globalConfig_new_vm_is_complete();
