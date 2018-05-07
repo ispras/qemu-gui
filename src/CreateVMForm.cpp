@@ -214,12 +214,11 @@ void CreateVMForm::change_path(const QString &name)
     if (!pathtovm_edit->text().isEmpty())
     {
         QString new_name = name;
-       
+        int curpos = name_edit->cursorPosition();
+
         if (!name.isEmpty() && 
-            (name[name_edit->cursorPosition() - 1].category() == QChar::Punctuation_Other ||
-            name[name_edit->cursorPosition() - 1].category() == QChar::Symbol_Math))
+            (name[curpos - 1].category() == QChar::Punctuation_Other || name[curpos - 1].category() == QChar::Symbol_Math))
         {
-            int curpos = name_edit->cursorPosition();
             new_name = name.left(curpos - 1) + name.right(name.length() - curpos);
             name_edit->setText(new_name);
             name_edit->setCursorPosition(curpos - 1);
