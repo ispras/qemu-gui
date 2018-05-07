@@ -215,7 +215,7 @@ void CreateVMForm::change_path(const QString &name)
         QString new_name = name;
         int curpos = name_edit->cursorPosition();
 
-        if (!name.isEmpty() && 
+        if (!name.isEmpty() && curpos &&
             (name[curpos - 1].category() == QChar::Punctuation_Other || name[curpos - 1].category() == QChar::Symbol_Math))
         {
             new_name = name.left(curpos - 1) + name.right(name.length() - curpos);
