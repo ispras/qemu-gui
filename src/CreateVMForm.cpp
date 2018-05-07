@@ -214,12 +214,15 @@ void CreateVMForm::change_path(const QString &name)
     if (!pathtovm_edit->text().isEmpty())
     {
         QString new_name = name;
+       
         if (!name.isEmpty() && 
-            (name[name.length() - 1].category() == QChar::Punctuation_Other || 
-            name[name.length() - 1].category() == QChar::Symbol_Math))
+            (name[name_edit->cursorPosition() - 1].category() == QChar::Punctuation_Other ||
+            name[name_edit->cursorPosition() - 1].category() == QChar::Symbol_Math))
         {
-            new_name = name.left(name.length() - 1);
+            int curpos = name_edit->cursorPosition();
+            new_name = name.left(curpos - 1) + name.right(name.length() - curpos);
             name_edit->setText(new_name);
+            name_edit->setCursorPosition(curpos - 1);
             QToolTip::showText(QPoint(pos().x() + name_edit->pos().x(), pos().ry() + name_edit->pos().y()), 
                 "Please use next symbols: letter, digit, bracket, -, _", this);
         }
