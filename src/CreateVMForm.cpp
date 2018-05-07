@@ -213,16 +213,19 @@ void CreateVMForm::change_path(const QString &name)
     if (!pathtovm_edit->text().isEmpty())
     {
         QString new_name = name;
-        int curpos = name_edit->cursorPosition();
 
-        if (!name.isEmpty() && curpos &&
-            (name[curpos - 1].category() == QChar::Punctuation_Other || name[curpos - 1].category() == QChar::Symbol_Math))
+        for (int i = 0; i < new_name.length(); i++)
         {
-            new_name = name.left(curpos - 1) + name.right(name.length() - curpos);
-            name_edit->setText(new_name);
-            name_edit->setCursorPosition(curpos - 1);
-            QToolTip::showText(QPoint(pos().x() + name_edit->pos().x(), pos().ry() + name_edit->pos().y()), 
-                "Please use next symbols: letter, digit, bracket, -, _", this);
+            if (new_name[i].category() == QChar::Punctuation_Other || new_name[i].category() == QChar::Symbol_Math)
+            {
+                new_name = new_name.left(i) + new_name.right(new_name.length() - i - 1);
+                name_edit->setText(new_name);
+                name_edit->setCursorPosition(i);
+                QToolTip::showText(QPoint(pos().x() + name_edit->pos().x(), pos().ry() + name_edit->pos().y()),
+                    "Please use next symbols: letter, digit, bracket, -, _", this);
+                if (i > 0) i--;
+                else i = 0;
+            }
         }
 
         QString path = set_path_to_vm(path_to_vm);
