@@ -35,7 +35,7 @@ QemuGUI::QemuGUI(QWidget *parent)
     mainToolBar->addAction(QIcon(":Resources/stop.png"), "Stop VM", this, SLOT(stop_machine()));
     mainToolBar->addSeparator();
     mainToolBar->addAction("Create machine", this, SLOT(create_machine()));
-    mainToolBar->addAction("Add exist machine", this, SLOT(add_machine()));
+    mainToolBar->addAction("Add existing machine", this, SLOT(add_machine()));
 
     // tab	
     tab = new QTabWidget(centralWidget);

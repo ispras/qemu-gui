@@ -203,8 +203,7 @@ void CreateVMForm::select_dir()
     if (directory_name != "")
     {
         path_to_vm = directory_name;
-        QString path = directory_name + "/" + name_edit->text();
-        pathtovm_edit->setText(path);
+        QString path = set_path_to_vm(path_to_vm);
         input_verification(path);
     }
 }
@@ -226,19 +225,24 @@ void CreateVMForm::change_path(const QString &name)
                 "Please use next symbols: letter, digit, bracket, -, _", this);
         }
 
-        QString path;
-        if (!path_to_vm.isEmpty())
-        {
-            path = path_to_vm + "/" + new_name;
-        }
-        else
-        {
-            path = default_path + "/" + new_name;
-        }
-
-        pathtovm_edit->setText(path);
+        QString path = set_path_to_vm(path_to_vm);
         input_verification(path);
     }
+}
+
+QString CreateVMForm::set_path_to_vm(const QString & home_path)
+{
+    QString path;
+    if (!home_path.isEmpty())
+    {
+        path = home_path + "/" + name_edit->text();
+    }
+    else
+    {
+        path = default_path + "/" + name_edit->text();
+    }
+    pathtovm_edit->setText(path);
+    return path;
 }
 
 bool CreateVMForm::input_verification(const QString &path)
@@ -265,7 +269,7 @@ bool CreateVMForm::input_verification(const QString &path)
 
     if (QDir(pathtovm_edit->text()).exists())
     {
-        show_error_message("Vitrual machine with this name already exists");
+        show_error_message("Virtual machine with this name already exists");
         return false;
     }
 

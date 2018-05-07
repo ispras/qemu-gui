@@ -19,41 +19,37 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
     QDir home_dir(path);
     QStringList vm_files = home_dir.entryList(QDir::Filter::Files);
 
-    foreach(const QString vm_file, vm_files)
+    if (vm_files.contains(const_xml_name))
     {
-        if (vm_file == const_xml_name)
+        QString xml_name = path + "/" + const_xml_name;
+
+        QFile file(xml_name);
+        if (file.open(QIODevice::ReadOnly))
         {
-            QString xml_name = path + "/" + const_xml_name;
+            QXmlStreamReader xmlReader(&file);
 
-            QFile file(xml_name);
-            if (file.open(QIODevice::ReadOnly))
+            xmlReader.readNext();
+
+            while (!xmlReader.atEnd())
             {
-                QXmlStreamReader xmlReader(&file);
-
-                xmlReader.readNext();
-
-                while (!xmlReader.atEnd())
+                if (xmlReader.isStartElement())
                 {
-                    if (xmlReader.isStartElement())
+                    if (xmlReader.name() == "Name")
                     {
-                        if (xmlReader.name() == "Name")
-                        {
-                            name_vm = xmlReader.readElementText();
-                        }
-                        if (xmlReader.name() == "Directory_path")
-                        {
-                            dir_path = xmlReader.readElementText();
-                        }
-                        if (xmlReader.name() == "Image_path")
-                        {
-                            image_path = xmlReader.readElementText();
-                        }
+                        name_vm = xmlReader.readElementText();
                     }
-                    xmlReader.readNext();
+                    if (xmlReader.name() == "Directory_path")
+                    {
+                        dir_path = xmlReader.readElementText();
+                    }
+                    if (xmlReader.name() == "Image_path")
+                    {
+                        image_path = xmlReader.readElementText();
+                    }
                 }
-                file.close();
+                xmlReader.readNext();
             }
-            break;
+            file.close();
         }
     }
 }
@@ -150,8 +146,8 @@ static bool remove_directory(QDir dir)
     foreach(const QString f_name, files)
     {
         QString del_file = dir.absolutePath() + "/" + f_name;
-        if (QFile::remove(del_file))
-            qDebug() << "deleting file ok!";
+        if (!QFile::remove(del_file))
+            qDebug() << "File" << del_file << "was not deleted!";
     }
 
     foreach(QString d_name, dirs)

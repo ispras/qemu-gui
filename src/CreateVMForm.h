@@ -6,7 +6,7 @@
 #include "VMConfig.h"
 
 
-#define MAX_RAM_VALUE 32768 / 2
+#define MAX_RAM_VALUE (32768 / 2)
 #define MIN_RAM_VALUE 4
 
 
@@ -57,6 +57,7 @@ private:
     void create_vm();
     void select_dir();
     void change_path(const QString &name);
+    QString set_path_to_vm(const QString &home_path);
     bool input_verification(const QString &path);
 
 

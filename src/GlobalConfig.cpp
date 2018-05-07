@@ -24,9 +24,9 @@ GlobalConfig::GlobalConfig(QObject *parent)
         vm_config_file->open(QIODevice::ReadOnly);
         while (!vm_config_file->atEnd())
         {
-            QString path_to_vm = vm_config_file->readLine();
-            path_to_vm.chop(1);
-            VMConfig *vm = new VMConfig(this, path_to_vm);
+            QString path = vm_config_file->readLine();
+            path.chop(1);
+            VMConfig *vm = new VMConfig(this, path);
             virtual_machines.append(vm);
         }
         vm_config_file->close();
