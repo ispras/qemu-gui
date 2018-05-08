@@ -58,7 +58,7 @@ private:
     void select_dir();
     void change_path(const QString &name);
     QString set_path_to_vm(const QString &home_path);
-    bool input_verification(const QString &path);
+    bool input_verification(const QString &path, const QString &name);
 
 
 signals:

@@ -204,33 +204,14 @@ void CreateVMForm::select_dir()
     {
         path_to_vm = directory_name;
         QString path = set_path_to_vm(path_to_vm);
-        input_verification(path);
+        input_verification(path, "");
     }
 }
 
 void CreateVMForm::change_path(const QString &name)
 {
-    if (!pathtovm_edit->text().isEmpty())
-    {
-        QString new_name = name;
-
-        for (int i = 0; i < new_name.length();)
-        {
-            if (new_name[i].category() == QChar::Punctuation_Other || new_name[i].category() == QChar::Symbol_Math)
-            {
-                new_name = new_name.left(i) + new_name.right(new_name.length() - i - 1);
-                name_edit->setText(new_name);
-                name_edit->setCursorPosition(i);
-                QToolTip::showText(QPoint(pos().x() + name_edit->pos().x(), pos().ry() + name_edit->pos().y()),
-                    "Please use next symbols: letter, digit, bracket, -, _", this);
-            }
-            else
-                i++;
-        }
-
-        QString path = set_path_to_vm(path_to_vm);
-        input_verification(path);
-    }
+    input_verification("", name);
+    set_path_to_vm(path_to_vm);
 }
 
 QString CreateVMForm::set_path_to_vm(const QString & home_path)
@@ -248,11 +229,33 @@ QString CreateVMForm::set_path_to_vm(const QString & home_path)
     return path;
 }
 
-bool CreateVMForm::input_verification(const QString &path)
+bool CreateVMForm::input_verification(const QString &path, const QString &name)
 {
-    if (!path.isEmpty())
+    QString vm_path = path;
+
+    if (!name.isEmpty())
     {
-        if (QDir(path).exists() && !name_edit->text().isEmpty())
+        QString new_name = name;
+
+        for (int i = 0; i < new_name.length();)
+        {
+            if (new_name[i].category() == QChar::Punctuation_Other || new_name[i].category() == QChar::Symbol_Math)
+            {
+                new_name = new_name.left(i) + new_name.right(new_name.length() - i - 1);
+                name_edit->setText(new_name);
+                name_edit->setCursorPosition(i);
+                QToolTip::showText(QPoint(pos().x() + name_edit->pos().x(), pos().y() + name_edit->pos().y()),
+                    "Please use next symbols: letter, digit, bracket, -, _", this);
+            }
+            else
+                i++;
+        }
+        return true;
+    }
+
+    if (!vm_path.isEmpty())
+    {
+        if (QDir(vm_path).exists() && !name_edit->text().isEmpty())
         {
             show_error_message("Virtual machine with this name already exists");
             return false;
@@ -351,7 +354,7 @@ void CreateVMForm::place_disk()
 
 void CreateVMForm::create_vm()
 {
-    if (!input_verification(""))
+    if (!input_verification("", ""))
         return;
 
     VMConfig *configVM = new VMConfig(nullptr, pathtovm_edit->text());

@@ -83,13 +83,11 @@ QemuGUI::~QemuGUI()
 void QemuGUI::fill_listVM_from_config()
 {
     QList<VMConfig *> exist_vm = global_config->get_exist_vm();
-    int i = 0;
 
     foreach(VMConfig *vm, exist_vm)
     {
         listVM->addItem(vm->get_name());
-        listVM->item(i)->setSizeHint(QSize(0, 20));
-        i++;
+        listVM->item(listVM->count() - 1)->setSizeHint(QSize(0, 20));
     }
     listVM->setCurrentRow(0);
     listVM->setFocus();
