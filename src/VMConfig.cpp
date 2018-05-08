@@ -15,7 +15,7 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
 {
     QString path = path_vm;
     QString xml_name;
-    if (!path.contains(const_xml_name, Qt::CaseSensitivity::CaseInsensitive))
+    if (path.right(const_xml_name.length()) != const_xml_name)
     {
         path = path + "/" + const_xml_name;
     }
