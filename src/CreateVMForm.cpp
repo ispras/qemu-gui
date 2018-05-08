@@ -214,7 +214,7 @@ void CreateVMForm::change_path(const QString &name)
     {
         QString new_name = name;
 
-        for (int i = 0; i < new_name.length(); i++)
+        for (int i = 0; i < new_name.length();)
         {
             if (new_name[i].category() == QChar::Punctuation_Other || new_name[i].category() == QChar::Symbol_Math)
             {
@@ -223,9 +223,9 @@ void CreateVMForm::change_path(const QString &name)
                 name_edit->setCursorPosition(i);
                 QToolTip::showText(QPoint(pos().x() + name_edit->pos().x(), pos().ry() + name_edit->pos().y()),
                     "Please use next symbols: letter, digit, bracket, -, _", this);
-                if (i > 0) i--;
-                else i = 0;
             }
+            else
+                i++;
         }
 
         QString path = set_path_to_vm(path_to_vm);

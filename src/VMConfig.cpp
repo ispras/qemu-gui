@@ -3,6 +3,9 @@
 
 
 const QString const_xml_name = "vm.xml";
+const QString xml_field_name = "Name";
+const QString xml_field_dir = "Directory_path";
+const QString xml_field_img = "Image_path";
 
 static bool remove_directory(QDir dir);
 
@@ -11,46 +14,39 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
     : QObject(parent)
 {
     QString path = path_vm;
-    if (path.contains(const_xml_name, Qt::CaseSensitivity::CaseInsensitive))
+    QString xml_name;
+    if (!path.contains(const_xml_name, Qt::CaseSensitivity::CaseInsensitive))
     {
-        path.chop(const_xml_name.length());
+        path = path + "/" + const_xml_name;
     }
 
-    QDir home_dir(path);
-    QStringList vm_files = home_dir.entryList(QDir::Filter::Files);
-
-    if (vm_files.contains(const_xml_name))
+    QFile file(path);
+    if (file.open(QIODevice::ReadOnly))
     {
-        QString xml_name = path + "/" + const_xml_name;
+        QXmlStreamReader xmlReader(&file);
 
-        QFile file(xml_name);
-        if (file.open(QIODevice::ReadOnly))
+        xmlReader.readNext();
+
+        while (!xmlReader.atEnd())
         {
-            QXmlStreamReader xmlReader(&file);
-
-            xmlReader.readNext();
-
-            while (!xmlReader.atEnd())
+            if (xmlReader.isStartElement())
             {
-                if (xmlReader.isStartElement())
+                if (xmlReader.name() == xml_field_name)
                 {
-                    if (xmlReader.name() == "Name")
-                    {
-                        name_vm = xmlReader.readElementText();
-                    }
-                    if (xmlReader.name() == "Directory_path")
-                    {
-                        dir_path = xmlReader.readElementText();
-                    }
-                    if (xmlReader.name() == "Image_path")
-                    {
-                        image_path = xmlReader.readElementText();
-                    }
+                    name_vm = xmlReader.readElementText();
                 }
-                xmlReader.readNext();
+                if (xmlReader.name() == xml_field_dir)
+                {
+                    dir_path = xmlReader.readElementText();
+                }
+                if (xmlReader.name() == xml_field_img)
+                {
+                    image_path = xmlReader.readElementText();
+                }
             }
-            file.close();
+            xmlReader.readNext();
         }
+        file.close();
     }
 }
 
@@ -82,18 +78,18 @@ bool VMConfig::save_vm_config(const QString &path)
         xmlWriter.writeStartDocument();
         xmlWriter.writeStartElement("VMParameters");
 
-        xmlWriter.writeStartElement("Name");
+        xmlWriter.writeStartElement(xml_field_name);
         xmlWriter.writeCharacters(name_vm);
         xmlWriter.writeEndElement();
 
-        xmlWriter.writeStartElement("Directory_path");
+        xmlWriter.writeStartElement(xml_field_dir);
         if (dir_path != "")
             xmlWriter.writeCharacters(dir_path);
         else
             xmlWriter.writeCharacters(path);
         xmlWriter.writeEndElement();
 
-        xmlWriter.writeStartElement("Image_path");
+        xmlWriter.writeStartElement(xml_field_img);
         xmlWriter.writeCharacters(image_path);
         xmlWriter.writeEndElement();
 
