@@ -21,6 +21,8 @@ QemuGUI::QemuGUI(QWidget *parent)
     statusBar->setObjectName(QStringLiteral("statusBar"));
     setStatusBar(statusBar);
 
+    global_config = new GlobalConfig(this);
+
     //main menu
     menuBar->addMenu("What");
     menuBar->addMenu("do");
@@ -33,7 +35,7 @@ QemuGUI::QemuGUI(QWidget *parent)
     mainToolBar->addAction(QIcon(":Resources/stop.png"), "Stop VM", this, SLOT(stop_machine()));
     mainToolBar->addSeparator();
     mainToolBar->addAction("Create machine", this, SLOT(create_machine()));
-    mainToolBar->addAction("Import machine", this, SLOT(import_machine()));
+    mainToolBar->addAction("Add existing machine", this, SLOT(add_machine()));
 
     // tab	
     tab = new QTabWidget(centralWidget);
@@ -48,21 +50,47 @@ QemuGUI::QemuGUI(QWidget *parent)
     propBox->setMinimumWidth(300);
     propBox->setVisible(false);
     edit_btn->setVisible(false);
+    edit_btn->setAutoDefault(true);
 
     listVM = new QListWidget();
     listVM->setMaximumWidth(300);
-    selected_item = NULL;
+    listVM->setUniformItemSizes(true);
+    QFont listVMfont;
+    listVMfont.setPointSize(10);
+    listVM->setFont(listVMfont);
+
+    delete_act = new QAction("Delete VM", listVM);
+    exclude_act = new QAction("Exclude VM", listVM);
+    listVM->addAction(exclude_act);
+    listVM->addAction(delete_act);
+    listVM->setContextMenuPolicy(Qt::ActionsContextMenu);
+    
+    connect_signals();
+    fill_listVM_from_config();
 
     recReplayTab = new RecordReplayTab();
     tab->addTab(recReplayTab, "Record/Replay");
 
     widget_placement();
-    connect_signals();
 }
 
 QemuGUI::~QemuGUI()
 {
 
+}
+
+
+void QemuGUI::fill_listVM_from_config()
+{
+    QList<VMConfig *> exist_vm = global_config->get_exist_vm();
+
+    foreach(VMConfig *vm, exist_vm)
+    {
+        listVM->addItem(vm->get_name());
+        listVM->item(listVM->count() - 1)->setSizeHint(QSize(0, 20));
+    }
+    listVM->setCurrentRow(0);
+    listVM->setFocus();
 }
 
 void QemuGUI::widget_placement()
@@ -92,12 +120,55 @@ void QemuGUI::connect_signals()
     /* edit machine */
     connect(edit_btn, SIGNAL(clicked()), this, SLOT(edit_settings()));
     /* list of machines */
-    connect(listVM, SIGNAL(itemClicked(QListWidgetItem *)), this, SLOT(onListVMItemClicked(QListWidgetItem *)));
+    connect(listVM, SIGNAL(itemSelectionChanged()), this, SLOT(listVM_item_selection_changed()));
+    connect(listVM, SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)), 
+        this, SLOT(listVM_current_item_changed(QListWidgetItem *, QListWidgetItem *)));
+    /* delete VM */
+    connect(delete_act, SIGNAL(triggered()), this, SLOT(delete_vm_ctxmenu()));
+    /* exclude VM */
+    connect(exclude_act, SIGNAL(triggered()), this, SLOT(exclude_vm_ctxmenu()));
+    /* create VM */
+    connect(global_config, SIGNAL(globalConfig_new_vm_is_complete()), this, SLOT(refresh()));
+}
+
+QString QemuGUI::delete_exclude_vm(bool delete_vm)
+{
+    QString del_vm_name = listVM->currentItem()->text();
+    global_config->delete_exclude_vm(del_vm_name, delete_vm);
+    // may be return value if all ok, exclude from list
+
+    delete listVM->currentItem();
+
+    if (listVM->count() != 0)
+    {
+        listVM->setCurrentRow(0);
+    }
+    return del_vm_name;
+}
+
+void QemuGUI::delete_vm_ctxmenu()
+{
+    int answer = QMessageBox::question(this, "Deleting", "Are you sure?", QMessageBox::Yes, QMessageBox::No);
+    if (answer == QMessageBox::Yes)
+    {
+        QString del_vm_name = delete_exclude_vm(true);
+        QMessageBox::information(this, "Success", "Virtual machine " + del_vm_name + " was deleted");
+    }
+}
+
+void QemuGUI::exclude_vm_ctxmenu()
+{
+    int answer = QMessageBox::question(this, "Excluding", "Are you sure?", QMessageBox::Yes, QMessageBox::No);
+    if (answer == QMessageBox::Yes)
+    {
+        QString del_vm_name = delete_exclude_vm(false);
+        QMessageBox::information(this, "Success", "Virtual machine " + del_vm_name + " was excluded");
+    }
 }
 
 void QemuGUI::play_machine()
 {
-    if (selected_item)
+    if (listVM->currentItem())
     {
         QString qemu_exe = QFileDialog::getOpenFileName(this, "Select Qemu executable", "", "*.exe");
         if (qemu_exe != "" && qemu_exe.contains("qemu", Qt::CaseSensitive))
@@ -125,15 +196,19 @@ void QemuGUI::stop_machine()
 
 void QemuGUI::create_machine()
 {
-    createVMWindow = new CreateVMForm();
+    createVMWindow = new CreateVMForm(global_config->get_home_dir());
+    connect(createVMWindow, SIGNAL(createVM_new_vm_is_complete(VMConfig *)), global_config, SLOT(vm_is_created(VMConfig *)));
 }
 
-void QemuGUI::import_machine()
+void QemuGUI::add_machine()
 {
-    QString filename = QFileDialog::getOpenFileName(this, "Import VM", "", "");
+    QString filename = QFileDialog::getOpenFileName(this, "Add exist VM", global_config->get_home_dir(), "*.xml");
     if (filename != "")
     {
-        listVM->addItem(filename);
+        if (global_config->add_exist_vm(filename))
+            refresh();
+        else
+            QMessageBox::critical(this, "Error", "Virtual machine cannot be add");
     }
 }
 
@@ -142,11 +217,51 @@ void QemuGUI::edit_settings()
     settingsWindow = new VMSettingsForm();
 }
 
-void QemuGUI::onListVMItemClicked(QListWidgetItem *item)
+void QemuGUI::listVM_item_selection_changed()
 {
-    selected_item = item;
-    info_lbl->setText(item->text());
-    propBox->setVisible(true);
-    edit_btn->setVisible(true);
+    if (listVM->currentItem())
+    {
+        info_lbl->setText(listVM->currentItem()->text());
+        propBox->setVisible(true);
+        edit_btn->setVisible(true);
+        delete_act->setDisabled(false);
+        exclude_act->setDisabled(false);
+    }
+    else
+    {
+        propBox->setVisible(false);
+        edit_btn->setVisible(false);
+        delete_act->setDisabled(true);
+        exclude_act->setDisabled(true);
+    }
 }
+
+void QemuGUI::listVM_current_item_changed(QListWidgetItem *current, QListWidgetItem *previous)
+{
+    if (current)
+    {
+        QFont font;
+        QFont font_old = listVM->font();
+        int x = font_old.pointSize();
+
+        if (previous)
+        {
+            previous->setTextColor(Qt::GlobalColor::black);
+            previous->setFont(font_old);
+        }
+
+        font.setBold(true);
+        current->setTextColor(Qt::GlobalColor::darkRed);
+        current->setFont(font);
+    }
+}
+
+void QemuGUI::refresh()
+{
+    listVM->clear();
+    fill_listVM_from_config();
+    listVM->setCurrentItem(listVM->item(listVM->count() - 1));
+}
+
+
 

@@ -13,7 +13,7 @@ public:
 
 private:
     QTreeWidget *deviceTree;
-    QDialogButtonBox *saveCancelBtn;
+    QDialogButtonBox *savecancel_btn;
     QLineEdit *new_component_line;
     QPushButton *new_component_btn;
 
