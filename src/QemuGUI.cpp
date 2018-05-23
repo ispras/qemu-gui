@@ -25,18 +25,26 @@ QemuGUI::QemuGUI(QWidget *parent)
 
     //main menu
     menuBar->addMenu("What");
-    menuBar->addMenu("do");
+    QMenu *settings_menu = new QMenu("Settings", this);
+    menuBar->addMenu(settings_menu);
     menuBar->addMenu("you");
     menuBar->addMenu("want?");
+    
+    settings_menu->addAction("Set Qemu", this, SLOT(set_qemu_exe()));
+
 
     // tool menu
+    qemu_exe_combo = new QComboBox(this);
+    qemu_exe_combo->setMinimumWidth(150);
+
     mainToolBar->addAction(QIcon(":Resources/play.png"), "Play VM", this, SLOT(play_machine()));
     mainToolBar->addAction(QIcon(":Resources/pause.png"), "Pause VM", this, SLOT(pause_machine()));
     mainToolBar->addAction(QIcon(":Resources/stop.png"), "Stop VM", this, SLOT(stop_machine()));
+    mainToolBar->addWidget(qemu_exe_combo);
     mainToolBar->addSeparator();
     mainToolBar->addAction("Create machine", this, SLOT(create_machine()));
     mainToolBar->addAction("Add existing machine", this, SLOT(add_machine()));
-
+    
     // tab	
     tab = new QTabWidget(centralWidget);
     tab->setMinimumWidth(400);
@@ -64,9 +72,11 @@ QemuGUI::QemuGUI(QWidget *parent)
     listVM->addAction(exclude_act);
     listVM->addAction(delete_act);
     listVM->setContextMenuPolicy(Qt::ActionsContextMenu);
-    
+
+    create_qemu_exe_dialog();
     connect_signals();
     fill_listVM_from_config();
+    fill_qemu_exe_from_config();
 
     recReplayTab = new RecordReplayTab();
     tab->addTab(recReplayTab, "Record/Replay");
@@ -115,6 +125,44 @@ void QemuGUI::widget_placement()
     one->addLayout(lay2);
 }
 
+void QemuGUI::fill_qemu_exe_from_config()
+{
+    qemu_exe_combo->clear();
+    qemu_exe_list->clear();
+    qemu_exe_combo->addItem("Add qemu...");
+    QStringList qemu_list = global_config->get_qemu_dirs();
+    qemu_exe_list->addItems(qemu_list);
+    for (int i = 0; i < qemu_list.count(); i++)
+    {
+        qemu_exe_combo->insertItem(qemu_exe_combo->count() - 1, qemu_list.at(i));
+    }
+}
+
+void QemuGUI::create_qemu_exe_dialog()
+{
+    qemu_exe_settings = new QDialog(this);
+    qemu_exe_settings->setWindowTitle("EXE Settings");
+    qemu_exe_list = new QListWidget();
+    QPushButton *add_exe_btn = new QPushButton("Add QEMU");
+    add_exe_btn->setAutoDefault(true);
+    QPushButton *del_exe_btn = new QPushButton("Delete QEMU");
+    del_exe_btn->setAutoDefault(true);
+
+    QHBoxLayout *buttons_lay = new QHBoxLayout();
+    buttons_lay->addWidget(add_exe_btn);
+    buttons_lay->addWidget(del_exe_btn);
+
+    QVBoxLayout *layout = new QVBoxLayout();
+    
+    layout->addLayout(buttons_lay);
+    layout->addWidget(qemu_exe_list);
+
+    qemu_exe_settings->setLayout(layout);
+
+    connect(add_exe_btn, SIGNAL(clicked()), this, SLOT(add_qemu_exe_btn()));
+    connect(del_exe_btn, SIGNAL(clicked()), this, SLOT(del_qemu_exe_btn()));
+}
+
 void QemuGUI::connect_signals()
 {
     /* edit machine */
@@ -129,6 +177,9 @@ void QemuGUI::connect_signals()
     connect(exclude_act, SIGNAL(triggered()), this, SLOT(exclude_vm_ctxmenu()));
     /* create VM */
     connect(global_config, SIGNAL(globalConfig_new_vm_is_complete()), this, SLOT(refresh()));
+    
+    connect(qemu_exe_combo, SIGNAL(activated(int)), this, SLOT(qemu_exe_combo_activated(int)));
+    connect(qemu_exe_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(qemu_exe_combo_index_changed(int)));
 }
 
 QString QemuGUI::delete_exclude_vm(bool delete_vm)
@@ -170,18 +221,10 @@ void QemuGUI::play_machine()
 {
     if (listVM->currentItem())
     {
-        QString qemu_exe = QFileDialog::getOpenFileName(this, "Select Qemu executable", "", "*.exe");
-        if (qemu_exe != "" && qemu_exe.contains("qemu", Qt::CaseSensitive))
+        if (qemu_exe_combo->currentIndex() != qemu_exe_combo->count() - 1)
         {
-            QProcess qemu;
-            //qemu.start("c:/qemu_new/qemu-system-i386.exe");
-            qemu.start(qemu_exe);
-            qemu.waitForFinished();
-        }
-        else
-        {
-            if (qemu_exe != "")
-                QMessageBox::critical(this, "Error", "Wrong exe file", QMessageBox::StandardButton::Ok);
+            launch_qemu = new LaunchQemu(qemu_exe_combo->currentText() + "/qemu-system-i386.exe",
+                global_config->get_vm_by_name(listVM->currentItem()->text()), this);
         }
     }
 }
@@ -221,7 +264,9 @@ void QemuGUI::listVM_item_selection_changed()
 {
     if (listVM->currentItem())
     {
-        info_lbl->setText(listVM->currentItem()->text());
+        VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
+        if (vm)
+            info_lbl->setText(vm->get_vm_info());
         propBox->setVisible(true);
         edit_btn->setVisible(true);
         delete_act->setDisabled(false);
@@ -256,6 +301,43 @@ void QemuGUI::listVM_current_item_changed(QListWidgetItem *current, QListWidgetI
     }
 }
 
+void QemuGUI::add_qemu_exe_btn()
+{
+    QString qemu_exe = QFileDialog::getExistingDirectory(this, "Select Qemu directory", "");
+    if (qemu_exe != "")
+    {
+        if (qemu_exe_list->findItems(qemu_exe, Qt::MatchFlag::MatchFixedString).size() != 0)
+        {
+            QMessageBox::critical(this, "Error", qemu_exe + " is already added");
+            return;
+        }
+
+        QFile qemu(qemu_exe + "/qemu-system-i386.exe");
+        if (!qemu.open(QIODevice::ReadOnly))
+        {
+            QMessageBox::critical(this, "Error", "Wrong qemu path", QMessageBox::StandardButton::Ok);
+            return;
+        }
+
+        global_config->set_qemu_dirs(qemu_exe, 1);
+        fill_qemu_exe_from_config();
+    }
+}
+
+void QemuGUI::del_qemu_exe_btn()
+{
+    if (qemu_exe_list->currentItem())
+    {
+        int answer = QMessageBox::question(this, "Deleting", "Are you sure?", QMessageBox::Yes, QMessageBox::No);
+        if (answer == QMessageBox::Yes)
+        {
+            global_config->set_qemu_dirs(qemu_exe_list->currentItem()->text(), 0);
+            delete qemu_exe_list->currentItem();
+            fill_qemu_exe_from_config();
+        }
+    }
+}
+
 void QemuGUI::refresh()
 {
     listVM->clear();
@@ -263,5 +345,24 @@ void QemuGUI::refresh()
     listVM->setCurrentItem(listVM->item(listVM->count() - 1));
 }
 
+void QemuGUI::set_qemu_exe()
+{
+    qemu_exe_settings->show();
+}
+
+
+void QemuGUI::qemu_exe_combo_activated(int index)
+{
+    if (index == qemu_exe_combo->count() - 1)
+    {
+        qemu_exe_settings->show();
+    }
+}
+
+
+void QemuGUI::qemu_exe_combo_index_changed(int index)
+{
+
+}
 
 
