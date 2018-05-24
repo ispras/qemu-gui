@@ -6,7 +6,7 @@ LaunchQemu::LaunchQemu(const QString &qemu_exe, VMConfig *vm, QObject *parent)
 {
     QProcess qemu;
     qemu.start(qemu_exe + " " + vm->get_image_path());
-    qemu.waitForFinished();
+    qemu.waitForFinished(-1);
 }
 
 LaunchQemu::~LaunchQemu()
