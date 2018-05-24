@@ -121,16 +121,6 @@ QString VMConfig::get_vm_info()
     return info;
 }
 
-bool VMConfig::start_qemu(QString qemu_exe)
-{
-    QString cmd = qemu_exe;
-    QProcess qemu;
-
-    qemu.start(qemu_exe);
-    qemu.waitForFinished();
-    return false;
-}
-
 QString VMConfig::get_name()
 {
     return name_vm;

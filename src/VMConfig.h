@@ -19,8 +19,6 @@ public:
     void add_image_path(const QString &image_path_);
     QString get_vm_info();
 
-    bool start_qemu(QString qemu_exe);
-
     QString get_name();
     QString get_dir_path();
     QString get_image_path();
