@@ -55,9 +55,9 @@ private:
     void fill_qemu_install_dir_from_config();
 
     private slots:
-    void set_qemu_exe();
-    void add_qemu_exe_btn();
-    void del_qemu_exe_btn();
+    void set_qemu_install_dir();
+    void add_qemu_install_dir_btn();
+    void del_qemu_install_dir_btn();
     void refresh();
     QString delete_exclude_vm(bool delete_vm);
     void delete_vm_ctxmenu();
@@ -70,8 +70,8 @@ private:
     void edit_settings();
     void listVM_item_selection_changed();
     void listVM_current_item_changed(QListWidgetItem *current, QListWidgetItem *previous);
-    void qemu_exe_combo_activated(int index);
-    void qemu_exe_combo_index_changed(int index);
+    void qemu_install_dir_combo_activated(int index);
+    void qemu_install_dir_combo_index_changed(int index);
 
 };
 

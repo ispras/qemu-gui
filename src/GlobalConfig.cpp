@@ -80,20 +80,19 @@ QList<VMConfig *> GlobalConfig::get_exist_vm()
     return virtual_machines;
 }
 
-void GlobalConfig::set_qemu_installation_dirs(const QString &qemu_exe, bool isAdd)
+void GlobalConfig::add_qemu_installation_dir(const QString & qemu_install_path)
 {
-    if (isAdd)
-    {
-        qemu_list.append(qemu_exe);
-    }
-    else // if delete
-    {
-        qemu_list.removeOne(qemu_exe);
-    }
+    qemu_list.append(qemu_install_path);
     save_config_file();
 }
 
-QStringList & GlobalConfig::get_qemu_installation_dirs()
+void GlobalConfig::del_qemu_installation_dir(const QString & qemu_install_path)
+{
+    qemu_list.removeOne(qemu_install_path);
+    save_config_file();
+}
+
+QStringList & GlobalConfig::get_qemu_installation_dir()
 {
     return qemu_list;
 }

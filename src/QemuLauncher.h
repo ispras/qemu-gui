@@ -11,7 +11,7 @@ class QemuLauncher : public QObject
     Q_OBJECT
 
 public:
-    QemuLauncher(const QString &qemu_exe, VMConfig *vm, QObject *parent = 0);
+    QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm, QObject *parent = 0);
     ~QemuLauncher();
 
 public:
