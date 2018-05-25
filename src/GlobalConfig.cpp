@@ -5,8 +5,8 @@
 
 const QString xml_vm_directory = "VMDirectory";
 const QString xml_vm_directory_item = "Dir";
-const QString xml_qemu_exe = "QEMUExecutor";
-const QString xml_qemu_exe_item = "Exe";
+const QString xml_qemu_intallation = "QEMUInstallation";
+const QString xml_qemu_installation_item = "Install_path";
 
 
 GlobalConfig::GlobalConfig(QObject *parent)
@@ -47,10 +47,10 @@ GlobalConfig::GlobalConfig(QObject *parent)
                             xmlReader.readNextStartElement();
                         }
                     }
-                    if (xmlReader.name() == xml_qemu_exe)
+                    if (xmlReader.name() == xml_qemu_intallation)
                     {
                         xmlReader.readNextStartElement();
-                        while (xmlReader.name() == xml_qemu_exe_item)
+                        while (xmlReader.name() == xml_qemu_installation_item)
                         {
                             qemu_list.append(xmlReader.readElementText());
                             xmlReader.readNextStartElement();
@@ -80,7 +80,7 @@ QList<VMConfig *> GlobalConfig::get_exist_vm()
     return virtual_machines;
 }
 
-void GlobalConfig::set_qemu_dirs(const QString &qemu_exe, bool isAdd)
+void GlobalConfig::set_qemu_installation_dirs(const QString &qemu_exe, bool isAdd)
 {
     if (isAdd)
     {
@@ -93,7 +93,7 @@ void GlobalConfig::set_qemu_dirs(const QString &qemu_exe, bool isAdd)
     save_config_file();
 }
 
-QStringList & GlobalConfig::get_qemu_dirs()
+QStringList & GlobalConfig::get_qemu_installation_dirs()
 {
     return qemu_list;
 }
@@ -127,11 +127,11 @@ bool GlobalConfig::save_config_file()
         }
         xmlWriter.writeEndElement();
 
-        xmlWriter.writeStartElement(xml_qemu_exe);
-        for (int i = 0; i < qemu_list.count(); i++)
+        xmlWriter.writeStartElement(xml_qemu_intallation);
+        foreach(QString dir, qemu_list)
         {
-            xmlWriter.writeStartElement(xml_qemu_exe_item);
-            xmlWriter.writeCharacters(qemu_list.at(i));
+            xmlWriter.writeStartElement(xml_qemu_installation_item);
+            xmlWriter.writeCharacters(dir);
             xmlWriter.writeEndElement();
         }
         xmlWriter.writeEndElement();

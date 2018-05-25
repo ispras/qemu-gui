@@ -20,8 +20,8 @@ public:
     bool add_exist_vm(const QString &path);
     void delete_exclude_vm(const QString &del_vm_name, bool delete_vm);
     void exclude_vm(const QString &del_vm_name);
-    void set_qemu_dirs(const QString &qemu_exe, bool isAdd);
-    QStringList & get_qemu_dirs();
+    void set_qemu_installation_dirs(const QString &qemu_install_path, bool isAdd);
+    QStringList & get_qemu_installation_dirs();
 
 private:
     QList<VMConfig *> virtual_machines;

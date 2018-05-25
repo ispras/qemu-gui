@@ -9,7 +9,7 @@
 #include "RecordReplayTab.h"
 #include "VMConfig.h"
 #include "GlobalConfig.h"
-#include "LaunchQemu.h"
+#include "QemuLauncher.h"
 
 class QemuGUI : public QMainWindow
 {
@@ -21,17 +21,17 @@ public:
 
 private:
     GlobalConfig *global_config;
-    LaunchQemu *launch_qemu;
+    QemuLauncher *launch_qemu;
 
-    QDialog *qemu_exe_settings;
-    QListWidget *qemu_exe_list;
+    QDialog *qemu_install_dir_settings;
+    QListWidget *qemu_install_dir_list;
     
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QWidget *centralWidget;
     QStatusBar *statusBar;
 
-    QComboBox *qemu_exe_combo;
+    QComboBox *qemu_install_dir_combo;
 
     QListWidget *listVM;
     QAction *delete_act;
@@ -48,11 +48,11 @@ private:
     RecordReplayTab *recReplayTab;
 
 private:
-    void create_qemu_exe_dialog();
+    void create_qemu_install_dir_dialog();
     void connect_signals();
     void widget_placement();
     void fill_listVM_from_config();
-    void fill_qemu_exe_from_config();
+    void fill_qemu_install_dir_from_config();
 
     private slots:
     void set_qemu_exe();
