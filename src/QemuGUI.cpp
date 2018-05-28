@@ -236,11 +236,18 @@ void QemuGUI::play_machine()
                 global_config->get_vm_by_name(listVM->currentItem()->text()));
             launch_qemu->moveToThread(thread);
             connect(thread, SIGNAL(started()), launch_qemu, SLOT(start_qemu()));
-            connect(launch_qemu, SIGNAL(qemu_laucher_finished()), this, SLOT(stop_machine()));
+            connect(launch_qemu, SIGNAL(qemu_laucher_finished()), this, SLOT(finish_qemu()));
             thread->start();    
             
         }
     }
+}
+
+void QemuGUI::finish_qemu()
+{
+    qemu_play->setIcon(QIcon(":Resources/play.png"));
+    qemu_play->setEnabled(true);
+    delete launch_qemu;
 }
 
 void QemuGUI::pause_machine()
@@ -249,9 +256,6 @@ void QemuGUI::pause_machine()
 
 void QemuGUI::stop_machine()
 {
-    qemu_play->setIcon(QIcon(":Resources/play.png"));
-    qemu_play->setEnabled(true);
-    delete launch_qemu;
 }
 
 void QemuGUI::create_machine()
