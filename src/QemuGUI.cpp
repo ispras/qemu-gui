@@ -290,14 +290,12 @@ void QemuGUI::listVM_current_item_changed(QListWidgetItem *current, QListWidgetI
 {
     if (current)
     {
-        QFont font;
-        QFont font_old = listVM->font();
-        int x = font_old.pointSize();
+        QFont font = listVM->font();
 
         if (previous)
         {
             previous->setTextColor(Qt::GlobalColor::black);
-            previous->setFont(font_old);
+            previous->setFont(font);
         }
 
         font.setBold(true);
