@@ -15,13 +15,18 @@ public:
 
     QString get_home_dir();
     QList<VMConfig *> get_exist_vm();
+    VMConfig *get_vm_by_name(const QString &name);
     
     bool add_exist_vm(const QString &path);
     void delete_exclude_vm(const QString &del_vm_name, bool delete_vm);
     void exclude_vm(const QString &del_vm_name);
+    void add_qemu_installation_dir(const QString &qemu_install_path);
+    void del_qemu_installation_dir(const QString &qemu_install_path);
+    QStringList & get_qemu_installation_dirs();
 
 private:
     QList<VMConfig *> virtual_machines;
+    QStringList qemu_list;
     QFile *vm_config_file;
     QString path_to_home_dir;
 

@@ -9,6 +9,7 @@
 #include "RecordReplayTab.h"
 #include "VMConfig.h"
 #include "GlobalConfig.h"
+#include "QemuLauncher.h"
 
 class QemuGUI : public QMainWindow
 {
@@ -20,11 +21,17 @@ public:
 
 private:
     GlobalConfig *global_config;
+    QemuLauncher *launch_qemu;
 
+    QDialog *qemu_install_dir_settings;
+    QListWidget *qemu_install_dir_list;
+    
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QWidget *centralWidget;
     QStatusBar *statusBar;
+
+    QComboBox *qemu_install_dir_combo;
 
     QListWidget *listVM;
     QAction *delete_act;
@@ -41,11 +48,16 @@ private:
     RecordReplayTab *recReplayTab;
 
 private:
+    void create_qemu_install_dir_dialog();
     void connect_signals();
     void widget_placement();
     void fill_listVM_from_config();
+    void fill_qemu_install_dir_from_config();
 
     private slots:
+    void set_qemu_install_dir();
+    void add_qemu_install_dir_btn();
+    void del_qemu_install_dir_btn();
     void refresh();
     QString delete_exclude_vm(bool delete_vm);
     void delete_vm_ctxmenu();
@@ -58,6 +70,8 @@ private:
     void edit_settings();
     void listVM_item_selection_changed();
     void listVM_current_item_changed(QListWidgetItem *current, QListWidgetItem *previous);
+    void qemu_install_dir_combo_activated(int index);
+    void qemu_install_dir_combo_index_changed(int index);
 
 };
 

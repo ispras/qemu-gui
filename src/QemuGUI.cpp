@@ -24,19 +24,28 @@ QemuGUI::QemuGUI(QWidget *parent)
     global_config = new GlobalConfig(this);
 
     //main menu
-    menuBar->addMenu("What");
+   menuBar->addMenu("What");
+    QMenu *settings_menu = new QMenu("Settings", this);
+    menuBar->addMenu(settings_menu);
     menuBar->addMenu("do");
     menuBar->addMenu("you");
     menuBar->addMenu("want?");
+    
+    settings_menu->addAction("Set Qemu", this, SLOT(set_qemu_install_dir()));
+
 
     // tool menu
+    qemu_install_dir_combo = new QComboBox(this);
+    qemu_install_dir_combo->setMinimumWidth(150);
+    
     mainToolBar->addAction(QIcon(":Resources/play.png"), "Play VM", this, SLOT(play_machine()));
     mainToolBar->addAction(QIcon(":Resources/pause.png"), "Pause VM", this, SLOT(pause_machine()));
     mainToolBar->addAction(QIcon(":Resources/stop.png"), "Stop VM", this, SLOT(stop_machine()));
+    mainToolBar->addWidget(qemu_install_dir_combo);
     mainToolBar->addSeparator();
     mainToolBar->addAction("Create machine", this, SLOT(create_machine()));
     mainToolBar->addAction("Add existing machine", this, SLOT(add_machine()));
-
+    
     // tab	
     tab = new QTabWidget(centralWidget);
     tab->setMinimumWidth(400);
@@ -64,9 +73,11 @@ QemuGUI::QemuGUI(QWidget *parent)
     listVM->addAction(exclude_act);
     listVM->addAction(delete_act);
     listVM->setContextMenuPolicy(Qt::ActionsContextMenu);
-    
+
+    create_qemu_install_dir_dialog();
     connect_signals();
     fill_listVM_from_config();
+    fill_qemu_install_dir_from_config();
 
     recReplayTab = new RecordReplayTab();
     tab->addTab(recReplayTab, "Record/Replay");
@@ -115,6 +126,44 @@ void QemuGUI::widget_placement()
     one->addLayout(lay2);
 }
 
+void QemuGUI::fill_qemu_install_dir_from_config()
+{
+    qemu_install_dir_combo->clear();
+    qemu_install_dir_list->clear();
+    qemu_install_dir_combo->addItem("Add qemu...");
+    QStringList qemu_list = global_config->get_qemu_installation_dirs();
+    qemu_install_dir_list->addItems(qemu_list);
+    for (int i = 0; i < qemu_list.count(); i++)
+    {
+        qemu_install_dir_combo->insertItem(qemu_install_dir_combo->count() - 1, qemu_list.at(i));
+    }
+}
+
+void QemuGUI::create_qemu_install_dir_dialog()
+{
+    qemu_install_dir_settings = new QDialog(this);
+    qemu_install_dir_settings->setWindowTitle("Qemu installation folders");
+    qemu_install_dir_list = new QListWidget();
+    QPushButton *add_install_dir_btn = new QPushButton("Add QEMU");
+    add_install_dir_btn->setAutoDefault(true);
+    QPushButton *del_install_dir_btn = new QPushButton("Delete QEMU");
+    del_install_dir_btn->setAutoDefault(true);
+
+    QHBoxLayout *buttons_lay = new QHBoxLayout();
+    buttons_lay->addWidget(add_install_dir_btn);
+    buttons_lay->addWidget(del_install_dir_btn);
+
+    QVBoxLayout *layout = new QVBoxLayout();
+    
+    layout->addLayout(buttons_lay);
+    layout->addWidget(qemu_install_dir_list);
+
+    qemu_install_dir_settings->setLayout(layout);
+
+    connect(add_install_dir_btn, SIGNAL(clicked()), this, SLOT(add_qemu_install_dir_btn()));
+    connect(del_install_dir_btn, SIGNAL(clicked()), this, SLOT(del_qemu_install_dir_btn()));
+}
+
 void QemuGUI::connect_signals()
 {
     /* edit machine */
@@ -129,6 +178,9 @@ void QemuGUI::connect_signals()
     connect(exclude_act, SIGNAL(triggered()), this, SLOT(exclude_vm_ctxmenu()));
     /* create VM */
     connect(global_config, SIGNAL(globalConfig_new_vm_is_complete()), this, SLOT(refresh()));
+    
+    connect(qemu_install_dir_combo, SIGNAL(activated(int)), this, SLOT(qemu_install_dir_combo_activated(int)));
+    connect(qemu_install_dir_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(qemu_install_dir_combo_index_changed(int)));
 }
 
 QString QemuGUI::delete_exclude_vm(bool delete_vm)
@@ -170,18 +222,14 @@ void QemuGUI::play_machine()
 {
     if (listVM->currentItem())
     {
-        QString qemu_exe = QFileDialog::getOpenFileName(this, "Select Qemu executable", "", "*.exe");
-        if (qemu_exe != "" && qemu_exe.contains("qemu", Qt::CaseSensitive))
+        if (qemu_install_dir_combo->currentIndex() != qemu_install_dir_combo->count() - 1)
         {
-            QProcess qemu;
-            //qemu.start("c:/qemu_new/qemu-system-i386.exe");
-            qemu.start(qemu_exe);
-            qemu.waitForFinished();
-        }
-        else
-        {
-            if (qemu_exe != "")
-                QMessageBox::critical(this, "Error", "Wrong exe file", QMessageBox::StandardButton::Ok);
+            QThread *thread = new QThread();
+            launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
+                global_config->get_vm_by_name(listVM->currentItem()->text()));
+            launch_qemu->moveToThread(thread);
+            connect(thread, SIGNAL(started()), launch_qemu, SLOT(start_qemu()));
+            thread->start();           
         }
     }
 }
@@ -221,7 +269,9 @@ void QemuGUI::listVM_item_selection_changed()
 {
     if (listVM->currentItem())
     {
-        info_lbl->setText(listVM->currentItem()->text());
+        VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
+        if (vm)
+            info_lbl->setText(vm->get_vm_info());
         propBox->setVisible(true);
         edit_btn->setVisible(true);
         delete_act->setDisabled(false);
@@ -256,6 +306,36 @@ void QemuGUI::listVM_current_item_changed(QListWidgetItem *current, QListWidgetI
     }
 }
 
+void QemuGUI::add_qemu_install_dir_btn()
+{
+    QString qemu_install_dir = QFileDialog::getExistingDirectory(this, "Select Qemu directory", "");
+    if (qemu_install_dir != "")
+    {
+        if (qemu_install_dir_list->findItems(qemu_install_dir, Qt::MatchFlag::MatchFixedString).size() != 0)
+        {
+            QMessageBox::critical(this, "Error", qemu_install_dir + " is already added");
+            return;
+        }
+
+        global_config->add_qemu_installation_dir(qemu_install_dir);
+        fill_qemu_install_dir_from_config();
+    }
+}
+
+void QemuGUI::del_qemu_install_dir_btn()
+{
+    if (qemu_install_dir_list->currentItem())
+    {
+        int answer = QMessageBox::question(this, "Deleting", "Are you sure?", QMessageBox::Yes, QMessageBox::No);
+        if (answer == QMessageBox::Yes)
+        {
+            global_config->del_qemu_installation_dir(qemu_install_dir_list->currentItem()->text());
+            delete qemu_install_dir_list->currentItem();
+            fill_qemu_install_dir_from_config();
+        }
+    }
+}
+
 void QemuGUI::refresh()
 {
     listVM->clear();
@@ -263,5 +343,24 @@ void QemuGUI::refresh()
     listVM->setCurrentItem(listVM->item(listVM->count() - 1));
 }
 
+void QemuGUI::set_qemu_install_dir()
+{
+    qemu_install_dir_settings->show();
+}
+
+
+void QemuGUI::qemu_install_dir_combo_activated(int index)
+{
+    if (index == qemu_install_dir_combo->count() - 1)
+    {
+        qemu_install_dir_settings->show();
+    }
+}
+
+
+void QemuGUI::qemu_install_dir_combo_index_changed(int index)
+{
+
+}
 
 

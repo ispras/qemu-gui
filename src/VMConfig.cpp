@@ -15,7 +15,7 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
 {
     QString path = path_vm;
     QString xml_name;
-    if (path.right(const_xml_name.length()) != const_xml_name)
+    if (path_vm.section('/', -1) != const_xml_name)
     {
         path = path + "/" + const_xml_name;
     }
@@ -72,8 +72,6 @@ bool VMConfig::save_vm_config(const QString &path)
     {
         QXmlStreamWriter xmlWriter(&file);
 
-        QString string_for_digit_params;
-
         xmlWriter.setAutoFormatting(true);
         xmlWriter.writeStartDocument();
         xmlWriter.writeStartElement("VMParameters");
@@ -116,6 +114,12 @@ void VMConfig::add_image_path(const QString &image_path_)
     image_path = image_path_;
 }
 
+QString VMConfig::get_vm_info()
+{
+    QString info = "Name: " + name_vm + "\n" + "Directory: " + dir_path + "\n" + "Image: " + image_path;
+    return info;
+}
+
 QString VMConfig::get_name()
 {
     return name_vm;
@@ -124,6 +128,11 @@ QString VMConfig::get_name()
 QString VMConfig::get_dir_path()
 {
     return dir_path;
+}
+
+QString VMConfig::get_image_path()
+{
+    return image_path;
 }
 
 void VMConfig::remove_directory_vm()

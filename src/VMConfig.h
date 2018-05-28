@@ -17,10 +17,11 @@ public:
     void set_name(const QString &name_vm_);
     void set_dir_path(const QString &dir_path_);
     void add_image_path(const QString &image_path_);
-    void set_hdd(int hdd);
+    QString get_vm_info();
 
     QString get_name();
     QString get_dir_path();
+    QString get_image_path();
 
     void remove_directory_vm();
 
@@ -33,5 +34,5 @@ private:
 
 };
 
-#endif VMCONFIG_H
+#endif //VMCONFIG_H
 

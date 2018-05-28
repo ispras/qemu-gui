@@ -3,6 +3,11 @@
 #include "GlobalConfig.h"
 #include <QtWidgets/QApplication>
 
+const QString xml_vm_directory = "VMDirectory";
+const QString xml_vm_directory_item = "Dir";
+const QString xml_qemu_intallation = "QEMUInstallation";
+const QString xml_qemu_installation_item = "Install_path";
+
 
 GlobalConfig::GlobalConfig(QObject *parent)
     : QObject(parent)
@@ -21,15 +26,41 @@ GlobalConfig::GlobalConfig(QObject *parent)
     }
     else
     {
-        vm_config_file->open(QIODevice::ReadOnly);
-        while (!vm_config_file->atEnd())
+        if (vm_config_file->open(QIODevice::ReadOnly))
         {
-            QString path = vm_config_file->readLine();
-            path.chop(1);
-            VMConfig *vm = new VMConfig(this, path);
-            virtual_machines.append(vm);
+            QXmlStreamReader xmlReader(vm_config_file);
+
+            xmlReader.readNext();
+
+            while (!xmlReader.atEnd())
+            {
+                if (xmlReader.isStartElement())
+                {
+                    if (xmlReader.name() == xml_vm_directory)
+                    {
+                        xmlReader.readNextStartElement();
+                        while (xmlReader.name() == xml_vm_directory_item)
+                        {
+                            QString path = xmlReader.readElementText();
+                            VMConfig *vm = new VMConfig(this, path);
+                            virtual_machines.append(vm);
+                            xmlReader.readNextStartElement();
+                        }
+                    }
+                    if (xmlReader.name() == xml_qemu_intallation)
+                    {
+                        xmlReader.readNextStartElement();
+                        while (xmlReader.name() == xml_qemu_installation_item)
+                        {
+                            qemu_list.append(xmlReader.readElementText());
+                            xmlReader.readNextStartElement();
+                        }
+                    }
+                }
+                xmlReader.readNext();
+            }
+            vm_config_file->close();
         }
-        vm_config_file->close();
     }
 }
 
@@ -49,15 +80,63 @@ QList<VMConfig *> GlobalConfig::get_exist_vm()
     return virtual_machines;
 }
 
+void GlobalConfig::add_qemu_installation_dir(const QString & qemu_install_path)
+{
+    qemu_list.append(qemu_install_path);
+    save_config_file();
+}
+
+void GlobalConfig::del_qemu_installation_dir(const QString & qemu_install_path)
+{
+    qemu_list.removeOne(qemu_install_path);
+    save_config_file();
+}
+
+QStringList & GlobalConfig::get_qemu_installation_dirs()
+{
+    return qemu_list;
+}
+
+VMConfig * GlobalConfig::get_vm_by_name(const QString &name)
+{
+    foreach(VMConfig *vm, virtual_machines)
+    {
+        if (vm->get_name() == name)
+            return vm;
+    }
+    return nullptr;
+}
+
 bool GlobalConfig::save_config_file()
 {
     if (vm_config_file->open(QIODevice::WriteOnly))
     {
-        QTextStream stream(vm_config_file);
+        QXmlStreamWriter xmlWriter(vm_config_file);
+
+        xmlWriter.setAutoFormatting(true);
+        xmlWriter.writeStartDocument();
+        xmlWriter.writeStartElement("CommonParameters");
+
+        xmlWriter.writeStartElement(xml_vm_directory);
         foreach(VMConfig *vm, virtual_machines)
         {
-            stream << vm->get_dir_path() << endl;
+            xmlWriter.writeStartElement(xml_vm_directory_item);
+            xmlWriter.writeCharacters(vm->get_dir_path());
+            xmlWriter.writeEndElement();
         }
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement(xml_qemu_intallation);
+        foreach(QString dir, qemu_list)
+        {
+            xmlWriter.writeStartElement(xml_qemu_installation_item);
+            xmlWriter.writeCharacters(dir);
+            xmlWriter.writeEndElement();
+        }
+        xmlWriter.writeEndElement();
+        
+        xmlWriter.writeEndElement();
+        xmlWriter.writeEndDocument();
         vm_config_file->close();
         return true;
     }
