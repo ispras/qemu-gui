@@ -1,0 +1,19 @@
+language: cpp
+
+os:
+  - linux
+
+install:
+  - sudo apt-get update
+  - sudo apt-get install qt5-default qt5-qmake
+  - sudo apt-get install cppcheck
+
+before_script:
+  - mkdir build
+  - cd build
+  - cmake ..
+
+script:
+  - make
+  - cppcheck --version
+  - cppcheck -f -q --enable=all --std=c++11 ../src
