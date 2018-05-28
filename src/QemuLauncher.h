@@ -22,6 +22,10 @@ private:
 
 public slots:
     void start_qemu();
+    void finish_qemu(int exitCode, QProcess::ExitStatus ExitStatus);
+
+signals:
+    void qemu_laucher_finished();
 
 };
 

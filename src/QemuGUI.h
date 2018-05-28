@@ -31,6 +31,8 @@ private:
     QWidget *centralWidget;
     QStatusBar *statusBar;
 
+    QAction *qemu_play;
+
     QComboBox *qemu_install_dir_combo;
 
     QListWidget *listVM;

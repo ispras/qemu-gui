@@ -37,8 +37,12 @@ QemuGUI::QemuGUI(QWidget *parent)
     // tool menu
     qemu_install_dir_combo = new QComboBox(this);
     qemu_install_dir_combo->setMinimumWidth(150);
+
+    qemu_play = new QAction(QIcon(":Resources/play.png"), "Play VM", this);
+    mainToolBar->addAction(qemu_play);
+    connect(qemu_play, SIGNAL(triggered()), this, SLOT(play_machine()));
     
-    mainToolBar->addAction(QIcon(":Resources/play.png"), "Play VM", this, SLOT(play_machine()));
+    //mainToolBar->addAction(QIcon(":Resources/play.png"), "Play VM", this, SLOT(play_machine()));
     mainToolBar->addAction(QIcon(":Resources/pause.png"), "Pause VM", this, SLOT(pause_machine()));
     mainToolBar->addAction(QIcon(":Resources/stop.png"), "Stop VM", this, SLOT(stop_machine()));
     mainToolBar->addWidget(qemu_install_dir_combo);
@@ -224,12 +228,17 @@ void QemuGUI::play_machine()
     {
         if (qemu_install_dir_combo->currentIndex() != qemu_install_dir_combo->count() - 1)
         {
+            qemu_play->setIcon(QIcon(":Resources/play_disable.png"));
+            qemu_play->setDisabled(true);
+
             QThread *thread = new QThread();
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
                 global_config->get_vm_by_name(listVM->currentItem()->text()));
             launch_qemu->moveToThread(thread);
             connect(thread, SIGNAL(started()), launch_qemu, SLOT(start_qemu()));
-            thread->start();           
+            connect(launch_qemu, SIGNAL(qemu_laucher_finished()), this, SLOT(stop_machine()));
+            thread->start();    
+            
         }
     }
 }
@@ -240,6 +249,9 @@ void QemuGUI::pause_machine()
 
 void QemuGUI::stop_machine()
 {
+    qemu_play->setIcon(QIcon(":Resources/play.png"));
+    qemu_play->setEnabled(true);
+    delete launch_qemu;
 }
 
 void QemuGUI::create_machine()
