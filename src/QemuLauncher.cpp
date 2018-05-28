@@ -4,7 +4,12 @@
 QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm, QObject *parent)
     : QObject(parent)
 {
-    qemu_dir = qemu_install_dir_path + "/qemu-system-i386.exe"; // temporarily
+    qemu_dir = qemu_install_dir_path
+#ifdef Q_OS_WIN
+        + "/qemu-system-i386w.exe";
+#else
+        + "/qemu-system-i386";
+#endif
     virtual_machine = vm;
 }
 
