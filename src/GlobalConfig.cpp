@@ -92,7 +92,7 @@ void GlobalConfig::del_qemu_installation_dir(const QString & qemu_install_path)
     save_config_file();
 }
 
-QStringList & GlobalConfig::get_qemu_installation_dir()
+QStringList & GlobalConfig::get_qemu_installation_dirs()
 {
     return qemu_list;
 }

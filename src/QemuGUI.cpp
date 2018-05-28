@@ -131,7 +131,7 @@ void QemuGUI::fill_qemu_install_dir_from_config()
     qemu_install_dir_combo->clear();
     qemu_install_dir_list->clear();
     qemu_install_dir_combo->addItem("Add qemu...");
-    QStringList qemu_list = global_config->get_qemu_installation_dir();
+    QStringList qemu_list = global_config->get_qemu_installation_dirs();
     qemu_install_dir_list->addItems(qemu_list);
     for (int i = 0; i < qemu_list.count(); i++)
     {

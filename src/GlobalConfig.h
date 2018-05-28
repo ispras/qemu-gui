@@ -22,7 +22,7 @@ public:
     void exclude_vm(const QString &del_vm_name);
     void add_qemu_installation_dir(const QString &qemu_install_path);
     void del_qemu_installation_dir(const QString &qemu_install_path);
-    QStringList & get_qemu_installation_dir();
+    QStringList & get_qemu_installation_dirs();
 
 private:
     QList<VMConfig *> virtual_machines;
