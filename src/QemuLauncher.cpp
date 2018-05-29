@@ -15,14 +15,19 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm, Q
 
 QemuLauncher::~QemuLauncher()
 {
-
 }
 
 
 void QemuLauncher::start_qemu()
 {
-    QProcess qemu;
-    qemu.start(qemu_dir + " " + virtual_machine->get_image_path());
-    qemu.waitForFinished(-1);
+    QProcess *qemu = new QProcess();
+    connect(qemu, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(finish_qemu(int, QProcess::ExitStatus)));
+    qemu->start(qemu_dir + " " + virtual_machine->get_image_path());
+    qemu->waitForFinished(-1);
+}
+
+void QemuLauncher::finish_qemu(int exitCode, QProcess::ExitStatus ExitStatus)
+{
+    emit qemu_laucher_finished();
 }
 

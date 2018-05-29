@@ -31,6 +31,8 @@ private:
     QWidget *centralWidget;
     QStatusBar *statusBar;
 
+    QAction *qemu_play;
+
     QComboBox *qemu_install_dir_combo;
 
     QListWidget *listVM;
@@ -63,6 +65,7 @@ private:
     void delete_vm_ctxmenu();
     void exclude_vm_ctxmenu();
     void play_machine();
+    void finish_qemu();
     void pause_machine();
     void stop_machine();
     void create_machine();

@@ -1,8 +1,11 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource>
-    <file>Resources/pause.png</file>
-    <file>Resources/play.png</file>
-    <file>Resources/qemu.png</file>
-    <file>Resources/stop.png</file>
-</qresource>
+<RCC>
+    <qresource prefix="/">
+        <file>Resources/pause.png</file>
+        <file>Resources/play.png</file>
+        <file>Resources/qemu.png</file>
+        <file>Resources/stop.png</file>
+        <file>Resources/pause_disable.png</file>
+        <file>Resources/play_disable.png</file>
+        <file>Resources/stop_disable.png</file>
+    </qresource>
 </RCC>

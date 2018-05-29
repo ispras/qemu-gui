@@ -23,12 +23,15 @@ public:
     void add_qemu_installation_dir(const QString &qemu_install_path);
     void del_qemu_installation_dir(const QString &qemu_install_path);
     QStringList & get_qemu_installation_dirs();
+    void set_current_qemu_dir(const QString &qemu_dir);
+    QString & get_current_qemu_dir();
 
 private:
     QList<VMConfig *> virtual_machines;
     QStringList qemu_list;
     QFile *vm_config_file;
     QString path_to_home_dir;
+    QString current_qemu_dir;
 
 private:
     bool save_config_file();

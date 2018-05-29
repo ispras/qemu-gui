@@ -52,7 +52,17 @@ GlobalConfig::GlobalConfig(QObject *parent)
                         xmlReader.readNextStartElement();
                         while (xmlReader.name() == xml_qemu_installation_item)
                         {
-                            qemu_list.append(xmlReader.readElementText());
+                            QString qemu_list_item;
+                            if (xmlReader.attributes().back().value() == "True")
+                            {
+                                current_qemu_dir = xmlReader.readElementText();
+                                qemu_list_item = current_qemu_dir;
+                            }
+                            else
+                            {
+                                qemu_list_item = xmlReader.readElementText();
+                            }
+                            qemu_list.append(qemu_list_item);
                             xmlReader.readNextStartElement();
                         }
                     }
@@ -97,6 +107,17 @@ QStringList & GlobalConfig::get_qemu_installation_dirs()
     return qemu_list;
 }
 
+void GlobalConfig::set_current_qemu_dir(const QString & qemu_dir)
+{
+    current_qemu_dir = qemu_dir;
+    save_config_file();
+}
+
+QString & GlobalConfig::get_current_qemu_dir()
+{
+    return current_qemu_dir;
+}
+
 VMConfig * GlobalConfig::get_vm_by_name(const QString &name)
 {
     foreach(VMConfig *vm, virtual_machines)
@@ -130,6 +151,14 @@ bool GlobalConfig::save_config_file()
         foreach(QString dir, qemu_list)
         {
             xmlWriter.writeStartElement(xml_qemu_installation_item);
+            if (current_qemu_dir == dir)
+            {
+                xmlWriter.writeAttribute("Current", "True");
+            }
+            else
+            {
+                xmlWriter.writeAttribute("Current", "False");
+            }
             xmlWriter.writeCharacters(dir);
             xmlWriter.writeEndElement();
         }
