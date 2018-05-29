@@ -91,7 +91,7 @@ QemuGUI::QemuGUI(QWidget *parent)
 
 QemuGUI::~QemuGUI()
 {
-
+    global_config->set_current_qemu_dir(qemu_install_dir_combo->currentText());
 }
 
 
@@ -141,6 +141,8 @@ void QemuGUI::fill_qemu_install_dir_from_config()
     {
         qemu_install_dir_combo->insertItem(qemu_install_dir_combo->count() - 1, qemu_list.at(i));
     }
+    if (global_config->get_current_qemu_dir() != "")
+        qemu_install_dir_combo->setCurrentText(global_config->get_current_qemu_dir());
 }
 
 void QemuGUI::create_qemu_install_dir_dialog()
@@ -332,6 +334,7 @@ void QemuGUI::add_qemu_install_dir_btn()
         }
 
         global_config->add_qemu_installation_dir(qemu_install_dir);
+        global_config->set_current_qemu_dir(qemu_install_dir);
         fill_qemu_install_dir_from_config();
     }
 }
