@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QtWidgets>
+#include <QTcpSocket>
 
 #include "VMConfig.h"
 
@@ -15,10 +16,14 @@ public:
     ~QemuLauncher();
 
 public:
+    void kill_qemu_process();
 
 private:
     QString qemu_dir;
     VMConfig *virtual_machine;
+    QProcess *qemu;
+
+    QTcpSocket monitor;
 
 public slots:
     void start_qemu();

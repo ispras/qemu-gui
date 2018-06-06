@@ -3,6 +3,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets>
+#include <QTcpSocket>
 
 #include "VMSettingsForm.h"
 #include "CreateVMForm.h"
@@ -10,6 +11,8 @@
 #include "VMConfig.h"
 #include "GlobalConfig.h"
 #include "QemuLauncher.h"
+
+enum VMState {None, Running, Stopped};
 
 class QemuGUI : public QMainWindow
 {
@@ -23,6 +26,9 @@ private:
     GlobalConfig *global_config;
     QemuLauncher *launch_qemu;
 
+    VMState vm_state;
+    QTcpSocket monitorSocket;
+
     QDialog *qemu_install_dir_settings;
     QListWidget *qemu_install_dir_list;
     
@@ -32,6 +38,8 @@ private:
     QStatusBar *statusBar;
 
     QAction *qemu_play;
+    QAction *qemu_pause;
+    QAction *qemu_stop;
 
     QComboBox *qemu_install_dir_combo;
 
@@ -44,10 +52,12 @@ private:
     QPushButton *edit_btn;
     QTabWidget *tab;
     QWidget *tab_info;
+    QWidget *tab_terminal;
+    QTextEdit *terminal_text;
 
     VMSettingsForm *settingsWindow;
     CreateVMForm *createVMWindow;
-    RecordReplayTab *recReplayTab;
+    RecordReplayTab *rec_replay_tab;
 
 private:
     void create_qemu_install_dir_dialog();
@@ -75,6 +85,8 @@ private:
     void listVM_current_item_changed(QListWidgetItem *current, QListWidgetItem *previous);
     void qemu_install_dir_combo_activated(int index);
     void qemu_install_dir_combo_index_changed(int index);
+    void read_terminal();
+
 
 };
 
