@@ -11,6 +11,7 @@
 #include "VMConfig.h"
 #include "GlobalConfig.h"
 #include "QemuLauncher.h"
+#include "QMPInteraction.h"
 
 enum VMState {None, Running, Stopped};
 
@@ -27,8 +28,9 @@ private:
     QemuLauncher *launch_qemu;
 
     VMState vm_state;
-    QTcpSocket monitorSocket;
-
+    QTcpSocket qmp_socket;
+    QTcpSocket monitor_socket;
+    
     QDialog *qemu_install_dir_settings;
     QListWidget *qemu_install_dir_list;
     
@@ -40,7 +42,7 @@ private:
     QAction *qemu_play;
     QAction *qemu_pause;
     QAction *qemu_stop;
-
+    
     QComboBox *qemu_install_dir_combo;
 
     QListWidget *listVM;
@@ -54,17 +56,23 @@ private:
     QWidget *tab_info;
     QWidget *tab_terminal;
     QTextEdit *terminal_text;
+    QLineEdit *terminal_cmd;
+    QMPInteraction *qmp;
 
     VMSettingsForm *settingsWindow;
     CreateVMForm *createVMWindow;
     RecordReplayTab *rec_replay_tab;
 
 private:
+    QIcon set_button_icon_for_state(QString normal_icon, QString disable_icon);
     void create_qemu_install_dir_dialog();
     void connect_signals();
     void widget_placement();
     void fill_listVM_from_config();
     void fill_qemu_install_dir_from_config();
+
+    void stop_qemu_btn_state();
+    void resume_qemu_btn_state();
 
     private slots:
     void set_qemu_install_dir();
@@ -85,7 +93,9 @@ private:
     void listVM_current_item_changed(QListWidgetItem *current, QListWidgetItem *previous);
     void qemu_install_dir_combo_activated(int index);
     void qemu_install_dir_combo_index_changed(int index);
+    void read_qmp_terminal();
     void read_terminal();
+    void send_monitor_command();
 
 
 };

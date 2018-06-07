@@ -34,28 +34,24 @@ QemuGUI::QemuGUI(QWidget *parent)
     
     settings_menu->addAction("Set Qemu", this, SLOT(set_qemu_install_dir()));
 
-
     // tool menu
     qemu_install_dir_combo = new QComboBox(this);
     qemu_install_dir_combo->setMinimumWidth(150);
 
-    qemu_play = new QAction(QIcon(":Resources/play.png"), "Play VM", this);
+    qemu_play = new QAction(set_button_icon_for_state(":Resources/play.png", ":Resources/play_disable.png"), "Play VM", this);
     mainToolBar->addAction(qemu_play);
     connect(qemu_play, SIGNAL(triggered()), this, SLOT(play_machine()));
 
-    qemu_pause = new QAction(QIcon(":Resources/pause_disable.png"), "Pause VM", this);
+    qemu_pause = new QAction(set_button_icon_for_state(":Resources/pause.png", ":Resources/pause_disable.png"), "Pause VM", this);
     mainToolBar->addAction(qemu_pause);
     connect(qemu_pause, SIGNAL(triggered()), this, SLOT(pause_machine()));
     qemu_pause->setEnabled(false);
 
-    qemu_stop = new QAction(QIcon(":Resources/stop_disable.png"), "Stop VM", this);
+    qemu_stop = new QAction(set_button_icon_for_state(":Resources/stop.png", ":Resources/stop_disable.png"), "Stop VM", this);
     mainToolBar->addAction(qemu_stop);
     connect(qemu_stop, SIGNAL(triggered()), this, SLOT(stop_machine()));
     qemu_stop->setEnabled(false);
-    
-    //mainToolBar->addAction(QIcon(":Resources/play.png"), "Play VM", this, SLOT(play_machine()));
-    //mainToolBar->addAction(QIcon(":Resources/pause.png"), "Pause VM", this, SLOT(pause_machine()));
-    //mainToolBar->addAction(QIcon(":Resources/stop.png"), "Stop VM", this, SLOT(stop_machine()));
+
     mainToolBar->addWidget(qemu_install_dir_combo);
     mainToolBar->addSeparator();
     mainToolBar->addAction("Create machine", this, SLOT(create_machine()));
@@ -83,27 +79,27 @@ QemuGUI::QemuGUI(QWidget *parent)
 
     // terminal tab
     terminal_text = new QTextEdit();
-    QLineEdit *terminal_cmd = new QLineEdit();
-    QPushButton *terminal_send_btn = new QPushButton(">>");
+    terminal_cmd = new QLineEdit();
     terminal_text->setReadOnly(true);
-    terminal_text->setAutoFillBackground(true);
-    QPalette terminal_palette = terminal_text->palette();
-    terminal_palette.setColor(QPalette::Base, Qt::black);
-    terminal_text->setPalette(terminal_palette);
-    terminal_text->setTextColor(Qt::GlobalColor::green);
+    
     terminal_text->setFontFamily("Courier new");
-    terminal_send_btn->setFixedWidth(30);
-    terminal_send_btn->setAutoDefault(true);
+    terminal_text->setStyleSheet("border: 1px; background-color: black");
+    terminal_text->setTextColor(Qt::GlobalColor::green);
     
-    //terminal_palette = terminal_cmd->palette();
-    //terminal_palette.setColor(QPalette::Base, Qt::black);
-    //terminal_cmd->setPalette(terminal_palette);
+    terminal_cmd->setStyleSheet("border: 1px; color: lightgreen; background-color: black; height: 20px");
+    QFont cmd_font = terminal_cmd->font();
+    cmd_font.setFamily("Courier new");
+    terminal_cmd->setFont(cmd_font);
     
-
     QHBoxLayout *cmd_lay = new QHBoxLayout();
+    QLabel *welcome_lbl = new QLabel(" >> ");
+    welcome_lbl->setStyleSheet("background-color: black; color: lightgreen; font: bold; border: 1px");
+    welcome_lbl->setFont(cmd_font);
+    cmd_lay->setSpacing(0);
+    cmd_lay->addWidget(welcome_lbl);
     cmd_lay->addWidget(terminal_cmd);
-    cmd_lay->addWidget(terminal_send_btn);
     QVBoxLayout *terminal_lay = new QVBoxLayout();
+    terminal_lay->setSpacing(1);
     terminal_lay->addWidget(terminal_text);
     terminal_lay->addLayout(cmd_lay);
     tab_terminal->setLayout(terminal_lay);
@@ -186,6 +182,31 @@ void QemuGUI::fill_qemu_install_dir_from_config()
         qemu_install_dir_combo->setCurrentText(global_config->get_current_qemu_dir());
 }
 
+void QemuGUI::stop_qemu_btn_state()
+{
+    vm_state = VMState::Stopped;
+    qemu_play->setEnabled(true);
+    qemu_pause->setEnabled(false);
+}
+
+void QemuGUI::resume_qemu_btn_state()
+{
+    vm_state = VMState::Running;
+    qemu_play->setDisabled(true);
+    qemu_pause->setEnabled(true);
+}
+
+QIcon QemuGUI::set_button_icon_for_state(QString normal_icon, QString disable_icon)
+{
+    QIcon icon;
+    QPixmap pix_normal, pix_disable;
+    pix_normal.load(normal_icon);
+    pix_disable.load(disable_icon);
+    icon.addPixmap(pix_normal, QIcon::Normal, QIcon::On);
+    icon.addPixmap(pix_disable, QIcon::Disabled, QIcon::On);
+    return icon;
+}
+
 void QemuGUI::create_qemu_install_dir_dialog()
 {
     qemu_install_dir_settings = new QDialog(this);
@@ -228,6 +249,8 @@ void QemuGUI::connect_signals()
     
     connect(qemu_install_dir_combo, SIGNAL(activated(int)), this, SLOT(qemu_install_dir_combo_activated(int)));
     connect(qemu_install_dir_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(qemu_install_dir_combo_index_changed(int)));
+
+    connect(terminal_cmd, SIGNAL(returnPressed()), this, SLOT(send_monitor_command()));
 }
 
 QString QemuGUI::delete_exclude_vm(bool delete_vm)
@@ -273,12 +296,11 @@ void QemuGUI::play_machine()
         {
             vm_state = VMState::Running;
             terminal_text->clear();
-            qemu_play->setIcon(QIcon(":Resources/play_disable.png"));
             qemu_play->setDisabled(true);
-            qemu_stop->setIcon(QIcon(":Resources/stop.png"));
             qemu_stop->setEnabled(true);
-            qemu_pause->setIcon(QIcon(":Resources/pause.png"));
             qemu_pause->setEnabled(true);
+
+            qmp = new QMPInteraction();
 
             QThread *thread = new QThread();
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
@@ -288,18 +310,17 @@ void QemuGUI::play_machine()
             connect(launch_qemu, SIGNAL(qemu_laucher_finished()), this, SLOT(finish_qemu()));
             thread->start();    
             
-            connect(&monitorSocket, SIGNAL(readyRead()), this, SLOT(read_terminal()));
-            monitorSocket.connectToHost("127.0.0.1", 23);
-            monitorSocket.write("{ \"execute\": \"qmp_capabilities\" }");
+            connect(&qmp_socket, SIGNAL(readyRead()), this, SLOT(read_qmp_terminal()));
+            qmp_socket.connectToHost("127.0.0.1", 23);
+            qmp_socket.write(qmp->init());
+       
+            monitor_socket.connectToHost("127.0.0.1", 24);
+            connect(&monitor_socket, SIGNAL(readyRead()), this, SLOT(read_terminal()));
         }
         else if (vm_state == VMState::Stopped)
         {
-            vm_state = VMState::Running;
-            qemu_play->setIcon(QIcon(":Resources/play_disable.png"));
-            qemu_play->setDisabled(true);
-            qemu_pause->setIcon(QIcon(":Resources/pause.png"));
-            qemu_pause->setEnabled(true);
-            monitorSocket.write("{ \"execute\": \"cont\" }");
+            resume_qemu_btn_state();
+            qmp_socket.write(qmp->cmd_continue());
         }
     }
 }
@@ -307,24 +328,19 @@ void QemuGUI::play_machine()
 void QemuGUI::finish_qemu()
 {
     vm_state = VMState::None;
-    qemu_play->setIcon(QIcon(":Resources/play.png"));
     qemu_play->setEnabled(true);
-    qemu_stop->setIcon(QIcon(":Resources/stop_disable.png"));
     qemu_stop->setEnabled(false);
-    qemu_pause->setIcon(QIcon(":Resources/pause_disable.png"));
     qemu_pause->setEnabled(false);
     delete launch_qemu;
     launch_qemu = NULL;
+    delete qmp;
+    qmp = NULL;
 }
 
 void QemuGUI::pause_machine()
 {
-    vm_state = VMState::Stopped;
-    qemu_play->setIcon(QIcon(":Resources/play.png"));
-    qemu_play->setEnabled(true);
-    qemu_pause->setIcon(QIcon(":Resources/pause_disable.png"));
-    qemu_pause->setEnabled(false);
-    monitorSocket.write("{ \"execute\": \"stop\" }");
+    stop_qemu_btn_state();
+    qmp_socket.write(qmp->cmd_stop());
     //terminal_text->insertPlainText("Qemu has stopped\n");
 }
 
@@ -453,9 +469,35 @@ void QemuGUI::qemu_install_dir_combo_index_changed(int index)
 
 }
 
+void QemuGUI::read_qmp_terminal()
+{
+    QByteArray message = qmp_socket.readAll();
+    terminal_text->insertPlainText(message);
+    terminal_text->ensureCursorVisible();
+    int answer = qmp->what_said_qmp(message);
+    switch (answer)
+    {
+        case VMState::Running:
+            resume_qemu_btn_state();
+            break;
+        case VMState::Stopped:
+            stop_qemu_btn_state();
+            break;
+        default: break;
+    }
+}
+
 void QemuGUI::read_terminal()
 {
-    terminal_text->insertPlainText(monitorSocket.readAll());
+    terminal_text->insertPlainText(monitor_socket.readAll());
+    terminal_text->ensureCursorVisible();
+}
+
+void QemuGUI::send_monitor_command()
+{
+    monitor_socket.write(terminal_cmd->text().toLocal8Bit() + "\n");
+    terminal_text->insertPlainText(terminal_cmd->text() + "\n");
+    terminal_cmd->clear();
 }
 
 
