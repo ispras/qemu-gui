@@ -4,6 +4,10 @@
 QMPInteraction::QMPInteraction(QObject *parent)
     : QObject(parent)
 {
+    connect(&socket, SIGNAL(readyRead()), this, SLOT(read_terminal()));
+
+    socket.connectToHost("127.0.0.1", 23);
+    socket.write(init());
 }
 
 QMPInteraction::~QMPInteraction()
@@ -25,21 +29,36 @@ QByteArray QMPInteraction::cmd_continue()
     return "{ \"execute\": \"cont\" }";
 }
 
-int QMPInteraction::what_said_qmp(QByteArray message)
+void QMPInteraction::what_said_qmp(QByteArray message)
 {
-    /* enum VMState {None, Running, Stopped}; */
-    QString msg = message;
-    if (msg.contains("event", Qt::CaseInsensitive))
+    QJsonDocument qmp_message = QJsonDocument::fromJson(message);
+    QJsonObject obj = qmp_message.object();
+    QJsonValue json_command = obj["event"];
+    qDebug() << json_command;
+    QString command = json_command.toString();
+    if (command.compare("resume", Qt::CaseInsensitive) == 0)
     {
-        if (msg.contains("stop", Qt::CaseInsensitive))
-        {
-            return 2;
-        }
-        if (msg.contains("resume", Qt::CaseInsensitive))
-        {
-            return 1;
-        }
+        emit qemu_resumed();
     }
-    return 0;
+    if (command.compare("stop", Qt::CaseInsensitive) == 0)
+    {
+        emit qemu_stopped();
+    }
+}
+
+void QMPInteraction::read_terminal()
+{
+    QByteArray message = socket.readAll();
+    what_said_qmp(message);
+}
+
+void QMPInteraction::command_stop_qemu()
+{
+    socket.write(cmd_stop());
+}
+
+void QMPInteraction::command_resume_qemu()
+{
+    socket.write(cmd_continue());
 }
 
