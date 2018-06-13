@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <QtWidgets>
-#include <QTcpSocket>
 
 
 class QMPInteraction : public QObject
@@ -15,22 +14,13 @@ public:
     ~QMPInteraction();
 
 public:
-    
-private:
-    QTcpSocket socket;
     QByteArray init();
     QByteArray cmd_stop();
     QByteArray cmd_continue();
-    void what_said_qmp(QByteArray message);
 
-public slots:
-    void read_terminal();
-    void command_stop_qemu();
-    void command_resume_qemu();
+    int what_said_qmp(QByteArray message);
 
-signals:
-    void qemu_resumed();
-    void qemu_stopped();
+private:
 
 };
 

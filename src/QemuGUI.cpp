@@ -196,7 +196,7 @@ void QemuGUI::resume_qemu_btn_state()
     qemu_pause->setEnabled(true);
 }
 
-QIcon QemuGUI::set_button_icon_for_state(const QString &normal_icon, const QString &disable_icon)
+QIcon QemuGUI::set_button_icon_for_state(QString normal_icon, QString disable_icon)
 {
     QIcon icon;
     QPixmap pix_normal, pix_disable;
@@ -300,6 +300,8 @@ void QemuGUI::play_machine()
             qemu_stop->setEnabled(true);
             qemu_pause->setEnabled(true);
 
+            qmp = new QMPInteraction();
+
             QThread *thread = new QThread();
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
                 global_config->get_vm_by_name(listVM->currentItem()->text()));
@@ -308,18 +310,17 @@ void QemuGUI::play_machine()
             connect(launch_qemu, SIGNAL(qemu_laucher_finished()), this, SLOT(finish_qemu()));
             thread->start();    
             
-            qmp = new QMPInteraction();
-            connect(this, SIGNAL(qmp_resume_qemu()), qmp, SLOT(command_resume_qemu()));
-            connect(this, SIGNAL(qmp_stop_qemu()), qmp, SLOT(command_stop_qemu()));
-            connect(qmp, SIGNAL(qemu_resumed()), this, SLOT(resume_qemu_btn_state()));
-            connect(qmp, SIGNAL(qemu_stopped()), this, SLOT(stop_qemu_btn_state()));
+            connect(&qmp_socket, SIGNAL(readyRead()), this, SLOT(read_qmp_terminal()));
+            qmp_socket.connectToHost("127.0.0.1", 23);
+            qmp_socket.write(qmp->init());
        
             monitor_socket.connectToHost("127.0.0.1", 24);
             connect(&monitor_socket, SIGNAL(readyRead()), this, SLOT(read_terminal()));
         }
         else if (vm_state == VMState::Stopped)
         {
-            emit qmp_resume_qemu();
+            resume_qemu_btn_state();
+            qmp_socket.write(qmp->cmd_continue());
         }
     }
 }
@@ -338,7 +339,8 @@ void QemuGUI::finish_qemu()
 
 void QemuGUI::pause_machine()
 {
-    emit qmp_stop_qemu();
+    stop_qemu_btn_state();
+    qmp_socket.write(qmp->cmd_stop());
     //terminal_text->insertPlainText("Qemu has stopped\n");
 }
 
@@ -467,6 +469,23 @@ void QemuGUI::qemu_install_dir_combo_index_changed(int index)
 
 }
 
+void QemuGUI::read_qmp_terminal()
+{
+    QByteArray message = qmp_socket.readAll();
+    terminal_text->insertPlainText(message);
+    terminal_text->ensureCursorVisible();
+    int answer = qmp->what_said_qmp(message);
+    switch (answer)
+    {
+        case VMState::Running:
+            resume_qemu_btn_state();
+            break;
+        case VMState::Stopped:
+            stop_qemu_btn_state();
+            break;
+        default: break;
+    }
+}
 
 void QemuGUI::read_terminal()
 {
