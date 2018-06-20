@@ -251,6 +251,11 @@ void QemuGUI::set_terminal_interface(QColor bckgrnd_color, QColor text_color, co
 
     welcome_lbl->setStyleSheet("background-color: " + bckgrnd_color.name() + "; color: " + color + "; border: 1px; height: " + QString::number(font_size * 2) + "px; font: bold;");
     welcome_lbl->setFont(cmd_font);
+
+    QString text = terminal_text->toPlainText();
+    terminal_text->clear();
+    terminal_text->insertPlainText(text);
+    terminal_text->ensureCursorVisible();
 }
 
 void QemuGUI::stop_qemu_btn_state()
@@ -540,7 +545,15 @@ void QemuGUI::qemu_install_dir_combo_index_changed(int index)
 
 void QemuGUI::read_terminal()
 {
-    terminal_text->insertPlainText(monitor_socket.readAll());
+    QStringList terminal_answer = (QString::fromLocal8Bit(monitor_socket.readAll())).split('\n');
+    foreach(QString line, terminal_answer)
+    {
+        if (!line.contains("[D") && !line.contains("[K"))
+        {
+            terminal_text->insertPlainText(line);
+        }
+    }
+    //terminal_text->insertPlainText(monitor_socket.readAll());
     terminal_text->ensureCursorVisible();
 }
 
