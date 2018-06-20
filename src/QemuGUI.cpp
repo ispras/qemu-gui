@@ -80,6 +80,7 @@ QemuGUI::QemuGUI(QWidget *parent)
     terminal_text = new QTextEdit();
     welcome_lbl = new QLabel(" >> ");
     terminal_cmd = new QLineEdit();
+    terminal_cmd->installEventFilter(this);
 
     QMap <QString, QString> terminal_params = global_config->get_terminal_parameters();
     if (terminal_params.size() > 0)
@@ -130,6 +131,54 @@ QemuGUI::QemuGUI(QWidget *parent)
 QemuGUI::~QemuGUI()
 {
     global_config->set_current_qemu_dir(qemu_install_dir_combo->currentText());
+}
+
+
+bool QemuGUI::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == terminal_cmd)
+    {
+        if (event->type() == QEvent::KeyPress)
+        {
+            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+            if (keyEvent->key() == Qt::Key_Up)
+            {
+                QString cur_cmd = terminal_cmd->text();
+                if (cur_cmd == "" && saved_terminal_cmds.size() > 0)
+                {
+                    terminal_cmd->setText(saved_terminal_cmds.at(0));
+                }
+                else 
+                {
+                    int index = saved_terminal_cmds.indexOf(terminal_cmd->text());
+                    if (index + 1 < saved_terminal_cmds.size())
+                    {
+                        terminal_cmd->setText(saved_terminal_cmds.at(index + 1));
+                    }
+                }
+                return true;
+            }
+            else if (keyEvent->key() == Qt::Key_Down)
+            {
+                QString cur_cmd = terminal_cmd->text();
+                if (cur_cmd == "" && saved_terminal_cmds.size() > 0)
+                {
+                    terminal_cmd->setText(saved_terminal_cmds.back());
+                }
+                else
+                {
+                    int index = saved_terminal_cmds.indexOf(terminal_cmd->text());
+                    if (index > 0)
+                    {
+                        terminal_cmd->setText(saved_terminal_cmds.at(index - 1));
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+    return QMainWindow::eventFilter(obj, event);
 }
 
 
@@ -499,6 +548,10 @@ void QemuGUI::send_monitor_command()
 {
     monitor_socket.write(terminal_cmd->text().toLocal8Bit() + "\n");
     terminal_text->insertPlainText(terminal_cmd->text() + "\n");
+    if (!saved_terminal_cmds.contains(terminal_cmd->text()))
+    {
+        saved_terminal_cmds.append(terminal_cmd->text());
+    }
     terminal_cmd->clear();
 }
 

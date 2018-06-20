@@ -23,6 +23,9 @@ public:
     QemuGUI(QWidget *parent = 0);
     ~QemuGUI();
 
+protected:
+    bool eventFilter(QObject *target, QEvent *event);
+
 private:
     GlobalConfig *global_config;
     QemuLauncher *launch_qemu;
@@ -66,6 +69,8 @@ private:
 
     QDialog *terminal_settings_dlg;
     QTextEdit *test_text;
+
+    QStringList saved_terminal_cmds;
 
 private:
     QIcon set_button_icon_for_state(const QString &normal_icon, const QString &disable_icon);
