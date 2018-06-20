@@ -56,12 +56,16 @@ private:
     QWidget *tab_info;
     QWidget *tab_terminal;
     QTextEdit *terminal_text;
+    QLabel *welcome_lbl;
     QLineEdit *terminal_cmd;
     QMPInteraction *qmp;
 
     VMSettingsForm *settingsWindow;
     CreateVMForm *createVMWindow;
     RecordReplayTab *rec_replay_tab;
+
+    QDialog *terminal_settings_dlg;
+    QTextEdit *test_text;
 
 private:
     QIcon set_button_icon_for_state(const QString &normal_icon, const QString &disable_icon);
@@ -70,12 +74,15 @@ private:
     void widget_placement();
     void fill_listVM_from_config();
     void fill_qemu_install_dir_from_config();
+    void set_terminal_interface(QColor bckgrnd_color=Qt::black, QColor text_color=Qt::green,
+        const QString &font_family="Courier New", int font_size=12);
 
 public slots:
     void stop_qemu_btn_state();
     void resume_qemu_btn_state();
 
 private slots:
+
     void set_qemu_install_dir();
     void add_qemu_install_dir_btn();
     void del_qemu_install_dir_btn();
@@ -96,6 +103,14 @@ private slots:
     void qemu_install_dir_combo_index_changed(int index);
     void read_terminal();
     void send_monitor_command();
+    void set_terminal_settings();
+    void set_background_color();
+    void set_text_color();
+    void set_text_size(int size);
+    void set_test_font(const QFont &font);
+    void save_terminal_interface_changes();
+    void close_terminal_dialog();
+
 
 signals:
     void qmp_resume_qemu();

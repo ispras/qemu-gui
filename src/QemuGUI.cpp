@@ -25,14 +25,13 @@ QemuGUI::QemuGUI(QWidget *parent)
     vm_state = VMState::None;
 
     //main menu
-   menuBar->addMenu("What");
     QMenu *settings_menu = new QMenu("Settings", this);
     menuBar->addMenu(settings_menu);
-    menuBar->addMenu("do");
-    menuBar->addMenu("you");
-    menuBar->addMenu("want?");
+    QMenu *service_menu = new QMenu("Service", this);
+    menuBar->addMenu(service_menu);
     
     settings_menu->addAction("Set Qemu", this, SLOT(set_qemu_install_dir()));
+    service_menu->addAction("Terminal Settings", this, SLOT(set_terminal_settings()));
 
     // tool menu
     qemu_install_dir_combo = new QComboBox(this);
@@ -79,25 +78,27 @@ QemuGUI::QemuGUI(QWidget *parent)
 
     // terminal tab
     terminal_text = new QTextEdit();
+    welcome_lbl = new QLabel(" >> ");
     terminal_cmd = new QLineEdit();
-    terminal_text->setReadOnly(true);
-    
-    terminal_text->setFontFamily("Courier new");
-    terminal_text->setStyleSheet("border: 1px; background-color: black");
-    terminal_text->setTextColor(Qt::GlobalColor::green);
-    
-    terminal_cmd->setStyleSheet("border: 1px; color: lightgreen; background-color: black; height: 20px");
-    QFont cmd_font = terminal_cmd->font();
-    cmd_font.setFamily("Courier new");
-    terminal_cmd->setFont(cmd_font);
-    
+
+    QMap <QString, QString> terminal_params = global_config->get_terminal_parameters();
+    if (terminal_params.size() > 0)
+    {
+        set_terminal_interface(QColor(terminal_params.value("background")),
+            QColor(terminal_params.value("text_color")), 
+            terminal_params.value("font_family"),
+            terminal_params.value("font_size").toInt());
+    }
+    else
+    {
+        set_terminal_interface();
+    }
+        
     QHBoxLayout *cmd_lay = new QHBoxLayout();
-    QLabel *welcome_lbl = new QLabel(" >> ");
-    welcome_lbl->setStyleSheet("background-color: black; color: lightgreen; font: bold; border: 1px");
-    welcome_lbl->setFont(cmd_font);
     cmd_lay->setSpacing(0);
     cmd_lay->addWidget(welcome_lbl);
     cmd_lay->addWidget(terminal_cmd);
+    
     QVBoxLayout *terminal_lay = new QVBoxLayout();
     terminal_lay->setSpacing(1);
     terminal_lay->addWidget(terminal_text);
@@ -180,6 +181,27 @@ void QemuGUI::fill_qemu_install_dir_from_config()
     }
     if (global_config->get_current_qemu_dir() != "")
         qemu_install_dir_combo->setCurrentText(global_config->get_current_qemu_dir());
+}
+
+void QemuGUI::set_terminal_interface(QColor bckgrnd_color, QColor text_color, const QString &font_family, int font_size)
+{
+    QString color = text_color.name();
+
+    terminal_text->setReadOnly(true);
+    terminal_text->setFontPointSize(font_size);
+    terminal_text->setFontFamily(font_family);
+    terminal_text->setStyleSheet("background-color: " + bckgrnd_color.name() + "; border: 1px");
+    terminal_text->setTextColor(text_color);
+
+    
+    QFont cmd_font = terminal_cmd->font();
+    cmd_font.setPointSize(font_size);
+    cmd_font.setFamily(font_family);
+    terminal_cmd->setFont(cmd_font);
+    terminal_cmd->setStyleSheet("background-color: " + bckgrnd_color.name() + "; border: 1px; color: " + color + "; height: " + QString::number(font_size * 2) + "px;");
+
+    welcome_lbl->setStyleSheet("background-color: " + bckgrnd_color.name() + "; color: " + color + "; border: 1px; height: " + QString::number(font_size * 2) + "px; font: bold;");
+    welcome_lbl->setFont(cmd_font);
 }
 
 void QemuGUI::stop_qemu_btn_state()
@@ -478,6 +500,116 @@ void QemuGUI::send_monitor_command()
     monitor_socket.write(terminal_cmd->text().toLocal8Bit() + "\n");
     terminal_text->insertPlainText(terminal_cmd->text() + "\n");
     terminal_cmd->clear();
+}
+
+void QemuGUI::set_terminal_settings()
+{
+    terminal_settings_dlg = new QDialog(this);
+    terminal_settings_dlg->setWindowTitle("Terminal interface settings");
+    
+    QPushButton *color_background_btn = new QPushButton("Select color", terminal_settings_dlg);
+    QPushButton *color_text_btn = new QPushButton("Select color", terminal_settings_dlg);
+    QFontComboBox *font_combo = new QFontComboBox(terminal_settings_dlg);
+    QSpinBox *font_size_spin = new QSpinBox(terminal_settings_dlg);
+    test_text = new QTextEdit(terminal_settings_dlg);
+    QDialogButtonBox *savecancel_btn = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
+
+    QGroupBox *font_group = new QGroupBox("Text settings", terminal_settings_dlg);
+    QGroupBox *background_group = new QGroupBox("Background settings", terminal_settings_dlg);
+    
+    QHBoxLayout *font_lay = new QHBoxLayout();
+    font_lay->addWidget(font_combo);
+    font_lay->addWidget(font_size_spin);
+
+    QVBoxLayout *text_lay = new QVBoxLayout();
+    text_lay->addLayout(font_lay);
+    text_lay->addWidget(color_text_btn);
+
+    font_group->setLayout(text_lay);
+
+    QVBoxLayout *back_lay = new QVBoxLayout();
+    back_lay->addWidget(color_background_btn);
+
+    background_group->setLayout(back_lay);
+    
+    QVBoxLayout *btns_lay = new QVBoxLayout();
+    btns_lay->addWidget(font_group);
+    btns_lay->addWidget(background_group);
+    btns_lay->addStretch(20);
+    btns_lay->addWidget(savecancel_btn);
+
+    QHBoxLayout *main_lay = new QHBoxLayout();
+    main_lay->addLayout(btns_lay);
+    main_lay->addWidget(test_text);
+
+    terminal_settings_dlg->setLayout(main_lay);
+
+    font_combo->setFontFilters(QFontComboBox::FontFilter::MonospacedFonts);
+    font_combo->setCurrentText(terminal_text->fontFamily());
+    font_size_spin->setValue(terminal_text->fontPointSize());
+    font_size_spin->setMinimum(2);
+    // current values
+    test_text->setFontPointSize(terminal_text->fontPointSize());
+    test_text->setFontFamily(terminal_text->fontFamily());
+    test_text->setStyleSheet(terminal_text->styleSheet());
+    test_text->setTextColor(terminal_text->textColor());
+    test_text->setFontPointSize(terminal_text->fontPointSize());
+    test_text->setText("Hello, world!");
+
+    terminal_settings_dlg->show();
+
+    connect(color_background_btn, SIGNAL(clicked()), this, SLOT(set_background_color()));
+    connect(color_text_btn, SIGNAL(clicked()), this, SLOT(set_text_color()));
+    connect(font_combo, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(set_test_font(const QFont &)));
+    connect(font_size_spin, QOverload<int>::of(&QSpinBox::valueChanged), this, &QemuGUI::set_text_size);
+
+    connect(savecancel_btn, &QDialogButtonBox::accepted, this, &QemuGUI::save_terminal_interface_changes);
+    connect(savecancel_btn, &QDialogButtonBox::rejected, this, &QemuGUI::close_terminal_dialog);
+}
+
+void QemuGUI::set_background_color()
+{
+    QColor color = QColorDialog::getColor();
+    test_text->setStyleSheet("background-color: " + color.name() + "; border: 1px");
+}
+
+void QemuGUI::set_text_color()
+{
+    QColor color = QColorDialog::getColor();
+    test_text->setTextColor(color);
+    test_text->setText("Hello, world!");
+}
+
+void QemuGUI::set_text_size(int size)
+{
+    test_text->setFontPointSize(size);
+    test_text->setText("Hello, world!");
+}
+
+void QemuGUI::set_test_font(const QFont &font)
+{
+    test_text->setFontFamily(font.family());
+    test_text->setText("Hello, world!");
+}
+
+void QemuGUI::save_terminal_interface_changes()
+{
+    QString style = test_text->styleSheet();
+    QStringList style_list = style.split(QRegExp("\\W+"), QString::SkipEmptyParts);
+    //foreach(QString str, style_list)
+    //{
+    //    qDebug() << str;
+    //}
+    int index = style_list.indexOf("background");
+    
+    set_terminal_interface(QColor("#" + style_list.at(index + 2)), test_text->textColor(), test_text->fontFamily(), test_text->fontPointSize());
+    global_config->set_terminal_parameters(QColor("#" + style_list.at(index + 2)), test_text->textColor(), test_text->fontFamily(), test_text->fontPointSize());
+    terminal_settings_dlg->close();
+}
+
+void QemuGUI::close_terminal_dialog()
+{
+    terminal_settings_dlg->close();
 }
 
 

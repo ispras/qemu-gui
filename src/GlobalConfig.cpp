@@ -6,7 +6,12 @@
 const QString xml_vm_directory = "VMDirectory";
 const QString xml_vm_directory_item = "Dir";
 const QString xml_qemu_intallation = "QEMUInstallation";
-const QString xml_qemu_installation_item = "Install_path";
+const QString xml_qemu_installation_item = "InstallPath";
+const QString xml_terminal_settings = "TerminalSettings";
+const QString xml_terminal_backgroud = "BackgroundColor";
+const QString xml_terminal_text_color = "TextColor";
+const QString xml_terminal_font_family = "FontFamily";
+const QString xml_terminal_font_size = "FontSize";
 
 
 GlobalConfig::GlobalConfig(QObject *parent)
@@ -66,6 +71,30 @@ GlobalConfig::GlobalConfig(QObject *parent)
                             xmlReader.readNextStartElement();
                         }
                     }
+                    if (xmlReader.name() == xml_terminal_settings)
+                    {
+                        xmlReader.readNextStartElement();
+                        if (xmlReader.name() == xml_terminal_backgroud)
+                        {
+                            terminal_parameters.insert("background", xmlReader.readElementText());
+                            xmlReader.readNextStartElement();
+                        }
+                        if (xmlReader.name() == xml_terminal_text_color)
+                        {
+                            terminal_parameters.insert("text_color", xmlReader.readElementText());
+                            xmlReader.readNextStartElement();
+                        }
+                        if (xmlReader.name() == xml_terminal_font_family)
+                        {
+                            terminal_parameters.insert("font_family", xmlReader.readElementText());
+                            xmlReader.readNextStartElement();
+                        }
+                        if (xmlReader.name() == xml_terminal_font_size)
+                        {
+                            terminal_parameters.insert("font_size", xmlReader.readElementText());
+                            xmlReader.readNextStartElement();
+                        }
+                    }
                 }
                 xmlReader.readNext();
             }
@@ -118,6 +147,20 @@ QString & GlobalConfig::get_current_qemu_dir()
     return current_qemu_dir;
 }
 
+void GlobalConfig::set_terminal_parameters(QColor background, QColor text_color, const QString & font_family, int font_size)
+{
+    terminal_parameters.insert("background", background.name());
+    terminal_parameters.insert("text_color", text_color.name());
+    terminal_parameters.insert("font_family", font_family);
+    terminal_parameters.insert("font_size", QString::number(font_size));
+    save_config_file();
+}
+
+QMap <QString, QString> GlobalConfig::get_terminal_parameters()
+{
+    return terminal_parameters;
+}
+
 VMConfig * GlobalConfig::get_vm_by_name(const QString &name)
 {
     foreach(VMConfig *vm, virtual_machines)
@@ -160,6 +203,27 @@ bool GlobalConfig::save_config_file()
                 xmlWriter.writeAttribute("Current", "False");
             }
             xmlWriter.writeCharacters(dir);
+            xmlWriter.writeEndElement();
+        }
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement(xml_terminal_settings);
+        if (terminal_parameters.size() > 0)
+        {
+            xmlWriter.writeStartElement(xml_terminal_backgroud);
+            xmlWriter.writeCharacters(terminal_parameters.value("background"));
+            xmlWriter.writeEndElement();
+
+            xmlWriter.writeStartElement(xml_terminal_text_color);
+            xmlWriter.writeCharacters(terminal_parameters.value("text_color"));
+            xmlWriter.writeEndElement();
+
+            xmlWriter.writeStartElement(xml_terminal_font_family);
+            xmlWriter.writeCharacters(terminal_parameters.value("font_family"));
+            xmlWriter.writeEndElement();
+
+            xmlWriter.writeStartElement(xml_terminal_font_size);
+            xmlWriter.writeCharacters(terminal_parameters.value("font_size"));
             xmlWriter.writeEndElement();
         }
         xmlWriter.writeEndElement();
