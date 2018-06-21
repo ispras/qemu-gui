@@ -112,7 +112,7 @@ QemuGUI::QemuGUI(QWidget *parent)
 
 
     listVM = new QListWidget();
-    listVM->setMaximumWidth(300);
+    listVM->setMaximumWidth(500);
     listVM->setUniformItemSizes(true);
     QFont listVMfont;
     listVMfont.setPointSize(10);
@@ -211,14 +211,11 @@ void QemuGUI::widget_placement()
 
     QHBoxLayout *one = new QHBoxLayout(centralWidget);
 
-    QVBoxLayout *lay = new QVBoxLayout();
-    lay->addWidget(listVM);
+    QSplitter *splitter = new QSplitter(this);
+    splitter->addWidget(listVM);
+    splitter->addWidget(tab);
 
-    QVBoxLayout *lay2 = new QVBoxLayout();
-    lay2->addWidget(tab);
-
-    one->addLayout(lay);
-    one->addLayout(lay2);
+    one->addWidget(splitter);
 }
 
 void QemuGUI::fill_qemu_install_dir_from_config()
