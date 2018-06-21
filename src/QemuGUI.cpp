@@ -82,13 +82,17 @@ QemuGUI::QemuGUI(QWidget *parent)
     terminal_cmd = new QLineEdit();
     terminal_cmd->installEventFilter(this);
 
-    QMap <QString, QString> terminal_params = global_config->get_terminal_parameters();
-    if (terminal_params.size() > 0)
+    //QMap <QString, QString> terminal_params = global_config->get_terminal_parameters();
+    if (global_config->is_has_settings())
     {
-        set_terminal_interface(QColor(terminal_params.value("background")),
-            QColor(terminal_params.value("text_color")), 
-            terminal_params.value("font_family"),
-            terminal_params.value("font_size").toInt());
+        //set_terminal_interface(QColor(terminal_params.value("background")),
+        //    QColor(terminal_params.value("text_color")), 
+        //    terminal_params.value("font_family"),
+        //    terminal_params.value("font_size").toInt());
+        set_terminal_interface(global_config->get_terminal_backgroud(),
+            global_config->get_terminal_text_color(),
+            global_config->get_terminal_font_family(),
+            global_config->get_terminal_font_size());
     }
     else
     {
@@ -636,14 +640,20 @@ void QemuGUI::set_terminal_settings()
 void QemuGUI::set_background_color()
 {
     QColor color = QColorDialog::getColor();
-    test_text->setStyleSheet("background-color: " + color.name() + "; border: 1px");
+    if (color.isValid())
+    {
+        test_text->setStyleSheet("background-color: " + color.name() + "; border: 1px");
+    }
 }
 
 void QemuGUI::set_text_color()
 {
     QColor color = QColorDialog::getColor();
-    test_text->setTextColor(color);
-    test_text->setText("Hello, world!");
+    if (color.isValid())
+    {
+        test_text->setTextColor(color);
+        test_text->setText("Hello, world!");
+    }
 }
 
 void QemuGUI::set_text_size(int size)

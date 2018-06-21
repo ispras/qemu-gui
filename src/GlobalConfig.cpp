@@ -156,9 +156,36 @@ void GlobalConfig::set_terminal_parameters(QColor background, QColor text_color,
     save_config_file();
 }
 
-QMap <QString, QString> GlobalConfig::get_terminal_parameters()
+//QMap <QString, QString> GlobalConfig::get_terminal_parameters()
+//{
+//    return terminal_parameters;
+//}
+
+bool GlobalConfig::is_has_settings()
 {
-    return terminal_parameters;
+    if (terminal_parameters.size() > 0)
+        return true;
+    return false;
+}
+
+QColor GlobalConfig::get_terminal_backgroud()
+{
+    return QColor(terminal_parameters.value("background"));
+}
+
+QColor GlobalConfig::get_terminal_text_color()
+{
+    return QColor(terminal_parameters.value("text_color"));
+}
+
+QString GlobalConfig::get_terminal_font_family()
+{
+    return terminal_parameters.value("font_family");
+}
+
+int GlobalConfig::get_terminal_font_size()
+{
+    return terminal_parameters.value("font_size").toInt();
 }
 
 VMConfig * GlobalConfig::get_vm_by_name(const QString &name)
