@@ -55,7 +55,7 @@ void VMSettingsForm::widget_placement()
 {
     QVBoxLayout *one = new QVBoxLayout(this);
 
-    QHBoxLayout *edit_comp_lay = new QHBoxLayout(this);
+    QHBoxLayout *edit_comp_lay = new QHBoxLayout();
     edit_comp_lay->addWidget(new_component_line);
     edit_comp_lay->addWidget(new_component_btn);
 
