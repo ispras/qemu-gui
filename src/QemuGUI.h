@@ -3,7 +3,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets>
-#include <QTcpSocket>
+//#include <QTcpSocket>
 
 #include "VMSettingsForm.h"
 #include "CreateVMForm.h"
@@ -12,6 +12,8 @@
 #include "GlobalConfig.h"
 #include "QemuLauncher.h"
 #include "QMPInteraction.h"
+#include "TerminalSettingsForm.h"
+#include "TerminalTab.h"
 
 enum VMState {None, Running, Stopped};
 
@@ -31,7 +33,6 @@ private:
     QemuLauncher *launch_qemu;
 
     VMState vm_state;
-    QTcpSocket qmp_socket;
     QTcpSocket monitor_socket;
     
     QDialog *qemu_install_dir_settings;
@@ -57,20 +58,15 @@ private:
     QPushButton *edit_btn;
     QTabWidget *tab;
     QWidget *tab_info;
-    QWidget *tab_terminal;
-    QTextEdit *terminal_text;
-    QLabel *welcome_lbl;
-    QLineEdit *terminal_cmd;
     QMPInteraction *qmp;
 
     VMSettingsForm *settingsWindow;
     CreateVMForm *createVMWindow;
     RecordReplayTab *rec_replay_tab;
+    TerminalTab *terminal_tab;
 
-    QDialog *terminal_settings_dlg;
-    QTextEdit *test_text;
+    TerminalSettingsForm *terminal_settings;
 
-    QStringList saved_terminal_cmds;
 
 private:
     QIcon set_button_icon_for_state(const QString &normal_icon, const QString &disable_icon);
@@ -79,12 +75,11 @@ private:
     void widget_placement();
     void fill_listVM_from_config();
     void fill_qemu_install_dir_from_config();
-    void set_terminal_interface(QColor bckgrnd_color=Qt::black, QColor text_color=Qt::green,
-        const QString &font_family="Courier New", int font_size=12);
 
 public slots:
     void stop_qemu_btn_state();
     void resume_qemu_btn_state();
+    void free_terminal_settings();
 
 private slots:
 
@@ -106,20 +101,14 @@ private slots:
     void listVM_current_item_changed(QListWidgetItem *current, QListWidgetItem *previous);
     void qemu_install_dir_combo_activated(int index);
     void qemu_install_dir_combo_index_changed(int index);
-    void read_terminal();
-    void send_monitor_command();
     void set_terminal_settings();
-    void set_background_color();
-    void set_text_color();
-    void set_text_size(int size);
-    void set_test_font(const QFont &font);
-    void save_terminal_interface_changes();
-    void close_terminal_dialog();
+    void launch_settings();
 
 
 signals:
     void qmp_resume_qemu();
     void qmp_stop_qemu();
+    void monitor_connect();
 
 };
 

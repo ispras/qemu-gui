@@ -76,22 +76,22 @@ GlobalConfig::GlobalConfig(QObject *parent)
                         xmlReader.readNextStartElement();
                         if (xmlReader.name() == xml_terminal_backgroud)
                         {
-                            terminal_parameters.insert("background", xmlReader.readElementText());
+                            terminal_parameters_background = xmlReader.readElementText();
                             xmlReader.readNextStartElement();
                         }
                         if (xmlReader.name() == xml_terminal_text_color)
                         {
-                            terminal_parameters.insert("text_color", xmlReader.readElementText());
+                            terminal_parameters_text_color = xmlReader.readElementText();
                             xmlReader.readNextStartElement();
                         }
                         if (xmlReader.name() == xml_terminal_font_family)
                         {
-                            terminal_parameters.insert("font_family", xmlReader.readElementText());
+                            terminal_parameters_font_family = xmlReader.readElementText();
                             xmlReader.readNextStartElement();
                         }
                         if (xmlReader.name() == xml_terminal_font_size)
                         {
-                            terminal_parameters.insert("font_size", xmlReader.readElementText());
+                            terminal_parameters_font_size = xmlReader.readElementText();
                             xmlReader.readNextStartElement();
                         }
                     }
@@ -149,43 +149,38 @@ QString & GlobalConfig::get_current_qemu_dir()
 
 void GlobalConfig::set_terminal_parameters(QColor background, QColor text_color, const QString & font_family, int font_size)
 {
-    terminal_parameters.insert("background", background.name());
-    terminal_parameters.insert("text_color", text_color.name());
-    terminal_parameters.insert("font_family", font_family);
-    terminal_parameters.insert("font_size", QString::number(font_size));
+    terminal_parameters_background = background.name();
+    terminal_parameters_text_color = text_color.name();
+    terminal_parameters_font_family = font_family;
+    terminal_parameters_font_size = QString::number(font_size);
     save_config_file();
 }
 
-//QMap <QString, QString> GlobalConfig::get_terminal_parameters()
-//{
-//    return terminal_parameters;
-//}
-
-bool GlobalConfig::is_has_settings()
+bool GlobalConfig::is_terminal_parameters_set()
 {
-    if (terminal_parameters.size() > 0)
+    if (terminal_parameters_background != "")
         return true;
     return false;
 }
 
 QColor GlobalConfig::get_terminal_backgroud()
 {
-    return QColor(terminal_parameters.value("background"));
+    return QColor(terminal_parameters_background);
 }
 
 QColor GlobalConfig::get_terminal_text_color()
 {
-    return QColor(terminal_parameters.value("text_color"));
+    return QColor(terminal_parameters_text_color);
 }
 
 QString GlobalConfig::get_terminal_font_family()
 {
-    return terminal_parameters.value("font_family");
+    return terminal_parameters_font_family;
 }
 
 int GlobalConfig::get_terminal_font_size()
 {
-    return terminal_parameters.value("font_size").toInt();
+    return terminal_parameters_font_size.toInt();
 }
 
 VMConfig * GlobalConfig::get_vm_by_name(const QString &name)
@@ -235,22 +230,22 @@ bool GlobalConfig::save_config_file()
         xmlWriter.writeEndElement();
 
         xmlWriter.writeStartElement(xml_terminal_settings);
-        if (terminal_parameters.size() > 0)
+        if (is_terminal_parameters_set())
         {
             xmlWriter.writeStartElement(xml_terminal_backgroud);
-            xmlWriter.writeCharacters(terminal_parameters.value("background"));
+            xmlWriter.writeCharacters(terminal_parameters_background);
             xmlWriter.writeEndElement();
 
             xmlWriter.writeStartElement(xml_terminal_text_color);
-            xmlWriter.writeCharacters(terminal_parameters.value("text_color"));
+            xmlWriter.writeCharacters(terminal_parameters_text_color);
             xmlWriter.writeEndElement();
 
             xmlWriter.writeStartElement(xml_terminal_font_family);
-            xmlWriter.writeCharacters(terminal_parameters.value("font_family"));
+            xmlWriter.writeCharacters(terminal_parameters_font_family);
             xmlWriter.writeEndElement();
 
             xmlWriter.writeStartElement(xml_terminal_font_size);
-            xmlWriter.writeCharacters(terminal_parameters.value("font_size"));
+            xmlWriter.writeCharacters(terminal_parameters_font_size);
             xmlWriter.writeEndElement();
         }
         xmlWriter.writeEndElement();

@@ -27,8 +27,7 @@ public:
     QString & get_current_qemu_dir();
     
     void set_terminal_parameters(QColor background, QColor text_color, const QString &font_family, int font_size);
-    //QMap <QString, QString> get_terminal_parameters();
-    bool is_has_settings();
+    bool is_terminal_parameters_set();
     QColor get_terminal_backgroud();
     QColor get_terminal_text_color();
     QString get_terminal_font_family();
@@ -37,7 +36,10 @@ public:
 private:
     QList<VMConfig *> virtual_machines;
     QStringList qemu_list;
-    QMap <QString, QString> terminal_parameters;
+    QString terminal_parameters_background;
+    QString terminal_parameters_text_color;
+    QString terminal_parameters_font_family;
+    QString terminal_parameters_font_size;
     QFile *vm_config_file;
     QString path_to_home_dir;
     QString current_qemu_dir;

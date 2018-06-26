@@ -53,6 +53,7 @@ QemuGUI::QemuGUI(QWidget *parent)
 
     mainToolBar->addWidget(qemu_install_dir_combo);
     mainToolBar->addSeparator();
+    mainToolBar->addAction("Launch settings", this, SLOT(launch_settings()));
     mainToolBar->addAction("Create machine", this, SLOT(create_machine()));
     mainToolBar->addAction("Add existing machine", this, SLOT(add_machine()));
     
@@ -61,10 +62,11 @@ QemuGUI::QemuGUI(QWidget *parent)
     tab->setMinimumWidth(400);
     tab_info = new QWidget(centralWidget);
     tab->addTab(tab_info, "Information about VM");
-    rec_replay_tab = new RecordReplayTab();
+    rec_replay_tab = new RecordReplayTab(this);
     tab->addTab(rec_replay_tab, "Record/Replay");
-    tab_terminal = new QWidget(centralWidget);
-    tab->addTab(tab_terminal, "Terminal");
+    terminal_tab = new TerminalTab(this, global_config);
+
+    tab->addTab(terminal_tab, "Terminal new");
 
     // info tab
     propBox = new QGroupBox(tab_info);
@@ -75,41 +77,6 @@ QemuGUI::QemuGUI(QWidget *parent)
     propBox->setVisible(false);
     edit_btn->setVisible(false);
     edit_btn->setAutoDefault(true);
-
-    // terminal tab
-    terminal_text = new QTextEdit();
-    welcome_lbl = new QLabel(" >> ");
-    terminal_cmd = new QLineEdit();
-    terminal_cmd->installEventFilter(this);
-
-    //QMap <QString, QString> terminal_params = global_config->get_terminal_parameters();
-    if (global_config->is_has_settings())
-    {
-        //set_terminal_interface(QColor(terminal_params.value("background")),
-        //    QColor(terminal_params.value("text_color")), 
-        //    terminal_params.value("font_family"),
-        //    terminal_params.value("font_size").toInt());
-        set_terminal_interface(global_config->get_terminal_backgroud(),
-            global_config->get_terminal_text_color(),
-            global_config->get_terminal_font_family(),
-            global_config->get_terminal_font_size());
-    }
-    else
-    {
-        set_terminal_interface();
-    }
-        
-    QHBoxLayout *cmd_lay = new QHBoxLayout();
-    cmd_lay->setSpacing(0);
-    cmd_lay->addWidget(welcome_lbl);
-    cmd_lay->addWidget(terminal_cmd);
-    
-    QVBoxLayout *terminal_lay = new QVBoxLayout();
-    terminal_lay->setSpacing(1);
-    terminal_lay->addWidget(terminal_text);
-    terminal_lay->addLayout(cmd_lay);
-    tab_terminal->setLayout(terminal_lay);
-
 
     listVM = new QListWidget();
     listVM->setMaximumWidth(500);
@@ -140,48 +107,6 @@ QemuGUI::~QemuGUI()
 
 bool QemuGUI::eventFilter(QObject *obj, QEvent *event)
 {
-    if (obj == terminal_cmd)
-    {
-        if (event->type() == QEvent::KeyPress)
-        {
-            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-            if (keyEvent->key() == Qt::Key_Up)
-            {
-                QString cur_cmd = terminal_cmd->text();
-                if (cur_cmd == "" && saved_terminal_cmds.size() > 0)
-                {
-                    terminal_cmd->setText(saved_terminal_cmds.at(0));
-                }
-                else 
-                {
-                    int index = saved_terminal_cmds.indexOf(terminal_cmd->text());
-                    if (index + 1 < saved_terminal_cmds.size())
-                    {
-                        terminal_cmd->setText(saved_terminal_cmds.at(index + 1));
-                    }
-                }
-                return true;
-            }
-            else if (keyEvent->key() == Qt::Key_Down)
-            {
-                QString cur_cmd = terminal_cmd->text();
-                if (cur_cmd == "" && saved_terminal_cmds.size() > 0)
-                {
-                    terminal_cmd->setText(saved_terminal_cmds.back());
-                }
-                else
-                {
-                    int index = saved_terminal_cmds.indexOf(terminal_cmd->text());
-                    if (index > 0)
-                    {
-                        terminal_cmd->setText(saved_terminal_cmds.at(index - 1));
-                    }
-                }
-                return true;
-            }
-        }
-        return false;
-    }
     return QMainWindow::eventFilter(obj, event);
 }
 
@@ -231,32 +156,6 @@ void QemuGUI::fill_qemu_install_dir_from_config()
     }
     if (global_config->get_current_qemu_dir() != "")
         qemu_install_dir_combo->setCurrentText(global_config->get_current_qemu_dir());
-}
-
-void QemuGUI::set_terminal_interface(QColor bckgrnd_color, QColor text_color, const QString &font_family, int font_size)
-{
-    QString color = text_color.name();
-
-    terminal_text->setReadOnly(true);
-    terminal_text->setFontPointSize(font_size);
-    terminal_text->setFontFamily(font_family);
-    terminal_text->setStyleSheet("background-color: " + bckgrnd_color.name() + "; border: 1px");
-    terminal_text->setTextColor(text_color);
-
-    
-    QFont cmd_font = terminal_cmd->font();
-    cmd_font.setPointSize(font_size);
-    cmd_font.setFamily(font_family);
-    terminal_cmd->setFont(cmd_font);
-    terminal_cmd->setStyleSheet("background-color: " + bckgrnd_color.name() + "; border: 1px; color: " + color + "; height: " + QString::number(font_size * 2) + "px;");
-
-    welcome_lbl->setStyleSheet("background-color: " + bckgrnd_color.name() + "; color: " + color + "; border: 1px; height: " + QString::number(font_size * 2) + "px; font: bold;");
-    welcome_lbl->setFont(cmd_font);
-
-    QString text = terminal_text->toPlainText();
-    terminal_text->clear();
-    terminal_text->insertPlainText(text);
-    terminal_text->ensureCursorVisible();
 }
 
 void QemuGUI::stop_qemu_btn_state()
@@ -327,7 +226,7 @@ void QemuGUI::connect_signals()
     connect(qemu_install_dir_combo, SIGNAL(activated(int)), this, SLOT(qemu_install_dir_combo_activated(int)));
     connect(qemu_install_dir_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(qemu_install_dir_combo_index_changed(int)));
 
-    connect(terminal_cmd, SIGNAL(returnPressed()), this, SLOT(send_monitor_command()));
+    connect(this, SIGNAL(monitor_connect()), terminal_tab, SLOT(terminalTab_connect()));
 }
 
 QString QemuGUI::delete_exclude_vm(bool delete_vm)
@@ -372,7 +271,6 @@ void QemuGUI::play_machine()
         if (vm_state == VMState::None && qemu_install_dir_combo->currentIndex() != qemu_install_dir_combo->count() - 1)
         {
             vm_state = VMState::Running;
-            terminal_text->clear();
             qemu_play->setDisabled(true);
             qemu_stop->setEnabled(true);
             qemu_pause->setEnabled(true);
@@ -390,9 +288,8 @@ void QemuGUI::play_machine()
             connect(this, SIGNAL(qmp_stop_qemu()), qmp, SLOT(command_stop_qemu()));
             connect(qmp, SIGNAL(qemu_resumed()), this, SLOT(resume_qemu_btn_state()));
             connect(qmp, SIGNAL(qemu_stopped()), this, SLOT(stop_qemu_btn_state()));
-       
-            monitor_socket.connectToHost("127.0.0.1", 24);
-            connect(&monitor_socket, SIGNAL(readyRead()), this, SLOT(read_terminal()));
+
+            emit monitor_connect();
         }
         else if (vm_state == VMState::Stopped)
         {
@@ -544,145 +441,24 @@ void QemuGUI::qemu_install_dir_combo_index_changed(int index)
 
 }
 
-void QemuGUI::read_terminal()
-{
-    QStringList terminal_answer = (QString::fromLocal8Bit(monitor_socket.readAll())).split('\n');
-    foreach(QString line, terminal_answer)
-    {
-        if (!line.contains("[D") && !line.contains("[K"))
-        {
-            terminal_text->insertPlainText(line);
-        }
-    }
-    //terminal_text->insertPlainText(monitor_socket.readAll());
-    terminal_text->ensureCursorVisible();
-}
-
-void QemuGUI::send_monitor_command()
-{
-    monitor_socket.write(terminal_cmd->text().toLocal8Bit() + "\n");
-    terminal_text->insertPlainText(terminal_cmd->text() + "\n");
-    if (!saved_terminal_cmds.contains(terminal_cmd->text()))
-    {
-        saved_terminal_cmds.append(terminal_cmd->text());
-    }
-    terminal_cmd->clear();
-}
-
 void QemuGUI::set_terminal_settings()
 {
-    terminal_settings_dlg = new QDialog(this);
-    terminal_settings_dlg->setWindowTitle("Terminal interface settings");
-    
-    QPushButton *color_background_btn = new QPushButton("Select color", terminal_settings_dlg);
-    QPushButton *color_text_btn = new QPushButton("Select color", terminal_settings_dlg);
-    QFontComboBox *font_combo = new QFontComboBox(terminal_settings_dlg);
-    QSpinBox *font_size_spin = new QSpinBox(terminal_settings_dlg);
-    test_text = new QTextEdit(terminal_settings_dlg);
-    QDialogButtonBox *savecancel_btn = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
+    terminal_settings = new TerminalSettingsForm(nullptr, terminal_tab->get_terminal_text());
 
-    QGroupBox *font_group = new QGroupBox("Text settings", terminal_settings_dlg);
-    QGroupBox *background_group = new QGroupBox("Background settings", terminal_settings_dlg);
-    
-    QHBoxLayout *font_lay = new QHBoxLayout();
-    font_lay->addWidget(font_combo);
-    font_lay->addWidget(font_size_spin);
-
-    QVBoxLayout *text_lay = new QVBoxLayout();
-    text_lay->addLayout(font_lay);
-    text_lay->addWidget(color_text_btn);
-
-    font_group->setLayout(text_lay);
-
-    QVBoxLayout *back_lay = new QVBoxLayout();
-    back_lay->addWidget(color_background_btn);
-
-    background_group->setLayout(back_lay);
-    
-    QVBoxLayout *btns_lay = new QVBoxLayout();
-    btns_lay->addWidget(font_group);
-    btns_lay->addWidget(background_group);
-    btns_lay->addStretch(20);
-    btns_lay->addWidget(savecancel_btn);
-
-    QHBoxLayout *main_lay = new QHBoxLayout();
-    main_lay->addLayout(btns_lay);
-    main_lay->addWidget(test_text);
-
-    terminal_settings_dlg->setLayout(main_lay);
-
-    font_combo->setFontFilters(QFontComboBox::FontFilter::MonospacedFonts);
-    font_combo->setCurrentText(terminal_text->fontFamily());
-    font_size_spin->setValue(terminal_text->fontPointSize());
-    font_size_spin->setMinimum(2);
-    // current values
-    test_text->setFontPointSize(terminal_text->fontPointSize());
-    test_text->setFontFamily(terminal_text->fontFamily());
-    test_text->setStyleSheet(terminal_text->styleSheet());
-    test_text->setTextColor(terminal_text->textColor());
-    test_text->setFontPointSize(terminal_text->fontPointSize());
-    test_text->setText("Hello, world!");
-
-    terminal_settings_dlg->show();
-
-    connect(color_background_btn, SIGNAL(clicked()), this, SLOT(set_background_color()));
-    connect(color_text_btn, SIGNAL(clicked()), this, SLOT(set_text_color()));
-    connect(font_combo, SIGNAL(currentFontChanged(const QFont &)), this, SLOT(set_test_font(const QFont &)));
-    connect(font_size_spin, QOverload<int>::of(&QSpinBox::valueChanged), this, &QemuGUI::set_text_size);
-
-    connect(savecancel_btn, &QDialogButtonBox::accepted, this, &QemuGUI::save_terminal_interface_changes);
-    connect(savecancel_btn, &QDialogButtonBox::rejected, this, &QemuGUI::close_terminal_dialog);
+    connect(terminal_settings, SIGNAL(save_terminal_settings(QTextEdit *)), terminal_tab, SLOT(save_terminal_interface_changes(QTextEdit *)));
+    connect(terminal_settings, SIGNAL(terminal_settings_form_close()), this, SLOT(free_terminal_settings()));
 }
 
-void QemuGUI::set_background_color()
+void QemuGUI::free_terminal_settings()
 {
-    QColor color = QColorDialog::getColor();
-    if (color.isValid())
-    {
-        test_text->setStyleSheet("background-color: " + color.name() + "; border: 1px");
-    }
+    delete terminal_settings;
+    terminal_settings = NULL;
 }
 
-void QemuGUI::set_text_color()
+void QemuGUI::launch_settings()
 {
-    QColor color = QColorDialog::getColor();
-    if (color.isValid())
-    {
-        test_text->setTextColor(color);
-        test_text->setText("Hello, world!");
-    }
+
 }
 
-void QemuGUI::set_text_size(int size)
-{
-    test_text->setFontPointSize(size);
-    test_text->setText("Hello, world!");
-}
-
-void QemuGUI::set_test_font(const QFont &font)
-{
-    test_text->setFontFamily(font.family());
-    test_text->setText("Hello, world!");
-}
-
-void QemuGUI::save_terminal_interface_changes()
-{
-    QString style = test_text->styleSheet();
-    QStringList style_list = style.split(QRegExp("\\W+"), QString::SkipEmptyParts);
-    //foreach(QString str, style_list)
-    //{
-    //    qDebug() << str;
-    //}
-    int index = style_list.indexOf("background");
-    
-    set_terminal_interface(QColor("#" + style_list.at(index + 2)), test_text->textColor(), test_text->fontFamily(), test_text->fontPointSize());
-    global_config->set_terminal_parameters(QColor("#" + style_list.at(index + 2)), test_text->textColor(), test_text->fontFamily(), test_text->fontPointSize());
-    terminal_settings_dlg->close();
-}
-
-void QemuGUI::close_terminal_dialog()
-{
-    terminal_settings_dlg->close();
-}
 
 
