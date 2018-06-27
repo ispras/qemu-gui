@@ -43,13 +43,11 @@ ConnectionSettingsForm::ConnectionSettingsForm(GlobalConfig *global_config, QWid
 
 ConnectionSettingsForm::~ConnectionSettingsForm()
 {
-
 }
 
 
 void ConnectionSettingsForm::closeEvent(QCloseEvent *event)
 {
-    emit connection_settings_form_close();
 }
 
 void ConnectionSettingsForm::save_connection_settings()

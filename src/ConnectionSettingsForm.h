@@ -25,7 +25,6 @@ private slots:
 
 signals:
     void done_connection_settings(QString, QString);
-    void connection_settings_form_close();
 
 };
 

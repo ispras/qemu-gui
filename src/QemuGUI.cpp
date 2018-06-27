@@ -41,7 +41,7 @@ QemuGUI::QemuGUI(QWidget *parent)
     qemu_install_dir_combo = new QComboBox(this);
     qemu_install_dir_combo->setMinimumWidth(150);
 
-    qemu_play = new QAction(set_button_icon_for_state(":Resources/play.png", ":Resources/play_disable.png"), "Play VM", this);
+    qemu_play = new QAction(set_button_icon_for_state(":Resources/play.png", ":Resources/play_disable.png"), "Run VM", this);
     mainToolBar->addAction(qemu_play);
     connect(qemu_play, SIGNAL(triggered()), this, SLOT(play_machine()));
 
@@ -70,7 +70,7 @@ QemuGUI::QemuGUI(QWidget *parent)
     tab->addTab(rec_replay_tab, "Record/Replay");
     terminal_tab = new TerminalTab(global_config, this);
 
-    tab->addTab(terminal_tab, "Terminal new");
+    tab->addTab(terminal_tab, "Terminal");
 
     // info tab
     propBox = new QGroupBox(tab_info);
@@ -345,7 +345,8 @@ void QemuGUI::add_machine()
 
 void QemuGUI::edit_settings()
 {
-    settingsWindow = new VMSettingsForm();
+    VMSettingsForm *settingsWindow = new VMSettingsForm();
+    settingsWindow->setAttribute(Qt::WA_DeleteOnClose);
 }
 
 void QemuGUI::listVM_item_selection_changed()
@@ -447,36 +448,24 @@ void QemuGUI::qemu_install_dir_combo_index_changed(int index)
 
 void QemuGUI::set_terminal_settings()
 {
-    terminal_settings = new TerminalSettingsForm(terminal_tab->get_terminal_text());
+    TerminalSettingsForm *terminal_settings = new TerminalSettingsForm(terminal_tab->get_terminal_text());
+    terminal_settings->setAttribute(Qt::WA_DeleteOnClose);
 
     connect(terminal_settings, SIGNAL(save_terminal_settings(QTextEdit *)), terminal_tab, SLOT(save_terminal_interface_changes(QTextEdit *)));
-    connect(terminal_settings, SIGNAL(terminal_settings_form_close()), this, SLOT(free_terminal_settings()));
-}
-
-void QemuGUI::free_terminal_settings()
-{
-    delete terminal_settings;
-    terminal_settings = NULL;
 }
 
 void QemuGUI::launch_settings()
 {
-    connections_settings = new ConnectionSettingsForm(global_config);
+    ConnectionSettingsForm *connections_settings = new ConnectionSettingsForm(global_config);
+    connections_settings->setAttribute(Qt::WA_DeleteOnClose);
 
     connect(connections_settings, SIGNAL(done_connection_settings(QString, QString)), this, SLOT(set_connection_settings(QString, QString)));
-    connect(connections_settings, SIGNAL(connection_settings_form_close()), this, SLOT(free_connetcion_settings()));
 }
 
 void QemuGUI::set_connection_settings(const QString &qmp, const QString &monitor)
 {
     monitor_port = qmp;
     qmp_port = monitor;
-}
-
-void QemuGUI::free_connetcion_settings()
-{
-    delete connections_settings;
-    connections_settings = NULL;
 }
 
 
