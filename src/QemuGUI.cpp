@@ -274,33 +274,26 @@ void QemuGUI::play_machine()
     {
         if (vm_state == VMState::None && qemu_install_dir_combo->currentIndex() != qemu_install_dir_combo->count() - 1)
         {
-            if (qmp_port == 0 || monitor_port == 0)
-            {
-                QMessageBox::warning(this, "Warning", "Ports are not set. Use \'Launch settings\'");
-            }
-            else
-            {
-                vm_state = VMState::Running;
-                qemu_play->setDisabled(true);
-                qemu_stop->setEnabled(true);
-                qemu_pause->setEnabled(true);
+            vm_state = VMState::Running;
+            qemu_play->setDisabled(true);
+            qemu_stop->setEnabled(true);
+            qemu_pause->setEnabled(true);
 
-                QThread *thread = new QThread();
-                launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
-                    global_config->get_vm_by_name(listVM->currentItem()->text()), qmp_port, monitor_port);
-                launch_qemu->moveToThread(thread);
-                connect(thread, SIGNAL(started()), launch_qemu, SLOT(start_qemu()));
-                connect(launch_qemu, SIGNAL(qemu_laucher_finished()), this, SLOT(finish_qemu()));
-                thread->start();
+            QThread *thread = new QThread();
+            launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
+                global_config->get_vm_by_name(listVM->currentItem()->text()), qmp_port, monitor_port);
+            launch_qemu->moveToThread(thread);
+            connect(thread, SIGNAL(started()), launch_qemu, SLOT(start_qemu()));
+            connect(launch_qemu, SIGNAL(qemu_laucher_finished()), this, SLOT(finish_qemu()));
+            thread->start();
 
-                qmp = new QMPInteraction(nullptr, qmp_port);
-                connect(this, SIGNAL(qmp_resume_qemu()), qmp, SLOT(command_resume_qemu()));
-                connect(this, SIGNAL(qmp_stop_qemu()), qmp, SLOT(command_stop_qemu()));
-                connect(qmp, SIGNAL(qemu_resumed()), this, SLOT(resume_qemu_btn_state()));
-                connect(qmp, SIGNAL(qemu_stopped()), this, SLOT(stop_qemu_btn_state()));
+            qmp = new QMPInteraction(nullptr, qmp_port.toInt());
+            connect(this, SIGNAL(qmp_resume_qemu()), qmp, SLOT(command_resume_qemu()));
+            connect(this, SIGNAL(qmp_stop_qemu()), qmp, SLOT(command_stop_qemu()));
+            connect(qmp, SIGNAL(qemu_resumed()), this, SLOT(resume_qemu_btn_state()));
+            connect(qmp, SIGNAL(qemu_stopped()), this, SLOT(stop_qemu_btn_state()));
 
-                emit monitor_connect(monitor_port);
-            }
+            emit monitor_connect(monitor_port.toInt());
         }
         else if (vm_state == VMState::Stopped)
         {
@@ -470,11 +463,11 @@ void QemuGUI::launch_settings()
 {
     connections_settings = new ConnectionSettingsForm(global_config);
 
-    connect(connections_settings, SIGNAL(done_connection_settings(int, int)), this, SLOT(set_connection_settings(int, int)));
+    connect(connections_settings, SIGNAL(done_connection_settings(QString, QString)), this, SLOT(set_connection_settings(QString, QString)));
     connect(connections_settings, SIGNAL(connection_settings_form_close()), this, SLOT(free_connetcion_settings()));
 }
 
-void QemuGUI::set_connection_settings(int qmp, int monitor)
+void QemuGUI::set_connection_settings(const QString &qmp, const QString &monitor)
 {
     monitor_port = qmp;
     qmp_port = monitor;

@@ -68,10 +68,8 @@ private:
     TerminalSettingsForm *terminal_settings;
     ConnectionSettingsForm *connections_settings;
 
-    QLineEdit *qmp_line;
-    QLineEdit *monitor_line;
-    int qmp_port = 0;
-    int monitor_port = 0;
+    QString qmp_port = "";
+    QString monitor_port = "";
 
 
 private:
@@ -86,7 +84,7 @@ public slots:
     void stop_qemu_btn_state();
     void resume_qemu_btn_state();
     void free_terminal_settings();
-    void set_connection_settings(int qmp, int monitor);
+    void set_connection_settings(const QString &qmp, const QString &monitor);
     void free_connetcion_settings();
 
 private slots:

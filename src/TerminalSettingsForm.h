@@ -36,3 +36,5 @@ signals:
 
 
 #endif //TERMINALSETTINSFORM_H
+
+

@@ -1,7 +1,7 @@
 #include "QemuLauncher.h"
 
 
-QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm, int port_qmp, int port_monitor, QObject *parent)
+QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm, const QString &port_qmp, const QString &port_monitor, QObject *parent)
     : QObject(parent)
 {
     qemu_dir = qemu_install_dir_path
@@ -32,8 +32,8 @@ void QemuLauncher::start_qemu()
     qemu = new QProcess();
     qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
     connect(qemu, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(finish_qemu(int, QProcess::ExitStatus)));
-    QString mon = " -monitor \"tcp:127.0.0.1:" + QString().number(port_monitor) + ",server,nowait\"";
-    QString qmp = " -qmp \"tcp:127.0.0.1:" + QString().number(port_qmp) + ",server,nowait\"";
+    QString mon = " -monitor \"tcp:127.0.0.1:" + port_monitor + ",server,nowait\"";
+    QString qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,nowait\"";
     qemu->start(qemu_dir + " " + virtual_machine->get_image_path() + mon + qmp);
     qemu->waitForFinished(-1);
 }

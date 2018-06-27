@@ -33,10 +33,10 @@ public:
     QString get_terminal_font_family();
     int get_terminal_font_size();
 
-    int get_port_qmp();
-    int get_port_monitor();
-    void set_port_qmp(int port);
-    void set_port_monitor(int port);
+    QString get_port_qmp();
+    QString get_port_monitor();
+    void set_port_qmp(const QString &port);
+    void set_port_monitor(const QString &port);
 
 private:
     QList<VMConfig *> virtual_machines;

@@ -14,11 +14,16 @@ const QString xml_terminal_font_family = "FontFamily";
 const QString xml_terminal_font_size = "FontSize";
 const QString xml_qmp_port = "QMPPort";
 const QString xml_monitor_port = "MonitorPort";
+const QString qmp_port_default = "23";
+const QString monitor_port_default = "24";
 
 
 GlobalConfig::GlobalConfig(QObject *parent)
     : QObject(parent)
 {
+    port_qmp = qmp_port_default;
+    port_monitor = monitor_port_default;
+
     path_to_home_dir = QDir::homePath() + "/QemuGUI_VirtualMachines";
     QDir home_dir(path_to_home_dir);
     if (!home_dir.exists())
@@ -100,7 +105,6 @@ GlobalConfig::GlobalConfig(QObject *parent)
                     if (xmlReader.name() == xml_qmp_port)
                     {
                         port_qmp = xmlReader.readElementText();
-                        
                     }
                     if (xmlReader.name() == xml_monitor_port)
                     {
@@ -194,25 +198,25 @@ int GlobalConfig::get_terminal_font_size()
     return terminal_parameters_font_size.toInt();
 }
 
-int GlobalConfig::get_port_qmp()
+QString GlobalConfig::get_port_qmp()
 {
-    return port_qmp.toInt();
+    return port_qmp;
 }
 
-int GlobalConfig::get_port_monitor()
+QString GlobalConfig::get_port_monitor()
 {
-    return port_monitor.toInt();
+    return port_monitor;
 }
 
-void GlobalConfig::set_port_qmp(int port)
+void GlobalConfig::set_port_qmp(const QString &port)
 {
-    port_qmp = QString().number(port);
+    port_qmp = port;
     save_config_file();
 }
 
-void GlobalConfig::set_port_monitor(int port)
+void GlobalConfig::set_port_monitor(const QString &port)
 {
-    port_monitor = QString().number(port);
+    port_monitor = port;
     save_config_file();
 }
 
