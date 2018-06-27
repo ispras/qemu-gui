@@ -10,6 +10,12 @@
 #include "VMConfig.h"
 #include "GlobalConfig.h"
 #include "QemuLauncher.h"
+#include "QMPInteraction.h"
+#include "TerminalSettingsForm.h"
+#include "TerminalTab.h"
+#include "ConnectionSettingsForm.h"
+
+enum VMState {None, Running, Stopped};
 
 class QemuGUI : public QMainWindow
 {
@@ -19,10 +25,16 @@ public:
     QemuGUI(QWidget *parent = 0);
     ~QemuGUI();
 
+protected:
+    bool eventFilter(QObject *target, QEvent *event);
+
 private:
     GlobalConfig *global_config;
     QemuLauncher *launch_qemu;
 
+    VMState vm_state;
+    QTcpSocket monitor_socket;
+    
     QDialog *qemu_install_dir_settings;
     QListWidget *qemu_install_dir_list;
     
@@ -32,7 +44,9 @@ private:
     QStatusBar *statusBar;
 
     QAction *qemu_play;
-
+    QAction *qemu_pause;
+    QAction *qemu_stop;
+    
     QComboBox *qemu_install_dir_combo;
 
     QListWidget *listVM;
@@ -44,19 +58,37 @@ private:
     QPushButton *edit_btn;
     QTabWidget *tab;
     QWidget *tab_info;
+    QMPInteraction *qmp;
 
     VMSettingsForm *settingsWindow;
     CreateVMForm *createVMWindow;
-    RecordReplayTab *recReplayTab;
+    RecordReplayTab *rec_replay_tab;
+    TerminalTab *terminal_tab;
+
+    TerminalSettingsForm *terminal_settings;
+    ConnectionSettingsForm *connections_settings;
+
+    QString qmp_port = "";
+    QString monitor_port = "";
+
 
 private:
+    QIcon set_button_icon_for_state(const QString &normal_icon, const QString &disable_icon);
     void create_qemu_install_dir_dialog();
     void connect_signals();
     void widget_placement();
     void fill_listVM_from_config();
     void fill_qemu_install_dir_from_config();
 
-    private slots:
+public slots:
+    void stop_qemu_btn_state();
+    void resume_qemu_btn_state();
+    void free_terminal_settings();
+    void set_connection_settings(const QString &qmp, const QString &monitor);
+    void free_connetcion_settings();
+
+private slots:
+
     void set_qemu_install_dir();
     void add_qemu_install_dir_btn();
     void del_qemu_install_dir_btn();
@@ -75,6 +107,14 @@ private:
     void listVM_current_item_changed(QListWidgetItem *current, QListWidgetItem *previous);
     void qemu_install_dir_combo_activated(int index);
     void qemu_install_dir_combo_index_changed(int index);
+    void set_terminal_settings();
+    void launch_settings();
+
+
+signals:
+    void qmp_resume_qemu();
+    void qmp_stop_qemu();
+    void monitor_connect(int);
 
 };
 

@@ -25,13 +25,30 @@ public:
     QStringList & get_qemu_installation_dirs();
     void set_current_qemu_dir(const QString &qemu_dir);
     QString & get_current_qemu_dir();
+    
+    void set_terminal_parameters(QColor background, QColor text_color, const QString &font_family, int font_size);
+    QColor get_terminal_backgroud();
+    QColor get_terminal_text_color();
+    QString get_terminal_font_family();
+    int get_terminal_font_size();
+
+    QString get_port_qmp();
+    QString get_port_monitor();
+    void set_port_qmp(const QString &port);
+    void set_port_monitor(const QString &port);
 
 private:
     QList<VMConfig *> virtual_machines;
     QStringList qemu_list;
+    QString terminal_parameters_background;
+    QString terminal_parameters_text_color;
+    QString terminal_parameters_font_family;
+    QString terminal_parameters_font_size;
     QFile *vm_config_file;
     QString path_to_home_dir;
     QString current_qemu_dir;
+    QString port_qmp;
+    QString port_monitor;
 
 private:
     bool save_config_file();

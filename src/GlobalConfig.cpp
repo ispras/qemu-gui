@@ -6,12 +6,34 @@
 const QString xml_vm_directory = "VMDirectory";
 const QString xml_vm_directory_item = "Dir";
 const QString xml_qemu_intallation = "QEMUInstallation";
-const QString xml_qemu_installation_item = "Install_path";
+const QString xml_qemu_installation_item = "InstallPath";
+const QString xml_terminal_settings = "TerminalSettings";
+const QString xml_terminal_backgroud = "BackgroundColor";
+const QString xml_terminal_text_color = "TextColor";
+const QString xml_terminal_font_family = "FontFamily";
+const QString xml_terminal_font_size = "FontSize";
+const QString xml_qmp_port = "QMPPort";
+const QString xml_monitor_port = "MonitorPort";
+
+// default values
+const QString qmp_port_default = "23";
+const QString monitor_port_default = "24";
+const QString bckgrnd_color_default = "#000000";
+const QString text_color_default = "#00ff00";
+const QString font_family_default = "Courier New";
+const QString font_size_default = "12";
 
 
 GlobalConfig::GlobalConfig(QObject *parent)
     : QObject(parent)
 {
+    port_qmp = qmp_port_default;
+    port_monitor = monitor_port_default;
+    terminal_parameters_background = bckgrnd_color_default;
+    terminal_parameters_text_color = text_color_default;
+    terminal_parameters_font_family = font_family_default;
+    terminal_parameters_font_size = font_size_default;
+
     path_to_home_dir = QDir::homePath() + "/QemuGUI_VirtualMachines";
     QDir home_dir(path_to_home_dir);
     if (!home_dir.exists())
@@ -66,6 +88,38 @@ GlobalConfig::GlobalConfig(QObject *parent)
                             xmlReader.readNextStartElement();
                         }
                     }
+                    if (xmlReader.name() == xml_terminal_settings)
+                    {
+                        xmlReader.readNextStartElement();
+                        if (xmlReader.name() == xml_terminal_backgroud)
+                        {
+                            terminal_parameters_background = xmlReader.readElementText();
+                            xmlReader.readNextStartElement();
+                        }
+                        if (xmlReader.name() == xml_terminal_text_color)
+                        {
+                            terminal_parameters_text_color = xmlReader.readElementText();
+                            xmlReader.readNextStartElement();
+                        }
+                        if (xmlReader.name() == xml_terminal_font_family)
+                        {
+                            terminal_parameters_font_family = xmlReader.readElementText();
+                            xmlReader.readNextStartElement();
+                        }
+                        if (xmlReader.name() == xml_terminal_font_size)
+                        {
+                            terminal_parameters_font_size = xmlReader.readElementText();
+                            xmlReader.readNextStartElement();
+                        }
+                    }
+                    if (xmlReader.name() == xml_qmp_port)
+                    {
+                        port_qmp = xmlReader.readElementText();
+                    }
+                    if (xmlReader.name() == xml_monitor_port)
+                    {
+                        port_monitor = xmlReader.readElementText();
+                    }
                 }
                 xmlReader.readNext();
             }
@@ -118,6 +172,57 @@ QString & GlobalConfig::get_current_qemu_dir()
     return current_qemu_dir;
 }
 
+void GlobalConfig::set_terminal_parameters(QColor background, QColor text_color, const QString & font_family, int font_size)
+{
+    terminal_parameters_background = background.name();
+    terminal_parameters_text_color = text_color.name();
+    terminal_parameters_font_family = font_family;
+    terminal_parameters_font_size = QString::number(font_size);
+    save_config_file();
+}
+
+QColor GlobalConfig::get_terminal_backgroud()
+{
+    return QColor(terminal_parameters_background);
+}
+
+QColor GlobalConfig::get_terminal_text_color()
+{
+    return QColor(terminal_parameters_text_color);
+}
+
+QString GlobalConfig::get_terminal_font_family()
+{
+    return terminal_parameters_font_family;
+}
+
+int GlobalConfig::get_terminal_font_size()
+{
+    return terminal_parameters_font_size.toInt();
+}
+
+QString GlobalConfig::get_port_qmp()
+{
+    return port_qmp;
+}
+
+QString GlobalConfig::get_port_monitor()
+{
+    return port_monitor;
+}
+
+void GlobalConfig::set_port_qmp(const QString &port)
+{
+    port_qmp = port;
+    save_config_file();
+}
+
+void GlobalConfig::set_port_monitor(const QString &port)
+{
+    port_monitor = port;
+    save_config_file();
+}
+
 VMConfig * GlobalConfig::get_vm_by_name(const QString &name)
 {
     foreach(VMConfig *vm, virtual_machines)
@@ -162,6 +267,34 @@ bool GlobalConfig::save_config_file()
             xmlWriter.writeCharacters(dir);
             xmlWriter.writeEndElement();
         }
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement(xml_terminal_settings);
+        {
+            xmlWriter.writeStartElement(xml_terminal_backgroud);
+            xmlWriter.writeCharacters(terminal_parameters_background);
+            xmlWriter.writeEndElement();
+
+            xmlWriter.writeStartElement(xml_terminal_text_color);
+            xmlWriter.writeCharacters(terminal_parameters_text_color);
+            xmlWriter.writeEndElement();
+
+            xmlWriter.writeStartElement(xml_terminal_font_family);
+            xmlWriter.writeCharacters(terminal_parameters_font_family);
+            xmlWriter.writeEndElement();
+
+            xmlWriter.writeStartElement(xml_terminal_font_size);
+            xmlWriter.writeCharacters(terminal_parameters_font_size);
+            xmlWriter.writeEndElement();
+        }
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement(xml_qmp_port);
+        xmlWriter.writeCharacters(port_qmp);
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement(xml_monitor_port);
+        xmlWriter.writeCharacters(port_monitor);
         xmlWriter.writeEndElement();
         
         xmlWriter.writeEndElement();
