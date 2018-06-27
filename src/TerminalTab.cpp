@@ -136,8 +136,7 @@ void TerminalTab::send_monitor_command()
 void TerminalTab::terminalTab_connect(int port)
 {
     terminal_text->clear();
-    monitor_socket.connectToHost("127.0.0.1", port);
-    qDebug() << "Connecting 127.0.0.1:" << port;
+    monitor_socket.connectPort(port);
 }
 
 void TerminalTab::read_terminal()

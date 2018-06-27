@@ -4,6 +4,7 @@
 #include <QtWidgets>
 #include <QTcpSocket>
 #include "GlobalConfig.h"
+#include "QemuSocket.h"
 
 
 class TerminalTab : public QWidget
@@ -26,7 +27,7 @@ private:
 
     QStringList saved_terminal_cmds;
 
-    QTcpSocket monitor_socket;
+    QemuSocket monitor_socket;
 
 private:
     void set_terminal_interface(QColor bckgrnd_color, QColor text_color,

@@ -32,8 +32,8 @@ void QemuLauncher::start_qemu()
     qemu = new QProcess();
     qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
     connect(qemu, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(finish_qemu(int, QProcess::ExitStatus)));
-    QString mon = " -monitor \"tcp:127.0.0.1:" + port_monitor + ",server,nowait\"";
-    QString qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,nowait\"";
+    QString mon = " -monitor \"tcp:127.0.0.1:" + port_monitor + ",server,wait\"";
+    QString qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,wait\"";
     qemu->start(qemu_dir + " " + virtual_machine->get_image_path() + mon + qmp);
     qemu->waitForFinished(-1);
 }
@@ -42,7 +42,3 @@ void QemuLauncher::finish_qemu(int exitCode, QProcess::ExitStatus ExitStatus)
 {
     emit qemu_laucher_finished();
 }
-
-
-
-

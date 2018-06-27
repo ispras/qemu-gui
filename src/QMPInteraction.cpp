@@ -5,11 +5,9 @@ QMPInteraction::QMPInteraction(QObject *parent, int port)
     : QObject(parent)
 {
     connect(&socket, SIGNAL(readyRead()), this, SLOT(read_terminal()));
+    connect(&socket, SIGNAL(connected()), this, SLOT(connectedSocket()));
 
-    qDebug() << "qmp port" << port;
-
-    socket.connectToHost("127.0.0.1", port);
-    socket.write(init());
+    socket.connectPort(port);
 }
 
 QMPInteraction::~QMPInteraction()
@@ -33,6 +31,7 @@ QByteArray QMPInteraction::cmd_continue()
 
 void QMPInteraction::what_said_qmp(QByteArray message)
 {
+    qDebug() << "QMP: " << message;
     QJsonDocument qmp_message = QJsonDocument::fromJson(message);
     QJsonObject obj = qmp_message.object();
     QJsonValue json_command = obj["event"];
@@ -54,6 +53,11 @@ void QMPInteraction::read_terminal()
     what_said_qmp(message);
 }
 
+void QMPInteraction::connectedSocket()
+{
+    socket.write(init());
+}
+
 void QMPInteraction::command_stop_qemu()
 {
     socket.write(cmd_stop());
@@ -65,5 +69,3 @@ void QMPInteraction::command_resume_qemu()
     socket.write(cmd_continue());
     emit qemu_resumed();
 }
-
-
