@@ -16,8 +16,8 @@ const QString xml_qmp_port = "QMPPort";
 const QString xml_monitor_port = "MonitorPort";
 
 // default values
-const QString qmp_port_default = "23";
-const QString monitor_port_default = "24";
+const QString qmp_port_default = "2323";
+const QString monitor_port_default = "2424";
 const QString bckgrnd_color_default = "#000000";
 const QString text_color_default = "#00ff00";
 const QString font_family_default = "Courier New";
