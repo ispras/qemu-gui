@@ -29,8 +29,8 @@ private:
     QTcpSocket monitor_socket;
 
 private:
-    void set_terminal_interface(QColor bckgrnd_color = Qt::black, QColor text_color = Qt::green,
-        const QString &font_family = "Courier New", int font_size = 12);
+    void set_terminal_interface(QColor bckgrnd_color, QColor text_color,
+        const QString &font_family, int font_size);
 
 public:
     QTextEdit *get_terminal_text();
