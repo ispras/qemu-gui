@@ -78,7 +78,6 @@ TerminalSettingsForm::~TerminalSettingsForm()
 
 void TerminalSettingsForm::closeEvent(QCloseEvent *event)
 {
-    emit terminal_settings_form_close();
 }
 
 void TerminalSettingsForm::set_background_color()

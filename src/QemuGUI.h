@@ -60,13 +60,10 @@ private:
     QWidget *tab_info;
     QMPInteraction *qmp;
 
-    VMSettingsForm *settingsWindow;
     CreateVMForm *createVMWindow;
     RecordReplayTab *rec_replay_tab;
     TerminalTab *terminal_tab;
 
-    TerminalSettingsForm *terminal_settings;
-    ConnectionSettingsForm *connections_settings;
 
     QString qmp_port = "";
     QString monitor_port = "";
@@ -83,9 +80,7 @@ private:
 public slots:
     void stop_qemu_btn_state();
     void resume_qemu_btn_state();
-    void free_terminal_settings();
     void set_connection_settings(const QString &qmp, const QString &monitor);
-    void free_connetcion_settings();
 
 private slots:
 

@@ -31,7 +31,7 @@ public slots:
 
 signals:
     void save_terminal_settings(QTextEdit *);
-    void terminal_settings_form_close();
+
 };
 
 
