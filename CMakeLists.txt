@@ -13,7 +13,7 @@ find_package(Qt5Network)
 
 add_executable(qemu-gui src/main.cpp src/CreateVMForm.cpp src/QemuGUI.cpp src/RecordReplayTab.cpp src/VMSettingsForm.cpp //
 src/QemuGUI.qrc src/GlobalConfig.cpp src/VMConfig.cpp src/QemuLauncher.cpp src/QMPInteraction.cpp src/TerminalSettingsForm.cpp //
-src/TerminalTab.cpp)
+src/TerminalTab.cpp src/ConnectionSettingsForm.cpp)
 
 # Use the Widgets module from Qt 5.
 target_link_libraries(qemu-gui Qt5::Widgets)

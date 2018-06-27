@@ -1,12 +1,14 @@
 #include "QMPInteraction.h"
 
 
-QMPInteraction::QMPInteraction(QObject *parent)
+QMPInteraction::QMPInteraction(QObject *parent, int port)
     : QObject(parent)
 {
     connect(&socket, SIGNAL(readyRead()), this, SLOT(read_terminal()));
 
-    socket.connectToHost("127.0.0.1", 23);
+    qDebug() << "qmp port" << port;
+
+    socket.connectToHost("127.0.0.1", port);
     socket.write(init());
 }
 

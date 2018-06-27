@@ -1,6 +1,6 @@
 #include "TerminalSettingsForm.h"
 
-TerminalSettingsForm::TerminalSettingsForm(QWidget *parent, QTextEdit *terminal)
+TerminalSettingsForm::TerminalSettingsForm(QTextEdit *terminal, QWidget *parent)
     : QWidget(parent)
 {
     if (TerminalSettingsForm::objectName().isEmpty())

@@ -11,11 +11,13 @@ class QMPInteraction : public QObject
     Q_OBJECT
 
 public:
-    QMPInteraction(QObject *parent = 0);
+    QMPInteraction(QObject *parent, int port);
     ~QMPInteraction();
 
 private:
     QTcpSocket socket;
+
+private:
     QByteArray init();
     QByteArray cmd_stop();
     QByteArray cmd_continue();

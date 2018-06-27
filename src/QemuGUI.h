@@ -3,7 +3,6 @@
 
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets>
-//#include <QTcpSocket>
 
 #include "VMSettingsForm.h"
 #include "CreateVMForm.h"
@@ -14,6 +13,7 @@
 #include "QMPInteraction.h"
 #include "TerminalSettingsForm.h"
 #include "TerminalTab.h"
+#include "ConnectionSettingsForm.h"
 
 enum VMState {None, Running, Stopped};
 
@@ -66,6 +66,12 @@ private:
     TerminalTab *terminal_tab;
 
     TerminalSettingsForm *terminal_settings;
+    ConnectionSettingsForm *connections_settings;
+
+    QLineEdit *qmp_line;
+    QLineEdit *monitor_line;
+    int qmp_port = 0;
+    int monitor_port = 0;
 
 
 private:
@@ -80,6 +86,8 @@ public slots:
     void stop_qemu_btn_state();
     void resume_qemu_btn_state();
     void free_terminal_settings();
+    void set_connection_settings(int qmp, int monitor);
+    void free_connetcion_settings();
 
 private slots:
 
@@ -108,7 +116,7 @@ private slots:
 signals:
     void qmp_resume_qemu();
     void qmp_stop_qemu();
-    void monitor_connect();
+    void monitor_connect(int);
 
 };
 

@@ -33,6 +33,11 @@ public:
     QString get_terminal_font_family();
     int get_terminal_font_size();
 
+    int get_port_qmp();
+    int get_port_monitor();
+    void set_port_qmp(int port);
+    void set_port_monitor(int port);
+
 private:
     QList<VMConfig *> virtual_machines;
     QStringList qemu_list;
@@ -43,6 +48,8 @@ private:
     QFile *vm_config_file;
     QString path_to_home_dir;
     QString current_qemu_dir;
+    QString port_qmp;
+    QString port_monitor;
 
 private:
     bool save_config_file();

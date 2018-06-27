@@ -11,7 +11,7 @@ class TerminalTab : public QWidget
     Q_OBJECT
 
 public:
-    TerminalTab(QWidget *parent, GlobalConfig *global_config);
+    TerminalTab(GlobalConfig *global_config, QWidget *parent = 0);
     ~TerminalTab();
 
 protected:
@@ -35,13 +35,12 @@ private:
 public:
     QTextEdit *get_terminal_text();
 
-
 private slots:
     void send_monitor_command();
     void read_terminal();
 
 public slots:
-    void terminalTab_connect();
+    void terminalTab_connect(int port);
     void save_terminal_interface_changes(QTextEdit *test_text);
 
 };

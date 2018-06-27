@@ -12,6 +12,8 @@ const QString xml_terminal_backgroud = "BackgroundColor";
 const QString xml_terminal_text_color = "TextColor";
 const QString xml_terminal_font_family = "FontFamily";
 const QString xml_terminal_font_size = "FontSize";
+const QString xml_qmp_port = "QMPPort";
+const QString xml_monitor_port = "MonitorPort";
 
 
 GlobalConfig::GlobalConfig(QObject *parent)
@@ -94,6 +96,15 @@ GlobalConfig::GlobalConfig(QObject *parent)
                             terminal_parameters_font_size = xmlReader.readElementText();
                             xmlReader.readNextStartElement();
                         }
+                    }
+                    if (xmlReader.name() == xml_qmp_port)
+                    {
+                        port_qmp = xmlReader.readElementText();
+                        
+                    }
+                    if (xmlReader.name() == xml_monitor_port)
+                    {
+                        port_monitor = xmlReader.readElementText();
                     }
                 }
                 xmlReader.readNext();
@@ -183,6 +194,28 @@ int GlobalConfig::get_terminal_font_size()
     return terminal_parameters_font_size.toInt();
 }
 
+int GlobalConfig::get_port_qmp()
+{
+    return port_qmp.toInt();
+}
+
+int GlobalConfig::get_port_monitor()
+{
+    return port_monitor.toInt();
+}
+
+void GlobalConfig::set_port_qmp(int port)
+{
+    port_qmp = QString().number(port);
+    save_config_file();
+}
+
+void GlobalConfig::set_port_monitor(int port)
+{
+    port_monitor = QString().number(port);
+    save_config_file();
+}
+
 VMConfig * GlobalConfig::get_vm_by_name(const QString &name)
 {
     foreach(VMConfig *vm, virtual_machines)
@@ -248,6 +281,14 @@ bool GlobalConfig::save_config_file()
             xmlWriter.writeCharacters(terminal_parameters_font_size);
             xmlWriter.writeEndElement();
         }
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement(xml_qmp_port);
+        xmlWriter.writeCharacters(port_qmp);
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement(xml_monitor_port);
+        xmlWriter.writeCharacters(port_monitor);
         xmlWriter.writeEndElement();
         
         xmlWriter.writeEndElement();

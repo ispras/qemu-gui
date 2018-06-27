@@ -11,15 +11,17 @@ class TerminalSettingsForm : public QWidget
     Q_OBJECT
 
 public:
-    TerminalSettingsForm(QWidget *parent, QTextEdit *terminal);
+    TerminalSettingsForm(QTextEdit *terminal, QWidget *parent = 0);
     ~TerminalSettingsForm();
+
+protected:
+    void closeEvent(QCloseEvent * event);
 
 private:
     QTextEdit *test_text;
 
 private slots :
     void save_terminal_interface_changes();
-    void closeEvent(QCloseEvent * event);
     void set_background_color();
     void set_text_color();
     void set_text_size(int size);

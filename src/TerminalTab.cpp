@@ -1,6 +1,6 @@
 #include "TerminalTab.h"
 
-TerminalTab::TerminalTab(QWidget *parent, GlobalConfig *global_config)
+TerminalTab::TerminalTab(GlobalConfig *global_config, QWidget *parent)
     : QWidget(parent)
 {
     this->global_config = global_config;
@@ -95,6 +95,10 @@ bool TerminalTab::eventFilter(QObject *obj, QEvent *event)
                     {
                         terminal_cmd->setText(saved_terminal_cmds.at(index + 1));
                     }
+                    else if (index + 1 == saved_terminal_cmds.size())
+                    {
+                        terminal_cmd->setText("");
+                    }
                 }
                 return true;
             }
@@ -111,6 +115,10 @@ bool TerminalTab::eventFilter(QObject *obj, QEvent *event)
                     if (index > 0)
                     {
                         terminal_cmd->setText(saved_terminal_cmds.at(index - 1));
+                    }
+                    else if (index == 0)
+                    {
+                        terminal_cmd->setText("");
                     }
                 }
                 return true;
@@ -132,11 +140,11 @@ void TerminalTab::send_monitor_command()
     terminal_cmd->clear();
 }
 
-void TerminalTab::terminalTab_connect()
+void TerminalTab::terminalTab_connect(int port)
 {
     terminal_text->clear();
-    monitor_socket.connectToHost("127.0.0.1", 24);
-    qDebug() << "Connecting 127.0.0.1:24";
+    monitor_socket.connectToHost("127.0.0.1", port);
+    qDebug() << "Connecting 127.0.0.1:" << port;
 }
 
 void TerminalTab::read_terminal()
