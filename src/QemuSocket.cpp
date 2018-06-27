@@ -12,7 +12,6 @@ QemuSocket::QemuSocket(QObject *parent)
 
 void QemuSocket::tryConnect()
 {
-    qDebug() << "Connecting to 127.0.0.1:" << port;
     connectToHost("127.0.0.1", port);
 }
 
@@ -46,7 +45,6 @@ void QemuSocket::processError(QAbstractSocket::SocketError socketError)
     }
     if (connecting)
     {
-        qDebug() << socketError;
         tryConnect();
     }
 }
