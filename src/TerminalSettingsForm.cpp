@@ -1,3 +1,4 @@
+#include "QemuGUICommon.h"
 #include "TerminalSettingsForm.h"
 
 TerminalSettingsForm::TerminalSettingsForm(QTextEdit *terminal, QWidget *parent)
