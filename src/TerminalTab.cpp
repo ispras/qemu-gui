@@ -10,17 +10,10 @@ TerminalTab::TerminalTab(GlobalConfig *global_config, QWidget *parent)
     terminal_cmd = new QLineEdit();
     terminal_cmd->installEventFilter(this);
 
-    if (global_config->is_terminal_parameters_set())
-    {
-        set_terminal_interface(global_config->get_terminal_backgroud(),
-            global_config->get_terminal_text_color(),
-            global_config->get_terminal_font_family(),
-            global_config->get_terminal_font_size());
-    }
-    else
-    {
-        set_terminal_interface();
-    }
+    set_terminal_interface(global_config->get_terminal_backgroud(),
+        global_config->get_terminal_text_color(),
+        global_config->get_terminal_font_family(),
+        global_config->get_terminal_font_size());
 
     QHBoxLayout *cmd_lay = new QHBoxLayout();
     cmd_lay->setSpacing(0);
@@ -172,6 +165,8 @@ void TerminalTab::save_terminal_interface_changes(QTextEdit *test_text)
     //}
     int index = style_list.indexOf("background");
 
-    set_terminal_interface(QColor("#" + style_list.at(index + 2)), test_text->textColor(), test_text->fontFamily(), test_text->fontPointSize());
-    global_config->set_terminal_parameters(QColor("#" + style_list.at(index + 2)), test_text->textColor(), test_text->fontFamily(), test_text->fontPointSize());
+    set_terminal_interface(QColor("#" + style_list.at(index + 2)), test_text->textColor(), 
+        test_text->fontFamily(), test_text->fontPointSize());
+    global_config->set_terminal_parameters(QColor("#" + style_list.at(index + 2)), test_text->textColor(), 
+        test_text->fontFamily(), test_text->fontPointSize());
 }

@@ -27,7 +27,6 @@ public:
     QString & get_current_qemu_dir();
     
     void set_terminal_parameters(QColor background, QColor text_color, const QString &font_family, int font_size);
-    bool is_terminal_parameters_set();
     QColor get_terminal_backgroud();
     QColor get_terminal_text_color();
     QString get_terminal_font_family();

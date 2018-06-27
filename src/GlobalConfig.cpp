@@ -14,8 +14,14 @@ const QString xml_terminal_font_family = "FontFamily";
 const QString xml_terminal_font_size = "FontSize";
 const QString xml_qmp_port = "QMPPort";
 const QString xml_monitor_port = "MonitorPort";
+
+// default values
 const QString qmp_port_default = "23";
 const QString monitor_port_default = "24";
+const QString bckgrnd_color_default = "#000000";
+const QString text_color_default = "#00ff00";
+const QString font_family_default = "Courier New";
+const QString font_size_default = "12";
 
 
 GlobalConfig::GlobalConfig(QObject *parent)
@@ -23,6 +29,10 @@ GlobalConfig::GlobalConfig(QObject *parent)
 {
     port_qmp = qmp_port_default;
     port_monitor = monitor_port_default;
+    terminal_parameters_background = bckgrnd_color_default;
+    terminal_parameters_text_color = text_color_default;
+    terminal_parameters_font_family = font_family_default;
+    terminal_parameters_font_size = font_size_default;
 
     path_to_home_dir = QDir::homePath() + "/QemuGUI_VirtualMachines";
     QDir home_dir(path_to_home_dir);
@@ -171,13 +181,6 @@ void GlobalConfig::set_terminal_parameters(QColor background, QColor text_color,
     save_config_file();
 }
 
-bool GlobalConfig::is_terminal_parameters_set()
-{
-    if (terminal_parameters_background != "")
-        return true;
-    return false;
-}
-
 QColor GlobalConfig::get_terminal_backgroud()
 {
     return QColor(terminal_parameters_background);
@@ -267,7 +270,6 @@ bool GlobalConfig::save_config_file()
         xmlWriter.writeEndElement();
 
         xmlWriter.writeStartElement(xml_terminal_settings);
-        if (is_terminal_parameters_set())
         {
             xmlWriter.writeStartElement(xml_terminal_backgroud);
             xmlWriter.writeCharacters(terminal_parameters_background);
