@@ -61,11 +61,9 @@ void QMPInteraction::connectedSocket()
 void QMPInteraction::command_stop_qemu()
 {
     socket.write(cmd_stop());
-    emit qemu_stopped();
 }
 
 void QMPInteraction::command_resume_qemu()
 {
     socket.write(cmd_continue());
-    emit qemu_resumed();
 }
