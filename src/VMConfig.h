@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QtWidgets>
+#include "Device.h"
 
 class VMConfig : public QObject
 {
@@ -13,7 +14,8 @@ public:
     ~VMConfig();
 
 public:
-    bool save_vm_config(const QString &path);
+    bool save_vm_config(const QString &path) const;
+    void save_vm_config() const;
     void set_name(const QString &name_vm_);
     void set_dir_path(const QString &dir_path_);
     void add_image_path(const QString &image_path_);
@@ -22,9 +24,9 @@ public:
     QString get_name();
     QString get_dir_path();
     QString get_image_path();
+    Device *getSystemDevice() { return &system; }
 
     void remove_directory_vm();
-
 private:
     QFile *list_of_vm_file = NULL;
 
@@ -32,6 +34,7 @@ private:
     QString dir_path;
     QString image_path;
 
+    Device system;
 };
 
 #endif //VMCONFIG_H

@@ -345,7 +345,8 @@ void QemuGUI::add_machine()
 
 void QemuGUI::edit_settings()
 {
-    VMSettingsForm *settingsWindow = new VMSettingsForm();
+    VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
+    VMSettingsForm *settingsWindow = new VMSettingsForm(vm);
     settingsWindow->setAttribute(Qt::WA_DeleteOnClose);
 }
 

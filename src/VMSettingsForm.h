@@ -2,16 +2,19 @@
 #define VMSETTINGSFORM_H
 
 #include <QtWidgets>
+#include "VMConfig.h"
 
 class VMSettingsForm : public QWidget
 {
     Q_OBJECT
 
 public:
-    VMSettingsForm(QWidget *parent = 0);
+    VMSettingsForm(VMConfig *vmconf, QWidget *parent = 0);
     ~VMSettingsForm();
 
 private:
+    VMConfig *vm;
+
     QTreeWidget *deviceTree;
     QDialogButtonBox *savecancel_btn;
     QLineEdit *new_component_line;
@@ -22,8 +25,9 @@ private:
 private:
     void connect_signals();
     void widget_placement();
+    void initTree(QTreeWidgetItem *item, const Device *device);
 
-    private slots:
+private slots:
     void save_settings();
     void onDeviceTreeItemClicked(QTreeWidgetItem *item, int column);
 };

@@ -1,8 +1,8 @@
 #include "VMSettingsForm.h"
 
 
-VMSettingsForm::VMSettingsForm(QWidget *parent)
-    : QWidget(parent)
+VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
+    : QWidget(parent), vm(vmconf)
 {
     if (VMSettingsForm::objectName().isEmpty())
         VMSettingsForm::setObjectName(QStringLiteral("VMSettingsForm"));
@@ -24,13 +24,7 @@ VMSettingsForm::VMSettingsForm(QWidget *parent)
     deviceTree->setHeaderHidden(1);
     deviceTree->setColumnCount(1);
 
-    QStringList list = { "CPU", "Memory", "Machine", "IDE" };
-
-    for (int i = 0; i < list.count(); i++)
-    {
-        components.append(new QTreeWidgetItem((QTreeWidget *)0, QStringList(list.at(i))));
-    }
-    deviceTree->insertTopLevelItems(0, components);
+    initTree(deviceTree->invisibleRootItem(), vm->getSystemDevice());
 
     connect_signals();
     widget_placement();
@@ -65,9 +59,20 @@ void VMSettingsForm::widget_placement()
     one->addWidget(savecancel_btn);
 }
 
+void VMSettingsForm::initTree(QTreeWidgetItem *item, const Device *device)
+{
+    item->setText(0, device->getDescription());
+    foreach(Device *dev, device->getDevices())
+    {
+        QTreeWidgetItem *it = new QTreeWidgetItem();
+        item->addChild(it);
+        initTree(it, dev);
+    }
+}
+
 void VMSettingsForm::save_settings()
 {
-    QMessageBox::about(this, "Hello", "Its OK");
+    vm->save_vm_config();
     this->close();
 }
 

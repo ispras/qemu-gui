@@ -11,7 +11,7 @@ static bool remove_directory(QDir dir);
 
 
 VMConfig::VMConfig(QObject *parent, const QString &path_vm)
-    : QObject(parent)
+    : QObject(parent), system("System")
 {
     QString path = path_vm;
     QString xml_name;
@@ -48,6 +48,13 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
         }
         file.close();
     }
+    else
+    {
+        /* Default config */
+        system.addDevice(new Device("CPU"));
+        system.addDevice(new Device("Memory"));
+        system.addDevice(new Device("Machine"));
+    }
 }
 
 VMConfig::~VMConfig()
@@ -56,7 +63,7 @@ VMConfig::~VMConfig()
 }
 
 
-bool VMConfig::save_vm_config(const QString &path)
+bool VMConfig::save_vm_config(const QString &path) const
 {
     QDir vm_dir(path);
     if (!vm_dir.exists())
@@ -91,12 +98,19 @@ bool VMConfig::save_vm_config(const QString &path)
         xmlWriter.writeCharacters(image_path);
         xmlWriter.writeEndElement();
 
+        system.save(xmlWriter);
+
         xmlWriter.writeEndElement();
         xmlWriter.writeEndDocument();
         file.close();
         return true;
     }
     return false;
+}
+
+void VMConfig::save_vm_config() const
+{
+    save_vm_config(dir_path);
 }
 
 void VMConfig::set_name(const QString &name_vm_)
