@@ -40,3 +40,22 @@ void Device::save(QXmlStreamWriter &xml) const
     
     xml.writeEndElement();
 }
+
+void Device::read(QXmlStreamReader &xml)
+{
+    Q_ASSERT(xml.isStartElement() && xml.name() == QLatin1String("Device"));
+
+    while (xml.readNextStartElement())
+    {
+        // TODO: make reader with correct types
+        if (xml.name() == "Name")
+        {
+            name = xml.readElementText();
+        }
+        else /* Device */
+        {
+            Device *dev = new Device("", this);
+            dev->read(xml);
+        }
+    }
+}

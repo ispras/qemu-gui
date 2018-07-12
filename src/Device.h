@@ -17,6 +17,7 @@ public:
     QString getDescription() const;
 
     void save(QXmlStreamWriter &xml) const;
+    void read(QXmlStreamReader &xml);
 
 private:
     QString name;

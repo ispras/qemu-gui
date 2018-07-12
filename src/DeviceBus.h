@@ -4,6 +4,7 @@
 #include "Device.h"
 
 class DeviceStorageController;
+class DeviceIdeController;
 
 class DeviceBus : public Device
 {

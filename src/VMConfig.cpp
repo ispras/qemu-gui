@@ -3,6 +3,7 @@
 #include "DeviceStorage.h"
 
 const QString const_xml_name = "vm.xml";
+const QString xml_parameters = "VMParameters";
 const QString xml_field_name = "Name";
 const QString xml_field_dir = "Directory_path";
 const QString xml_field_img = "Image_path";
@@ -25,28 +26,28 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
     {
         QXmlStreamReader xmlReader(&file);
 
-        xmlReader.readNext();
+        xmlReader.readNextStartElement();
+        Q_ASSERT(xmlReader.name() == xml_parameters);
 
-        while (!xmlReader.atEnd())
+        while (xmlReader.readNextStartElement())
         {
-            if (xmlReader.isStartElement())
+            if (xmlReader.name() == xml_field_name)
             {
-                if (xmlReader.name() == xml_field_name)
-                {
-                    name_vm = xmlReader.readElementText();
-                }
-                if (xmlReader.name() == xml_field_dir)
-                {
-                    dir_path = xmlReader.readElementText();
-                }
-                if (xmlReader.name() == xml_field_img)
-                {
-                    image_path = xmlReader.readElementText();
-                }
+                name_vm = xmlReader.readElementText();
             }
-            xmlReader.readNext();
+            else if (xmlReader.name() == xml_field_dir)
+            {
+                dir_path = xmlReader.readElementText();
+            }
+            else if (xmlReader.name() == xml_field_img)
+            {
+                image_path = xmlReader.readElementText();
+            }
+            else /* Device */
+            {
+                system.read(xmlReader);
+            }
         }
-        file.close();
     }
     else
     {
@@ -82,7 +83,7 @@ bool VMConfig::save_vm_config(const QString &path) const
 
         xmlWriter.setAutoFormatting(true);
         xmlWriter.writeStartDocument();
-        xmlWriter.writeStartElement("VMParameters");
+        xmlWriter.writeStartElement(xml_parameters);
 
         xmlWriter.writeStartElement(xml_field_name);
         xmlWriter.writeCharacters(name_vm);
