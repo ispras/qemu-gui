@@ -1,9 +1,19 @@
 #include "Device.h"
 
-Device::Device(const QString &n, QObject *parent)
-    : QObject(parent), name(n)
-{
+/*
 
+Device properties:
+ - parent bus type
+ - child buses
+   - type of children
+   - number of children
+*/
+
+Device::Device(const QString &n, Device *parent)
+    : QObject(NULL), name(n)
+{
+    if (parent)
+        parent->addDevice(this);
 }
 
 void Device::addDevice(Device *dev)

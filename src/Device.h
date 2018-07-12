@@ -8,7 +8,7 @@ class Device : public QObject
 {
     Q_OBJECT
 public:
-    Device(const QString &n, QObject *parent = 0);
+    Device(const QString &n, Device *parent = 0);
 
     typedef QList<Device *> Devices;
 

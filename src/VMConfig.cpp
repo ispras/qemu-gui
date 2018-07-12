@@ -1,6 +1,6 @@
 #include "VMConfig.h"
 #include "CreateVMForm.h"
-
+#include "DeviceStorage.h"
 
 const QString const_xml_name = "vm.xml";
 const QString xml_field_name = "Name";
@@ -51,9 +51,10 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
     else
     {
         /* Default config */
-        system.addDevice(new Device("CPU"));
-        system.addDevice(new Device("Memory"));
-        system.addDevice(new Device("Machine"));
+        new Device("CPU", &system);
+        new Device("Memory", &system);
+        new Device("Machine", &system);
+        new DeviceIdeController(&system);
     }
 }
 
