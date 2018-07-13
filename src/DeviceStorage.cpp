@@ -7,8 +7,15 @@ DeviceStorageController::DeviceStorageController(const QString &n, Device *paren
 
 }
 
+const char DeviceIdeController::typeName[] = "DeviceIdeController";
+
 DeviceIdeController::DeviceIdeController(Device *parent)
     : DeviceStorageController("IDE", parent)
+{
+    initDefault();
+}
+
+void DeviceIdeController::initDefault()
 {
     new DeviceBusIde(0, this);
     new DeviceBusIde(1, this);

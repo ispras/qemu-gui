@@ -10,12 +10,18 @@ class DeviceBus : public Device
 {
 public:
     DeviceBus(const QString &n, Device *parent);
+
+    virtual QString getDeviceTypeName() const = 0;
 };
 
 class DeviceBusIde : public DeviceBus
 {
 public:
+    static const char typeName[];
+
     DeviceBusIde(int id, DeviceIdeController *parent);
+
+    virtual QString getDeviceTypeName() const { return typeName; }
 };
 
 #endif // DEVICEBUS_H

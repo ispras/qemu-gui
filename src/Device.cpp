@@ -1,4 +1,5 @@
 #include "Device.h"
+#include "DeviceFactory.h"
 
 /*
 
@@ -29,7 +30,7 @@ QString Device::getDescription() const
 
 void Device::save(QXmlStreamWriter &xml) const
 {
-    xml.writeStartElement("Device");
+    xml.writeStartElement(getDeviceTypeName());
 
     xml.writeStartElement("Name");
     xml.writeCharacters(name);
@@ -43,19 +44,23 @@ void Device::save(QXmlStreamWriter &xml) const
 
 void Device::read(QXmlStreamReader &xml)
 {
-    Q_ASSERT(xml.isStartElement() && xml.name() == QLatin1String("Device"));
+    Q_ASSERT(xml.isStartElement() && xml.name() == getDeviceTypeName());
+
+    xml.readNextStartElement();
+    Q_ASSERT(xml.name() == "Name");
+    name = xml.readElementText();
+
+    // default children
+    foreach(Device *dev, devices)
+    {
+        xml.readNextStartElement();
+        dev->read(xml);
+    }
 
     while (xml.readNextStartElement())
     {
-        // TODO: make reader with correct types
-        if (xml.name() == "Name")
-        {
-            name = xml.readElementText();
-        }
-        else /* Device */
-        {
-            Device *dev = new Device("", this);
-            dev->read(xml);
-        }
+        Device *dev = DeviceFactory::createDevice(xml.name());
+        addDevice(dev);
+        dev->read(xml);
     }
 }

@@ -8,6 +8,7 @@ class Device : public QObject
 {
     Q_OBJECT
 public:
+    Device() {}
     Device(const QString &n, Device *parent = 0);
 
     typedef QList<Device *> Devices;
@@ -18,6 +19,8 @@ public:
 
     void save(QXmlStreamWriter &xml) const;
     void read(QXmlStreamReader &xml);
+
+    virtual QString getDeviceTypeName() const { return "Device"; }
 
 private:
     QString name;
