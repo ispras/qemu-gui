@@ -3,6 +3,7 @@
 
 #include <QtWidgets>
 #include "VMConfig.h"
+#include "AddDeviceForm.h"
 
 class VMSettingsForm : public QWidget
 {
@@ -11,6 +12,9 @@ class VMSettingsForm : public QWidget
 public:
     VMSettingsForm(VMConfig *vmconf, QWidget *parent = 0);
     ~VMSettingsForm();
+
+public slots:
+    void addNewDevice(const QString &devName);
 
 private:
     VMConfig *vm;
@@ -30,6 +34,8 @@ private:
 private slots:
     void save_settings();
     void onDeviceTreeItemClicked(QTreeWidgetItem *item, int column);
+    void showContextMenu(const QPoint &pos);
+
 };
 
 #endif // VMSETTINGSFORM_H
