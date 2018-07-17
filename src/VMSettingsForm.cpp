@@ -25,7 +25,11 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
     deviceTree->setHeaderHidden(1);
     deviceTree->setColumnCount(1);
 
-    initTree(deviceTree->invisibleRootItem(), vm->getSystemDevice());
+    foreach(Device *dev, vm->getSystemDevice()->getDevices())
+    {
+        DeviceTreeItem *it = new DeviceTreeItem(dev);
+        deviceTree->invisibleRootItem()->addChild(it);
+    }
 
     connect_signals();
     widget_placement();
@@ -60,17 +64,6 @@ void VMSettingsForm::widget_placement()
     one->addLayout(edit_comp_lay);
     one->addSpacing(20);
     one->addWidget(savecancel_btn);
-}
-
-void VMSettingsForm::initTree(QTreeWidgetItem *item, const Device *device)
-{
-    item->setText(0, device->getDescription());
-    foreach(Device *dev, device->getDevices())
-    {
-        QTreeWidgetItem *it = new QTreeWidgetItem();
-        item->addChild(it);
-        initTree(it, dev);
-    }
 }
 
 void VMSettingsForm::save_settings()
@@ -130,3 +123,21 @@ void VMSettingsForm::addNewDevice(const QString &devName)
     deviceTree->currentItem()->setExpanded(true);
 }
 
+/***************************************************************************
+ * DeviceTreeItem                                                          *
+ ***************************************************************************/
+
+DeviceTreeItem::DeviceTreeItem(Device *dev)
+{
+    initDevice(dev);
+}
+
+void DeviceTreeItem::initDevice(Device *device)
+{
+    setText(0, device->getDescription());
+    foreach(Device *dev, device->getDevices())
+    {
+        DeviceTreeItem *it = new DeviceTreeItem(dev);
+        addChild(it);
+    }
+}

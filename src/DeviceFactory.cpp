@@ -8,6 +8,8 @@ Device *createDevice(QStringRef name)
 {
     if (name == DeviceIdeController::typeName)
         return new DeviceIdeController();
+    if (name == DeviceIdeHd::typeName)
+        return new DeviceIdeHd();
 
     return new Device();
 }

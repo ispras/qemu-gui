@@ -120,11 +120,6 @@ void VMConfig::set_name(const QString &name_vm_)
     name_vm = name_vm_;
 }
 
-void VMConfig::set_dir_path(const QString &dir_path_)
-{
-    dir_path = dir_path_;
-}
-
 void VMConfig::add_image_path(const QString &image_path_)
 {
     image_path = image_path_;

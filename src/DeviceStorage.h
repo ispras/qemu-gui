@@ -32,4 +32,24 @@ private:
     void initDefault();
 };
 
+class DeviceStorage : public Device
+{
+public:
+    DeviceStorage() {}
+    DeviceStorage(const QString &n, Device *parent);
+
+    virtual QString getDeviceTypeName() const = 0;
+};
+
+class DeviceIdeHd : public DeviceStorage
+{
+public:
+    static const char typeName[];
+
+    DeviceIdeHd() {}
+    DeviceIdeHd(Device *parent);
+
+    virtual QString getDeviceTypeName() const { return typeName; }
+};
+
 #endif // DEVICESTORAGE_H

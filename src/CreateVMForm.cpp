@@ -352,7 +352,6 @@ void CreateVMForm::create_vm()
     VMConfig *configVM = new VMConfig(nullptr, pathtovm_edit->text());
 
     configVM->set_name(name_edit->text());
-    configVM->set_dir_path(pathtovm_edit->text());
     configVM->add_image_path(imageplace_edit->text());
       
     emit createVM_new_vm_is_complete(configVM);
