@@ -50,6 +50,7 @@ public:
     DeviceIdeHd(Device *parent);
 
     virtual QString getDeviceTypeName() const { return typeName; }
+    virtual QWidget *getEditorForm();
 };
 
 #endif // DEVICESTORAGE_H

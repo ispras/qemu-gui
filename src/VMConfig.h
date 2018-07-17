@@ -17,7 +17,6 @@ public:
     bool save_vm_config(const QString &path) const;
     void save_vm_config() const;
     void set_name(const QString &name_vm_);
-    void set_dir_path(const QString &dir_path_);
     void add_image_path(const QString &image_path_);
     QString get_vm_info();
 

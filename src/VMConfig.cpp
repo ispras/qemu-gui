@@ -18,7 +18,13 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
     QString xml_name;
     if (path_vm.section('/', -1) != const_xml_name)
     {
+        dir_path = path;
         path = path + "/" + const_xml_name;
+    }
+    else
+    {
+        dir_path = path;
+        dir_path.chop(const_xml_name.size());
     }
 
     QFile file(path);
@@ -37,7 +43,7 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
             }
             else if (xmlReader.name() == xml_field_dir)
             {
-                dir_path = xmlReader.readElementText();
+                //dir_path = xmlReader.readElementText();
             }
             else if (xmlReader.name() == xml_field_img)
             {
@@ -55,7 +61,10 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
         new Device("CPU", &system);
         new Device("Memory", &system);
         new Device("Machine", &system);
-        new DeviceIdeController(&system);
+        /* TODO: Dummy hdd, fix it later after adding
+                 image configuration support */
+        Device *ide = new DeviceIdeController(&system);
+        new DeviceIdeHd(ide->getDevices().at(0));
     }
 }
 
@@ -87,13 +96,6 @@ bool VMConfig::save_vm_config(const QString &path) const
 
         xmlWriter.writeStartElement(xml_field_name);
         xmlWriter.writeCharacters(name_vm);
-        xmlWriter.writeEndElement();
-
-        xmlWriter.writeStartElement(xml_field_dir);
-        if (dir_path != "")
-            xmlWriter.writeCharacters(dir_path);
-        else
-            xmlWriter.writeCharacters(path);
         xmlWriter.writeEndElement();
 
         xmlWriter.writeStartElement(xml_field_img);

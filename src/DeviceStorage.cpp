@@ -33,3 +33,8 @@ DeviceIdeHd::DeviceIdeHd(Device *parent)
     : DeviceStorage("IDE-HD", parent)
 {
 }
+
+QWidget *DeviceIdeHd::getEditorForm()
+{
+    return NULL;
+}

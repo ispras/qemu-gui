@@ -22,6 +22,8 @@ public:
 
     virtual QString getDeviceTypeName() const { return "Device"; }
 
+    virtual QWidget *getEditorForm() { return NULL; }
+
 private:
     QString name;
     Devices devices;
