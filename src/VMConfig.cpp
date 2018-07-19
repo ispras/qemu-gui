@@ -47,7 +47,7 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
             }
             else if (xmlReader.name() == xml_field_img)
             {
-                image_path = xmlReader.readElementText();
+                //image_path = xmlReader.readElementText();
             }
             else /* Device */
             {
@@ -61,10 +61,6 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
         new Device("CPU", &system);
         new Device("Memory", &system);
         new Device("Machine", &system);
-        /* TODO: Dummy hdd, fix it later after adding
-                 image configuration support */
-        Device *ide = new DeviceIdeController(&system);
-        new DeviceIdeHd(ide->getDevices().at(0));
     }
 }
 
@@ -98,10 +94,6 @@ bool VMConfig::save_vm_config(const QString &path) const
         xmlWriter.writeCharacters(name_vm);
         xmlWriter.writeEndElement();
 
-        xmlWriter.writeStartElement(xml_field_img);
-        xmlWriter.writeCharacters(image_path);
-        xmlWriter.writeEndElement();
-
         system.save(xmlWriter);
 
         xmlWriter.writeEndElement();
@@ -122,14 +114,16 @@ void VMConfig::set_name(const QString &name_vm_)
     name_vm = name_vm_;
 }
 
-void VMConfig::add_image_path(const QString &image_path_)
+void VMConfig::addDefaultIDE(const QString &image)
 {
-    image_path = image_path_;
+    Device *ide = new DeviceIdeController(&system);
+    new DeviceIdeHd(image, ide->getDevices().at(0));
 }
 
 QString VMConfig::get_vm_info()
 {
-    QString info = "Name: " + name_vm + "\n" + "Directory: " + dir_path + "\n" + "Image: " + image_path;
+    QString info = "Name: " + name_vm + "\n" + "Directory: " + dir_path + "\n";
+    // TODO: output hw config
     return info;
 }
 
@@ -143,9 +137,9 @@ QString VMConfig::get_dir_path()
     return dir_path;
 }
 
-QString VMConfig::get_image_path()
+QString VMConfig::getCommandLine()
 {
-    return image_path;
+    return system.getCommandLine();
 }
 
 void VMConfig::remove_directory_vm()
@@ -179,6 +173,3 @@ static bool remove_directory(QDir dir)
     }
     return res;
 }
-
-
-

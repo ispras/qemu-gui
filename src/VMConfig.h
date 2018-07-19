@@ -17,12 +17,12 @@ public:
     bool save_vm_config(const QString &path) const;
     void save_vm_config() const;
     void set_name(const QString &name_vm_);
-    void add_image_path(const QString &image_path_);
+    void addDefaultIDE(const QString &image);
     QString get_vm_info();
 
     QString get_name();
     QString get_dir_path();
-    QString get_image_path();
+    QString getCommandLine();
     Device *getSystemDevice() { return &system; }
 
     void remove_directory_vm();
@@ -31,7 +31,6 @@ private:
 
     QString name_vm;
     QString dir_path;
-    QString image_path;
 
     Device system;
 };

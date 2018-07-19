@@ -306,6 +306,7 @@ void CreateVMForm::hdd_no(bool state)
     if (state)
     {
         show_error_message("");
+        imageplace_edit->clear();
         set_visible_widgets_for_new_hdd(false);
         set_visible_widgets_for_existed_hdd(false);
     }
@@ -352,7 +353,8 @@ void CreateVMForm::create_vm()
     VMConfig *configVM = new VMConfig(nullptr, pathtovm_edit->text());
 
     configVM->set_name(name_edit->text());
-    configVM->add_image_path(imageplace_edit->text());
+    if (!imageplace_edit->text().isEmpty())
+        configVM->addDefaultIDE(imageplace_edit->text());
       
     emit createVM_new_vm_is_complete(configVM);
     close();

@@ -47,10 +47,18 @@ public:
     static const char typeName[];
 
     DeviceIdeHd() {}
-    DeviceIdeHd(Device *parent);
+    DeviceIdeHd(const QString &img, Device *parent);
 
     virtual QString getDeviceTypeName() const { return typeName; }
     virtual QWidget *getEditorForm();
+
+protected:
+    virtual void saveParameters(QXmlStreamWriter &xml) const;
+    virtual void readParameters(QXmlStreamReader &xml);
+    virtual QString getCommandLineOption();
+
+private:
+    QString image;
 };
 
 #endif // DEVICESTORAGE_H
