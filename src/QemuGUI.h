@@ -105,6 +105,9 @@ private slots:
     void set_terminal_settings();
     void launch_settings();
 
+public slots:
+    void deleteBadVM();
+
 
 signals:
     void qmp_resume_qemu();

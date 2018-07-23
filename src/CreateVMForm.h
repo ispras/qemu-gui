@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QtWidgets>
 #include "VMConfig.h"
+#include "QemuImgLauncher.h"
 
 
 #define MAX_RAM_VALUE (32768 / 2)
@@ -15,7 +16,7 @@ class CreateVMForm : public QWidget
     Q_OBJECT
 
 public:
-    CreateVMForm(const QString &home_dir = "");
+    CreateVMForm(const QString &home_dir = "", const QString &qemu_dir = "");
     ~CreateVMForm();
 
 private:
@@ -39,7 +40,10 @@ private:
     QLabel *error_lbl;
 
     QString default_path;
+    QString qemu_dir;
     QString path_to_vm;
+
+    QProgressDialog *imgCreationDlg;
 
 
 private:
@@ -60,9 +64,15 @@ private:
     QString set_path_to_vm(const QString &home_path);
     bool input_verification(const QString &path, const QString &name);
 
+private slots:
+    void cancelImageCreation();
+
+public slots:
+    void finish_qemu_img(int exitCode);
 
 signals:
     void createVM_new_vm_is_complete(VMConfig *);
+    void createVMBadCreation();
 
 };
 

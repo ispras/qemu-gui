@@ -2,7 +2,7 @@
 #include "CreateVMForm.h"
 
 
-CreateVMForm::CreateVMForm(const QString &home_dir)
+CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     : QWidget()
 {
     if (CreateVMForm::objectName().isEmpty())
@@ -14,8 +14,9 @@ CreateVMForm::CreateVMForm(const QString &home_dir)
     setWindowFlags(Qt::MSWindowsFixedSizeDialogHint);
 
     default_path = home_dir;
+    this->qemu_dir = qemu_dir;
 
-    QStringList format = { "QCOW2", "QCOW", "COW", "RAW", "VMDK", "CLOOP", "VPC(VHD)?" };
+    QStringList format = { "qcow2", "qcow", "cow", "raw"}; // "vmdk", "cloop", "VPC(VHD)?"};
     QStringList os_type = { "Windows", "Linux", "Ubuntu", "MacOS", "Other" };
 
     name_edit = new QLineEdit(this);
@@ -353,9 +354,70 @@ void CreateVMForm::create_vm()
 
     configVM->set_name(name_edit->text());
     configVM->set_dir_path(pathtovm_edit->text());
-    configVM->add_image_path(imageplace_edit->text());
-      
-    emit createVM_new_vm_is_complete(configVM);
-    close();
+    if (hdd_exist_rb->isChecked())
+        configVM->add_image_path(imageplace_edit->text());
+    else if (hdd_no_rb->isChecked())
+        configVM->add_image_path("");
+    else if (hdd_new_rb->isChecked())
+        configVM->add_image_path(pathtovm_edit->text() + "/" + name_edit->text() + "." + format_combo->currentText());
+
+    if (!hdd_new_rb->isChecked())
+    {
+        emit createVM_new_vm_is_complete(configVM);
+        close();
+    }
+    else
+    {
+        if (QString().compare(qemu_dir, "") != 0)
+        {
+            setVisible(false);
+            imgCreationDlg = new QProgressDialog("Creating the image...", "", 0, 0);
+            imgCreationDlg->setCancelButton(nullptr);
+            imgCreationDlg->setWindowTitle("Please Wait");
+            imgCreationDlg->setRange(0, 0);
+            imgCreationDlg->show();
+            //connect(imgCreationDlg, SIGNAL(canceled()), this, SLOT(cancelImageCreation()));
+                        
+            QString imageName = pathtovm_edit->text() + "/" + name_edit->text() + "." + format_combo->currentText();
+
+            QThread *thread = new QThread();
+            QemuImgLauncher *imgLaucher = new QemuImgLauncher(qemu_dir, format_combo->currentText(), imageName, hddsize_spin->value());
+
+            imgLaucher->moveToThread(thread);
+            connect(thread, SIGNAL(started()), imgLaucher, SLOT(start_qemu_img()));
+            connect(imgLaucher, SIGNAL(qemu_img_finished(int)), this, SLOT(finish_qemu_img(int)));
+            thread->start();
+
+            emit createVM_new_vm_is_complete(configVM);
+        }
+        else
+        {
+            QMessageBox::critical(this, "Error", "Didn\'t select Qemu installation directoty");
+        }
+    }
+    
 }
+
+void CreateVMForm::finish_qemu_img(int exitCode)
+{
+    if (exitCode == 0)
+    {
+        imgCreationDlg->setMaximum(1);
+        imgCreationDlg->setValue(1);
+        close();
+    }
+    else
+    {
+        QMessageBox::critical(this, "Error", "Image wasn't created. Why? I don't know");
+        imgCreationDlg->close();
+        emit createVMBadCreation();
+    }
+}
+
+void CreateVMForm::cancelImageCreation()
+{
+    finish_qemu_img(-1);
+}
+
+
 
