@@ -307,6 +307,7 @@ void CreateVMForm::hdd_no(bool state)
     if (state)
     {
         show_error_message("");
+        imageplace_edit->clear();
         set_visible_widgets_for_new_hdd(false);
         set_visible_widgets_for_existed_hdd(false);
     }
@@ -353,13 +354,9 @@ void CreateVMForm::create_vm()
     VMConfig *configVM = new VMConfig(nullptr, pathtovm_edit->text());
 
     configVM->set_name(name_edit->text());
-    configVM->set_dir_path(pathtovm_edit->text());
-    if (hdd_exist_rb->isChecked())
-        configVM->add_image_path(imageplace_edit->text());
-    else if (hdd_no_rb->isChecked())
-        configVM->add_image_path("");
-    else if (hdd_new_rb->isChecked())
-        configVM->add_image_path(pathtovm_edit->text() + "/" + name_edit->text() + "." + format_combo->currentText());
+
+    if (!imageplace_edit->text().isEmpty())
+        configVM->addDefaultIDE(imageplace_edit->text());
 
     if (!hdd_new_rb->isChecked())
     {
@@ -370,6 +367,7 @@ void CreateVMForm::create_vm()
     {
         if (QString().compare(qemu_dir, "") != 0)
         {
+            configVM->addDefaultIDE(pathtovm_edit->text() + "/" + name_edit->text() + "." + format_combo->currentText());
             setVisible(false);
             imgCreationDlg = new QProgressDialog("Creating the image...", "", 0, 0);
             imgCreationDlg->setCancelButton(nullptr);
@@ -396,6 +394,7 @@ void CreateVMForm::create_vm()
         }
     }
     
+
 }
 
 void CreateVMForm::finish_qemu_img(int exitCode)

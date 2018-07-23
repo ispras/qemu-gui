@@ -1,8 +1,9 @@
 #include "QemuLauncher.h"
 
 
-QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm, const QString &port_qmp, const QString &port_monitor, QObject *parent)
-    : QObject(parent)
+QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
+    const QString &port_qmp, const QString &port_monitor, QObject *parent)
+    : QObject(parent), virtual_machine(vm)
 {
     qemu_dir = qemu_install_dir_path
 #ifdef Q_OS_WIN
@@ -10,7 +11,6 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm, c
 #else
         + "/qemu-system-i386";
 #endif
-    virtual_machine = vm;
 
     this->port_monitor = port_monitor;
     this->port_qmp = port_qmp;
@@ -34,7 +34,7 @@ void QemuLauncher::start_qemu()
     connect(qemu, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(finish_qemu(int, QProcess::ExitStatus)));
     QString mon = " -monitor \"tcp:127.0.0.1:" + port_monitor + ",server,nowait\"";
     QString qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,nowait\"";
-    qemu->start(qemu_dir + " " + virtual_machine->get_image_path() + mon + qmp);
+    qemu->start(qemu_dir + " " + virtual_machine->getCommandLine() + mon + qmp);
     qemu->waitForFinished(-1);
 }
 

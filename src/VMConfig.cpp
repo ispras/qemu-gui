@@ -18,7 +18,13 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
     QString xml_name;
     if (path_vm.section('/', -1) != const_xml_name)
     {
+        dir_path = path;
         path = path + "/" + const_xml_name;
+    }
+    else
+    {
+        dir_path = path;
+        dir_path.chop(const_xml_name.size());
     }
 
     QFile file(path);
@@ -37,11 +43,11 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
             }
             else if (xmlReader.name() == xml_field_dir)
             {
-                dir_path = xmlReader.readElementText();
+                //dir_path = xmlReader.readElementText();
             }
             else if (xmlReader.name() == xml_field_img)
             {
-                image_path = xmlReader.readElementText();
+                //image_path = xmlReader.readElementText();
             }
             else /* Device */
             {
@@ -55,7 +61,6 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
         new Device("CPU", &system);
         new Device("Memory", &system);
         new Device("Machine", &system);
-        new DeviceIdeController(&system);
     }
 }
 
@@ -89,17 +94,6 @@ bool VMConfig::save_vm_config(const QString &path) const
         xmlWriter.writeCharacters(name_vm);
         xmlWriter.writeEndElement();
 
-        xmlWriter.writeStartElement(xml_field_dir);
-        if (dir_path != "")
-            xmlWriter.writeCharacters(dir_path);
-        else
-            xmlWriter.writeCharacters(path);
-        xmlWriter.writeEndElement();
-
-        xmlWriter.writeStartElement(xml_field_img);
-        xmlWriter.writeCharacters(image_path);
-        xmlWriter.writeEndElement();
-
         system.save(xmlWriter);
 
         xmlWriter.writeEndElement();
@@ -120,19 +114,16 @@ void VMConfig::set_name(const QString &name_vm_)
     name_vm = name_vm_;
 }
 
-void VMConfig::set_dir_path(const QString &dir_path_)
+void VMConfig::addDefaultIDE(const QString &image)
 {
-    dir_path = dir_path_;
-}
-
-void VMConfig::add_image_path(const QString &image_path_)
-{
-    image_path = image_path_;
+    Device *ide = new DeviceIdeController(&system);
+    new DeviceIdeHd(image, ide->getDevices().at(0));
 }
 
 QString VMConfig::get_vm_info()
 {
-    QString info = "Name: " + name_vm + "\n" + "Directory: " + dir_path + "\n" + "Image: " + image_path;
+    QString info = "Name: " + name_vm + "\n" + "Directory: " + dir_path + "\n";
+    // TODO: output hw config
     return info;
 }
 
@@ -146,9 +137,9 @@ QString VMConfig::get_dir_path()
     return dir_path;
 }
 
-QString VMConfig::get_image_path()
+QString VMConfig::getCommandLine()
 {
-    return image_path;
+    return system.getCommandLine();
 }
 
 void VMConfig::remove_directory_vm()
@@ -182,6 +173,3 @@ static bool remove_directory(QDir dir)
     }
     return res;
 }
-
-
-

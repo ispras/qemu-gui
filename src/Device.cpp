@@ -10,6 +10,8 @@ Device properties:
    - number of children
 */
 
+static const char xml_name[] = "Name";
+
 Device::Device(const QString &n, Device *parent)
     : QObject(NULL), name(n)
 {
@@ -32,9 +34,11 @@ void Device::save(QXmlStreamWriter &xml) const
 {
     xml.writeStartElement(getDeviceTypeName());
 
-    xml.writeStartElement("Name");
+    xml.writeStartElement(xml_name);
     xml.writeCharacters(name);
     xml.writeEndElement();
+
+    saveParameters(xml);
 
     foreach(Device *dev, devices)
         dev->save(xml);
@@ -47,8 +51,10 @@ void Device::read(QXmlStreamReader &xml)
     Q_ASSERT(xml.isStartElement() && xml.name() == getDeviceTypeName());
 
     xml.readNextStartElement();
-    Q_ASSERT(xml.name() == "Name");
+    Q_ASSERT(xml.name() == xml_name);
     name = xml.readElementText();
+
+    readParameters(xml);
 
     // default children
     foreach(Device *dev, devices)
@@ -63,4 +69,12 @@ void Device::read(QXmlStreamReader &xml)
         addDevice(dev);
         dev->read(xml);
     }
+}
+
+QString Device::getCommandLine()
+{
+    QString res = getCommandLineOption() + " ";
+    foreach(Device *dev, devices)
+        res += dev->getCommandLine();
+    return res;
 }

@@ -327,17 +327,24 @@ void QemuGUI::stop_machine()
 
 void QemuGUI::create_machine()
 {
-    if (qemu_install_dir_combo->count() > 1 && qemu_install_dir_combo->currentIndex() != qemu_install_dir_combo->count() - 1)
+    if (qemu_install_dir_combo->count() > 1 &&
+        qemu_install_dir_combo->currentIndex() != qemu_install_dir_combo->count() - 1)
+    {
         createVMWindow = new CreateVMForm(global_config->get_home_dir(), qemu_install_dir_combo->currentText());
+    }
     else
+    {
         createVMWindow = new CreateVMForm(global_config->get_home_dir());
-    connect(createVMWindow, SIGNAL(createVM_new_vm_is_complete(VMConfig *)), global_config, SLOT(vm_is_created(VMConfig *)));
+    }
+    connect(createVMWindow, SIGNAL(createVM_new_vm_is_complete(VMConfig *)),
+        global_config, SLOT(vm_is_created(VMConfig *)));
     connect(createVMWindow, SIGNAL(createVMBadCreation()), this, SLOT(deleteBadVM()));
 }
 
 void QemuGUI::add_machine()
 {
-    QString filename = QFileDialog::getOpenFileName(this, "Add exist VM", global_config->get_home_dir(), "*.xml");
+    QString filename = QFileDialog::getOpenFileName(this, "Add exist VM",
+        global_config->get_home_dir(), "*.xml");
     if (filename != "")
     {
         if (global_config->add_exist_vm(filename))
