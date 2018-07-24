@@ -172,13 +172,16 @@ void CreateVMForm::widget_placement()
 void CreateVMForm::connect_signals()
 {
     connect(pathtovm_btn, SIGNAL(clicked()), this, SLOT(select_dir()));
-    connect(name_edit, SIGNAL(textEdited(const QString &)), this, SLOT(change_path(const QString &)));
+    connect(name_edit, SIGNAL(textEdited(const QString &)),
+        this, SLOT(change_path(const QString &)));
 
     connect(ram_slider, &QSlider::valueChanged, ram_spin, &QSpinBox::setValue);
-    connect(ram_spin, QOverload<int>::of(&QSpinBox::valueChanged), ram_slider, &QSlider::setValue);
+    connect(ram_spin, QOverload<int>::of(&QSpinBox::valueChanged),
+        ram_slider, &QSlider::setValue);
 
     connect(hddsize_slider, &QSlider::valueChanged, hddsize_spin, &QSpinBox::setValue);
-    connect(hddsize_spin, QOverload<int>::of(&QSpinBox::valueChanged), hddsize_slider, &QSlider::setValue);
+    connect(hddsize_spin, QOverload<int>::of(&QSpinBox::valueChanged),
+        hddsize_slider, &QSlider::setValue);
 
     connect(hdd_no_rb, &QRadioButton::toggled, this, &CreateVMForm::hdd_no);
     connect(hdd_exist_rb, &QRadioButton::toggled, this, &CreateVMForm::hdd_exist);
@@ -192,7 +195,8 @@ void CreateVMForm::connect_signals()
 
 void CreateVMForm::select_dir()
 {
-    QString directory_name = QFileDialog::getExistingDirectory(this, "Select directory", default_path);
+    QString directory_name = QFileDialog::getExistingDirectory(this,
+        "Select directory", default_path);
     if (directory_name != "")
     {
         path_to_vm = directory_name;
@@ -232,12 +236,14 @@ bool CreateVMForm::input_verification(const QString &path, const QString &name)
 
         for (int i = 0; i < new_name.length();)
         {
-            if (new_name[i].category() == QChar::Punctuation_Other || new_name[i].category() == QChar::Symbol_Math)
+            if (new_name[i].category() == QChar::Punctuation_Other || 
+                new_name[i].category() == QChar::Symbol_Math)
             {
                 new_name = new_name.left(i) + new_name.right(new_name.length() - i - 1);
                 name_edit->setText(new_name);
                 name_edit->setCursorPosition(i);
-                QToolTip::showText(QPoint(pos().x() + name_edit->pos().x(), pos().y() + name_edit->pos().y()),
+                QToolTip::showText(QPoint(pos().x() + name_edit->pos().x(), 
+                    pos().y() + name_edit->pos().y()),
                     "Please use next symbols: letter, digit, bracket, -, _", this);
             }
             else
@@ -325,12 +331,18 @@ void CreateVMForm::hdd_exist(bool state)
 
 void CreateVMForm::hdd_new(bool state)
 {
-    if (state)
+    if (state && QString().compare(qemu_dir, "") != 0)
     {
         show_error_message("");
         imageplace_edit->clear();
         set_visible_widgets_for_new_hdd(true);
         set_visible_widgets_for_existed_hdd(false);
+    }
+    else if (state)
+    {
+        QMessageBox::critical(this, "Error",
+            "Didn\'t select Qemu installation directory");
+        hdd_no_rb->setChecked(true);
     }
 }
 
@@ -338,7 +350,8 @@ void CreateVMForm::place_disk()
 {
     if (hdd_exist_rb->isChecked())
     {
-        QString filename = QFileDialog::getOpenFileName(this, "Select image", default_path, "*.qcow *.qcow2 *.vdi *.raw"); // and other
+        QString filename = QFileDialog::getOpenFileName(this, "Select image", 
+            default_path, "*.qcow *.qcow2 *.vdi *.raw"); // and other
         if (filename != "")
         {
             imageplace_edit->setText(filename);
@@ -365,36 +378,30 @@ void CreateVMForm::create_vm()
     }
     else
     {
-        if (QString().compare(qemu_dir, "") != 0)
-        {
-            configVM->addDefaultIDE(pathtovm_edit->text() + "/" + name_edit->text() + "." + format_combo->currentText());
-            setVisible(false);
-            imgCreationDlg = new QProgressDialog("Creating the image...", "", 0, 0);
-            imgCreationDlg->setCancelButton(nullptr);
-            imgCreationDlg->setWindowTitle("Please Wait");
-            imgCreationDlg->setRange(0, 0);
-            imgCreationDlg->show();
-            //connect(imgCreationDlg, SIGNAL(canceled()), this, SLOT(cancelImageCreation()));
+        configVM->addDefaultIDE(pathtovm_edit->text() + "/" + 
+            name_edit->text() + "." + format_combo->currentText());
+        setVisible(false);
+        imgCreationDlg = new QProgressDialog("Creating the image...", "", 0, 0);
+        imgCreationDlg->setCancelButton(nullptr);
+        imgCreationDlg->setWindowTitle("Please Wait");
+        imgCreationDlg->setRange(0, 0);
+        imgCreationDlg->show();
                         
-            QString imageName = pathtovm_edit->text() + "/" + name_edit->text() + "." + format_combo->currentText();
+        QString imageName = pathtovm_edit->text() + "/" + name_edit->text() + 
+            "." + format_combo->currentText();
 
-            QThread *thread = new QThread();
-            QemuImgLauncher *imgLaucher = new QemuImgLauncher(qemu_dir, format_combo->currentText(), imageName, hddsize_spin->value());
+        QThread *thread = new QThread();
+        QemuImgLauncher *imgLaucher = new QemuImgLauncher(qemu_dir, 
+            format_combo->currentText(), imageName, hddsize_spin->value());
 
-            imgLaucher->moveToThread(thread);
-            connect(thread, SIGNAL(started()), imgLaucher, SLOT(start_qemu_img()));
-            connect(imgLaucher, SIGNAL(qemu_img_finished(int)), this, SLOT(finish_qemu_img(int)));
-            thread->start();
+        imgLaucher->moveToThread(thread);
+        connect(thread, SIGNAL(started()), imgLaucher, SLOT(start_qemu_img()));
+        connect(imgLaucher, SIGNAL(qemu_img_finished(int)), 
+            this, SLOT(finish_qemu_img(int)));
+        thread->start();
 
-            emit createVM_new_vm_is_complete(configVM);
-        }
-        else
-        {
-            QMessageBox::critical(this, "Error", "Didn\'t select Qemu installation directoty");
-        }
+        emit createVM_new_vm_is_complete(configVM);
     }
-    
-
 }
 
 void CreateVMForm::finish_qemu_img(int exitCode)

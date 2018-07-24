@@ -41,16 +41,19 @@ QemuGUI::QemuGUI(QWidget *parent)
     qemu_install_dir_combo = new QComboBox(this);
     qemu_install_dir_combo->setMinimumWidth(150);
 
-    qemu_play = new QAction(set_button_icon_for_state(":Resources/play.png", ":Resources/play_disable.png"), "Run VM", this);
+    qemu_play = new QAction(set_button_icon_for_state(":Resources/play.png",
+        ":Resources/play_disable.png"), "Run VM", this);
     mainToolBar->addAction(qemu_play);
     connect(qemu_play, SIGNAL(triggered()), this, SLOT(play_machine()));
 
-    qemu_pause = new QAction(set_button_icon_for_state(":Resources/pause.png", ":Resources/pause_disable.png"), "Pause VM", this);
+    qemu_pause = new QAction(set_button_icon_for_state(":Resources/pause.png",
+        ":Resources/pause_disable.png"), "Pause VM", this);
     mainToolBar->addAction(qemu_pause);
     connect(qemu_pause, SIGNAL(triggered()), this, SLOT(pause_machine()));
     qemu_pause->setEnabled(false);
 
-    qemu_stop = new QAction(set_button_icon_for_state(":Resources/stop.png", ":Resources/stop_disable.png"), "Stop VM", this);
+    qemu_stop = new QAction(set_button_icon_for_state(":Resources/stop.png",
+        ":Resources/stop_disable.png"), "Stop VM", this);
     mainToolBar->addAction(qemu_stop);
     connect(qemu_stop, SIGNAL(triggered()), this, SLOT(stop_machine()));
     qemu_stop->setEnabled(false);
@@ -217,7 +220,8 @@ void QemuGUI::connect_signals()
     /* edit machine */
     connect(edit_btn, SIGNAL(clicked()), this, SLOT(edit_settings()));
     /* list of machines */
-    connect(listVM, SIGNAL(itemSelectionChanged()), this, SLOT(listVM_item_selection_changed()));
+    connect(listVM, SIGNAL(itemSelectionChanged()), 
+        this, SLOT(listVM_item_selection_changed()));
     connect(listVM, SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)), 
         this, SLOT(listVM_current_item_changed(QListWidgetItem *, QListWidgetItem *)));
     /* delete VM */
@@ -225,12 +229,16 @@ void QemuGUI::connect_signals()
     /* exclude VM */
     connect(exclude_act, SIGNAL(triggered()), this, SLOT(exclude_vm_ctxmenu()));
     /* create VM */
-    connect(global_config, SIGNAL(globalConfig_new_vm_is_complete()), this, SLOT(refresh()));
+    connect(global_config, SIGNAL(globalConfig_new_vm_is_complete()), 
+        this, SLOT(refresh()));
     
-    connect(qemu_install_dir_combo, SIGNAL(activated(int)), this, SLOT(qemu_install_dir_combo_activated(int)));
-    connect(qemu_install_dir_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(qemu_install_dir_combo_index_changed(int)));
+    connect(qemu_install_dir_combo, SIGNAL(activated(int)), 
+        this, SLOT(qemu_install_dir_combo_activated(int)));
+    connect(qemu_install_dir_combo, SIGNAL(currentIndexChanged(int)), 
+        this, SLOT(qemu_install_dir_combo_index_changed(int)));
 
-    connect(this, SIGNAL(monitor_connect(int)), terminal_tab, SLOT(terminalTab_connect(int)));
+    connect(this, SIGNAL(monitor_connect(int)), 
+        terminal_tab, SLOT(terminalTab_connect(int)));
 }
 
 QString QemuGUI::delete_exclude_vm(bool delete_vm)
@@ -250,21 +258,25 @@ QString QemuGUI::delete_exclude_vm(bool delete_vm)
 
 void QemuGUI::delete_vm_ctxmenu()
 {
-    int answer = QMessageBox::question(this, "Deleting", "Are you sure?", QMessageBox::Yes, QMessageBox::No);
+    int answer = QMessageBox::question(this, "Deleting", "Are you sure?",
+        QMessageBox::Yes, QMessageBox::No);
     if (answer == QMessageBox::Yes)
     {
         QString del_vm_name = delete_exclude_vm(true);
-        QMessageBox::information(this, "Success", "Virtual machine " + del_vm_name + " was deleted");
+        QMessageBox::information(this, "Success",
+            "Virtual machine " + del_vm_name + " was deleted");
     }
 }
 
 void QemuGUI::exclude_vm_ctxmenu()
 {
-    int answer = QMessageBox::question(this, "Excluding", "Are you sure?", QMessageBox::Yes, QMessageBox::No);
+    int answer = QMessageBox::question(this, "Excluding", "Are you sure?",
+        QMessageBox::Yes, QMessageBox::No);
     if (answer == QMessageBox::Yes)
     {
         QString del_vm_name = delete_exclude_vm(false);
-        QMessageBox::information(this, "Success", "Virtual machine " + del_vm_name + " was excluded");
+        QMessageBox::information(this, "Success",
+            "Virtual machine " + del_vm_name + " was excluded");
     }
 }
 
@@ -272,7 +284,8 @@ void QemuGUI::play_machine()
 {
     if (listVM->currentItem())
     {
-        if (vm_state == VMState::None && qemu_install_dir_combo->currentIndex() != qemu_install_dir_combo->count() - 1)
+        if (vm_state == VMState::None && 
+            qemu_install_dir_combo->currentIndex() != qemu_install_dir_combo->count() - 1)
         {
             vm_state = VMState::Running;
             qemu_play->setDisabled(true);
@@ -330,7 +343,8 @@ void QemuGUI::create_machine()
     if (qemu_install_dir_combo->count() > 1 &&
         qemu_install_dir_combo->currentIndex() != qemu_install_dir_combo->count() - 1)
     {
-        createVMWindow = new CreateVMForm(global_config->get_home_dir(), qemu_install_dir_combo->currentText());
+        createVMWindow = new CreateVMForm(global_config->get_home_dir(), 
+            qemu_install_dir_combo->currentText());
     }
     else
     {
@@ -405,7 +419,8 @@ void QemuGUI::add_qemu_install_dir_btn()
     QString qemu_install_dir = QFileDialog::getExistingDirectory(this, "Select Qemu directory", "");
     if (qemu_install_dir != "")
     {
-        if (qemu_install_dir_list->findItems(qemu_install_dir, Qt::MatchFlag::MatchFixedString).size() != 0)
+        if (qemu_install_dir_list->findItems(qemu_install_dir, 
+            Qt::MatchFlag::MatchFixedString).size() != 0)
         {
             QMessageBox::critical(this, "Error", qemu_install_dir + " is already added");
             return;
@@ -421,7 +436,8 @@ void QemuGUI::del_qemu_install_dir_btn()
 {
     if (qemu_install_dir_list->currentItem())
     {
-        int answer = QMessageBox::question(this, "Deleting", "Are you sure?", QMessageBox::Yes, QMessageBox::No);
+        int answer = QMessageBox::question(this, "Deleting", "Are you sure?",
+            QMessageBox::Yes, QMessageBox::No);
         if (answer == QMessageBox::Yes)
         {
             global_config->del_qemu_installation_dir(qemu_install_dir_list->currentItem()->text());
@@ -470,7 +486,8 @@ void QemuGUI::set_terminal_settings()
     TerminalSettingsForm *terminal_settings = new TerminalSettingsForm(terminal_tab->get_terminal_text());
     terminal_settings->setAttribute(Qt::WA_DeleteOnClose);
 
-    connect(terminal_settings, SIGNAL(save_terminal_settings(QTextEdit *)), terminal_tab, SLOT(save_terminal_interface_changes(QTextEdit *)));
+    connect(terminal_settings, SIGNAL(save_terminal_settings(QTextEdit *)), 
+        terminal_tab, SLOT(save_terminal_interface_changes(QTextEdit *)));
 }
 
 void QemuGUI::launch_settings()
@@ -478,7 +495,8 @@ void QemuGUI::launch_settings()
     ConnectionSettingsForm *connections_settings = new ConnectionSettingsForm(global_config);
     connections_settings->setAttribute(Qt::WA_DeleteOnClose);
 
-    connect(connections_settings, SIGNAL(done_connection_settings(QString, QString)), this, SLOT(set_connection_settings(QString, QString)));
+    connect(connections_settings, SIGNAL(done_connection_settings(QString, QString)), 
+        this, SLOT(set_connection_settings(QString, QString)));
 }
 
 void QemuGUI::set_connection_settings(const QString &qmp, const QString &monitor)

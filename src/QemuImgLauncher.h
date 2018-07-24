@@ -9,14 +9,15 @@ class QemuImgLauncher : public QObject
     Q_OBJECT
 
 public:
-    QemuImgLauncher(const QString &qemuImg, const QString &imageFormat, const QString &imageName, int imageSize, QObject *parent = 0);
+    QemuImgLauncher(const QString &qemuImg, const QString &imageFormat, 
+        const QString &imageName, int imageSize, QObject *parent = 0);
     ~QemuImgLauncher();
 
 private:
     QString qemuImg;
     QString imageFormat;
     QString imageName;
-    int imageSize;
+    int imageSize; /* in megabytes */
 
     QProgressDialog *imgDlg;
 

@@ -1,6 +1,7 @@
 #include "QemuImgLauncher.h"
 
-QemuImgLauncher::QemuImgLauncher(const QString &qemuImg, const QString &imageFormat, const QString &imageName, int imageSize, QObject *parent) :
+QemuImgLauncher::QemuImgLauncher(const QString &qemuImg, const QString &imageFormat, 
+    const QString &imageName, int imageSize, QObject *parent) :
     QObject(parent)
 {
     this->qemuImg = qemuImg + "/qemu-img.exe";
@@ -25,8 +26,10 @@ void QemuImgLauncher::start_qemu_img()
 {
     QProcess *qemuImgProc = new QProcess();
     qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
-    connect(qemuImgProc, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(finish_qemu_img(int, QProcess::ExitStatus)));
-    QString cmd = qemuImg + " create -f " + imageFormat + " " + imageName + " " + QString().number(imageSize) + "M";
+    connect(qemuImgProc, SIGNAL(finished(int, QProcess::ExitStatus)), 
+        this, SLOT(finish_qemu_img(int, QProcess::ExitStatus)));
+    QString cmd = qemuImg + " create -f " + imageFormat + " " + imageName + " " + 
+        QString().number(imageSize) + "M";
     qemuImgProc->start(cmd);
     qemuImgProc->waitForFinished(-1);
 }
