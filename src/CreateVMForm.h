@@ -43,6 +43,7 @@ private:
     QString qemu_dir;
     QString path_to_vm;
 
+    VMConfig *configVM;
     QProgressDialog *imgCreationDlg;
 
 
@@ -64,15 +65,12 @@ private:
     QString set_path_to_vm(const QString &home_path);
     bool input_verification(const QString &path, const QString &name);
 
-private slots:
-    void cancelImageCreation();
 
 public slots:
     void finish_qemu_img(int exitCode);
 
 signals:
     void createVM_new_vm_is_complete(VMConfig *);
-    void createVMBadCreation();
 
 };
 

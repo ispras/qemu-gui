@@ -16,6 +16,7 @@ public:
 public:
     bool save_vm_config(const QString &path) const;
     void save_vm_config() const;
+    void createVMFolder(const QString &path) const;
     void set_name(const QString &name_vm_);
     void addDefaultIDE(const QString &image);
     QString get_vm_info();

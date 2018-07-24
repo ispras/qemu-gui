@@ -69,14 +69,18 @@ VMConfig::~VMConfig()
 
 }
 
-
-bool VMConfig::save_vm_config(const QString &path) const
+void VMConfig::createVMFolder(const QString &path) const
 {
     QDir vm_dir(path);
     if (!vm_dir.exists())
     {
         QDir().mkdir(path);
     }
+}
+
+bool VMConfig::save_vm_config(const QString &path) const
+{
+    createVMFolder(path);
 
     QString xml_name;
     xml_name = path + "/" + const_xml_name;
@@ -173,3 +177,4 @@ static bool remove_directory(QDir dir)
     }
     return res;
 }
+

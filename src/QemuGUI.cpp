@@ -352,7 +352,6 @@ void QemuGUI::create_machine()
     }
     connect(createVMWindow, SIGNAL(createVM_new_vm_is_complete(VMConfig *)),
         global_config, SLOT(vm_is_created(VMConfig *)));
-    connect(createVMWindow, SIGNAL(createVMBadCreation()), this, SLOT(deleteBadVM()));
 }
 
 void QemuGUI::add_machine()
@@ -446,13 +445,6 @@ void QemuGUI::del_qemu_install_dir_btn()
         }
     }
 }
-
-
-void QemuGUI::deleteBadVM()
-{
-    delete_exclude_vm(true);
-}
-
 
 void QemuGUI::refresh()
 {

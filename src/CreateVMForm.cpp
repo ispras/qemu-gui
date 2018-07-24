@@ -364,7 +364,7 @@ void CreateVMForm::create_vm()
     if (!input_verification("", ""))
         return;
 
-    VMConfig *configVM = new VMConfig(nullptr, pathtovm_edit->text());
+    configVM = new VMConfig(nullptr, pathtovm_edit->text());
 
     configVM->set_name(name_edit->text());
 
@@ -380,6 +380,7 @@ void CreateVMForm::create_vm()
     {
         configVM->addDefaultIDE(pathtovm_edit->text() + "/" + 
             name_edit->text() + "." + format_combo->currentText());
+        configVM->createVMFolder(pathtovm_edit->text());
         setVisible(false);
         imgCreationDlg = new QProgressDialog("Creating the image...", "", 0, 0);
         imgCreationDlg->setCancelButton(nullptr);
@@ -399,8 +400,6 @@ void CreateVMForm::create_vm()
         connect(imgLaucher, SIGNAL(qemu_img_finished(int)), 
             this, SLOT(finish_qemu_img(int)));
         thread->start();
-
-        emit createVM_new_vm_is_complete(configVM);
     }
 }
 
@@ -410,20 +409,18 @@ void CreateVMForm::finish_qemu_img(int exitCode)
     {
         imgCreationDlg->setMaximum(1);
         imgCreationDlg->setValue(1);
+        emit createVM_new_vm_is_complete(configVM);
         close();
     }
     else
     {
         QMessageBox::critical(this, "Error", "Image wasn't created. Why? I don't know");
         imgCreationDlg->close();
-        emit createVMBadCreation();
+        delete configVM;
     }
 }
 
-void CreateVMForm::cancelImageCreation()
-{
-    finish_qemu_img(-1);
-}
+
 
 
 
