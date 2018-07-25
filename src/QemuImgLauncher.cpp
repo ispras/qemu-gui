@@ -21,7 +21,6 @@ void QemuImgLauncher::finish_qemu_img(int exitCode, QProcess::ExitStatus ExitSta
     emit qemu_img_finished(exitCode);
 }
 
-
 void QemuImgLauncher::start_qemu_img()
 {
     QProcess *qemuImgProc = new QProcess();

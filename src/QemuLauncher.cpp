@@ -14,6 +14,7 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
 
     this->port_monitor = port_monitor;
     this->port_qmp = port_qmp;
+    qemu = NULL;
 }
 
 QemuLauncher::~QemuLauncher()

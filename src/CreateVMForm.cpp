@@ -33,7 +33,7 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     imageplace_btn = new QPushButton("...");
     imageplace_lbl = new QLabel("Image path");
     format_lbl = new QLabel("Format");
-    hddsize_lbl = new QLabel("Size");
+    hddsize_lbl = new QLabel("Size (Mb)");
 
     hdd_no_rb = new QRadioButton("No disk");
     hdd_exist_rb = new QRadioButton("Select exist disk");
@@ -387,7 +387,7 @@ void CreateVMForm::create_vm()
         imgCreationDlg->setWindowTitle("Please Wait");
         imgCreationDlg->setRange(0, 0);
         imgCreationDlg->show();
-                        
+
         QString imageName = pathtovm_edit->text() + "/" + name_edit->text() + 
             "." + format_combo->currentText();
 
@@ -415,11 +415,11 @@ void CreateVMForm::finish_qemu_img(int exitCode)
     else
     {
         QMessageBox::critical(this, "Error", "Image wasn't created. Why? I don't know");
+        configVM->remove_directory_vm();
         imgCreationDlg->close();
         delete configVM;
     }
 }
-
 
 
 

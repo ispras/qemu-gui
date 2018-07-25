@@ -19,8 +19,6 @@ private:
     QString imageName;
     int imageSize; /* in megabytes */
 
-    QProgressDialog *imgDlg;
-
 public slots:
     void start_qemu_img();
     void finish_qemu_img(int exitCode, QProcess::ExitStatus ExitStatus);
