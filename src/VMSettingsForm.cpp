@@ -69,7 +69,7 @@ void VMSettingsForm::widget_placement()
 void VMSettingsForm::save_settings()
 {
     vm->save_vm_config();
-    this->close();
+    close();
 }
 
 void VMSettingsForm::onDeviceTreeItemClicked(QTreeWidgetItem *item, int column)
