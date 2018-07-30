@@ -85,6 +85,7 @@ void VMSettingsForm::save_settings()
 void VMSettingsForm::onDeviceTreeItemClicked(QTreeWidgetItem *item, int column)
 {
     DeviceTreeItem *devItem = dynamic_cast<DeviceTreeItem*>(item);
+    Q_ASSERT(devItem);
 
     Device *dev = devItem->getDevice();
     QWidget *form = dev->getEditorForm();

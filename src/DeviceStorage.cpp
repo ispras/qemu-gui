@@ -41,29 +41,7 @@ DeviceIdeHd::DeviceIdeHd(const QString &img, Device *parent)
 
 QWidget *DeviceIdeHd::getEditorForm()
 {
-    QWidget *form = new QWidget();
-    QGroupBox *ideFormGroup = new QGroupBox(form);
-    QLineEdit *imageLine = new QLineEdit(ideFormGroup);
-    QPushButton *selectImageBtn = new QPushButton("...", ideFormGroup);
-
-    selectImageBtn->setFixedWidth(30);
-    imageLine->setText(image);
-    imageLine->setReadOnly(true);
-
-    QVBoxLayout *mainLay = new QVBoxLayout();
-    QHBoxLayout *topLay = new QHBoxLayout();
-    topLay->addWidget(imageLine);
-    topLay->addWidget(selectImageBtn);
-
-    mainLay->addLayout(topLay);
-    mainLay->addStretch(500);
-
-    ideFormGroup->setLayout(mainLay);
-
-    connect(selectImageBtn, &QPushButton::clicked, this, &DeviceIdeHd::editImage);
-    connect(this, SIGNAL(newImageSet(QString)), imageLine, SLOT(setText(QString)));
-
-    return ideFormGroup;
+    return (new DeviceIdeHdForm(this, image))->getForm();
 }
 
 void DeviceIdeHd::saveParameters(QXmlStreamWriter &xml) const
@@ -86,13 +64,4 @@ QString DeviceIdeHd::getCommandLineOption()
     return "-hda " + image;
 }
 
-void DeviceIdeHd::editImage()
-{
-    QString newImage = QFileDialog::getOpenFileName(nullptr, "Selecting image", "", "*.qcow *.qcow2 *.raw");
-    if (!newImage.isEmpty())
-    {
-        image = newImage;
-        emit newImageSet(image);
-    }
-}
 
