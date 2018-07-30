@@ -10,20 +10,16 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
     setWindowTitle(QApplication::translate("VMSettingsForm", "VM Settings", Q_NULLPTR));
     setWindowModality(Qt::WindowModality::ApplicationModal);
 
-    deviceTree = new QTreeWidget(this);
-    new_component_line = new QLineEdit(this);
-    new_component_btn = new QPushButton("Add");
+    deviceTree = new QTreeWidget();
     savecancel_btn = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
 
     savecancel_btn->button(QDialogButtonBox::Save)->setDefault(true);
     savecancel_btn->button(QDialogButtonBox::Cancel)->setAutoDefault(true);
 
-    new_component_btn->setFixedWidth(40);
-    new_component_btn->setAutoDefault(true);
-
     deviceTree->setContextMenuPolicy(Qt::CustomContextMenu);
     deviceTree->setHeaderHidden(1);
     deviceTree->setColumnCount(1);
+
 
     foreach(Device *dev, vm->getSystemDevice()->getDevices())
     {
@@ -43,27 +39,41 @@ VMSettingsForm::~VMSettingsForm()
 
 void VMSettingsForm::connect_signals()
 {
-    connect(deviceTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, 
+    connect(deviceTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
         SLOT(onDeviceTreeItemClicked(QTreeWidgetItem *, int)));
 
-    connect(savecancel_btn, &QDialogButtonBox::accepted, this, &VMSettingsForm::save_settings);
-    connect(savecancel_btn, &QDialogButtonBox::rejected, this, &QWidget::close);
+    connect(savecancel_btn, &QDialogButtonBox::accepted,
+        this, &VMSettingsForm::save_settings);
+    connect(savecancel_btn, &QDialogButtonBox::rejected,
+        this, &QWidget::close);
 
-    connect(deviceTree, &QTreeWidget::customContextMenuRequested, this, &VMSettingsForm::showContextMenu);
+    connect(deviceTree, &QTreeWidget::customContextMenuRequested,
+        this, &VMSettingsForm::showContextMenu);
+}
+
+QWidget* VMSettingsForm::emptyForm()
+{
+    QGroupBox *deviceInfoGroup = new QGroupBox();
+    QHBoxLayout *infoLay = new QHBoxLayout();
+    QLabel *infoLbl = new QLabel("<No information>", deviceInfoGroup);
+    infoLay->addStretch(50);
+    infoLay->addWidget(infoLbl);
+    infoLay->addStretch(50);
+    deviceInfoGroup->setLayout(infoLay);
+    return deviceInfoGroup;
 }
 
 void VMSettingsForm::widget_placement()
 {
-    QVBoxLayout *one = new QVBoxLayout(this);
+    splitter = new QSplitter();
+    splitter->addWidget(deviceTree);
+    splitter->addWidget(emptyForm());
 
-    QHBoxLayout *edit_comp_lay = new QHBoxLayout();
-    edit_comp_lay->addWidget(new_component_line);
-    edit_comp_lay->addWidget(new_component_btn);
+    splitter->setSizes(QList<int>{150, 250});
 
-    one->addWidget(deviceTree);
-    one->addLayout(edit_comp_lay);
-    one->addSpacing(20);
-    one->addWidget(savecancel_btn);
+    QVBoxLayout *main = new QVBoxLayout(this);
+    main->addWidget(splitter);
+    main->addWidget(savecancel_btn);
 }
 
 void VMSettingsForm::save_settings()
@@ -74,7 +84,21 @@ void VMSettingsForm::save_settings()
 
 void VMSettingsForm::onDeviceTreeItemClicked(QTreeWidgetItem *item, int column)
 {
-    //QMessageBox::about(this, "hello", item->text(0));
+    DeviceTreeItem *devItem = dynamic_cast<DeviceTreeItem*>(item);
+
+    Device *dev = devItem->getDevice();
+    QWidget *form = dev->getEditorForm();
+
+    delete splitter->widget(1);
+    if (form)
+    {
+        splitter->addWidget(form);
+    }
+    else
+    {
+        splitter->addWidget(emptyForm());
+    }
+    splitter->setSizes(QList<int>{150, 250});
 }
 
 void VMSettingsForm::showContextMenu(const QPoint & pos)
@@ -83,7 +107,8 @@ void VMSettingsForm::showContextMenu(const QPoint & pos)
     deviceTree->setCurrentItem(item);
 
     // temp
-    if (QString().compare(item->text(0), "ide.0", Qt::CaseInsensitive) == 0 || QString().compare(item->text(0), "ide.1", Qt::CaseInsensitive) == 0)
+    if (QString().compare(item->text(0), "ide.0", Qt::CaseInsensitive) == 0 ||
+        QString().compare(item->text(0), "ide.1", Qt::CaseInsensitive) == 0)
     {
         QAction *addDeviceAct = new QAction("Add device", this);
         addDeviceAct->setStatusTip(tr("Add device"));
@@ -92,7 +117,8 @@ void VMSettingsForm::showContextMenu(const QPoint & pos)
         addDev->setAttribute(Qt::WA_DeleteOnClose);
 
         connect(addDeviceAct, SIGNAL(triggered()), addDev, SLOT(addDevice()));
-        connect(addDev, SIGNAL(deviceWantsToAdd(const QString &)), this, SLOT(addNewDevice(const QString &)));
+        connect(addDev, SIGNAL(deviceWantsToAdd(const QString &)),
+            this, SLOT(addNewDevice(const QString &)));
 
         QMenu menu(this);
         menu.addAction(addDeviceAct);
@@ -132,8 +158,9 @@ DeviceTreeItem::DeviceTreeItem(Device *dev)
     initDevice(dev);
 }
 
-void DeviceTreeItem::initDevice(Device *device)
+void DeviceTreeItem::initDevice(Device *dev)
 {
+    device = dev;
     setText(0, device->getDescription());
     foreach(Device *dev, device->getDevices())
     {
@@ -141,3 +168,9 @@ void DeviceTreeItem::initDevice(Device *device)
         addChild(it);
     }
 }
+
+Device *DeviceTreeItem::getDevice()
+{
+    return device;
+}
+

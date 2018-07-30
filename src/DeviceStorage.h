@@ -43,6 +43,8 @@ public:
 
 class DeviceIdeHd : public DeviceStorage
 {
+Q_OBJECT
+
 public:
     static const char typeName[];
 
@@ -59,6 +61,12 @@ protected:
 
 private:
     QString image;
+
+    private slots:
+    void editImage();
+
+signals:
+    void newImageSet(QString);
 };
 
 #endif // DEVICESTORAGE_H

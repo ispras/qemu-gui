@@ -4,6 +4,7 @@
 #include <QtWidgets>
 #include "VMConfig.h"
 #include "AddDeviceForm.h"
+#include "DeviceStorage.h"
 
 class VMSettingsForm : public QWidget
 {
@@ -21,12 +22,13 @@ private:
 
     QTreeWidget *deviceTree;
     QDialogButtonBox *savecancel_btn;
-    QLineEdit *new_component_line;
-    QPushButton *new_component_btn;
+
+    QSplitter *splitter;
 
 private:
     void connect_signals();
     void widget_placement();
+    QWidget *emptyForm();
 
 private slots:
     void save_settings();
@@ -41,6 +43,8 @@ public:
     DeviceTreeItem(Device *dev);
 
     void initDevice(Device *dev);
+    Device *getDevice();
+
 private:
     Device *device;
 };
