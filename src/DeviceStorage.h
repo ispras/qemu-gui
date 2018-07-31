@@ -54,7 +54,7 @@ public:
     virtual QWidget *getEditorForm();
 
     void setNewHDD(const QString &imageName) { image = imageName; }
-    QString getImage() { return image; }
+    QString getImage() const { return image; }
 
 protected:
     virtual void saveParameters(QXmlStreamWriter &xml) const;

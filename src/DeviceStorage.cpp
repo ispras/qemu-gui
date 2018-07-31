@@ -41,7 +41,7 @@ DeviceIdeHd::DeviceIdeHd(const QString &img, Device *parent)
 
 QWidget *DeviceIdeHd::getEditorForm()
 {
-    return (QWidget *) new DeviceIdeHdForm(this);
+    return new DeviceIdeHdForm(this);
 }
 
 void DeviceIdeHd::saveParameters(QXmlStreamWriter &xml) const
