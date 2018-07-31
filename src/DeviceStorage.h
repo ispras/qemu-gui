@@ -43,6 +43,7 @@ public:
 
 class DeviceIdeHd : public DeviceStorage
 {
+
 public:
     static const char typeName[];
 
@@ -52,6 +53,9 @@ public:
     virtual QString getDeviceTypeName() const { return typeName; }
     virtual QWidget *getEditorForm();
 
+    void setNewHDD(const QString &imageName) { image = imageName; }
+    QString getImage() const { return image; }
+
 protected:
     virtual void saveParameters(QXmlStreamWriter &xml) const;
     virtual void readParameters(QXmlStreamReader &xml);
@@ -59,6 +63,24 @@ protected:
 
 private:
     QString image;
+};
+
+
+class DeviceIdeHdForm : public QGroupBox
+{
+Q_OBJECT
+
+public:
+    DeviceIdeHdForm(DeviceIdeHd *dev);
+    
+private:
+    DeviceIdeHd *device;
+
+    private slots:
+    void editImage();
+
+signals:
+    void newImageSet(QString);
 };
 
 #endif // DEVICESTORAGE_H
