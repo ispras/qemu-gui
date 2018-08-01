@@ -19,6 +19,7 @@ public:
     void createVMFolder(const QString &path) const;
     void set_name(const QString &name_vm_);
     void addDefaultIDE(const QString &image);
+    void addMemorySize(const QString &size);
     QString get_vm_info();
 
     QString get_name();

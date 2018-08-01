@@ -1,6 +1,7 @@
 #include "VMConfig.h"
 #include "CreateVMForm.h"
 #include "DeviceStorage.h"
+#include "DeviceSystem.h"
 
 const QString const_xml_name = "vm.xml";
 const QString xml_parameters = "VMParameters";
@@ -59,7 +60,7 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
     {
         /* Default config */
         new Device("CPU", &system);
-        new Device("Memory", &system);
+        //new Device("Memory", &system);
         new Device("Machine", &system);
     }
 }
@@ -122,6 +123,11 @@ void VMConfig::addDefaultIDE(const QString &image)
 {
     Device *ide = new DeviceIdeController(&system);
     new DeviceIdeHd(image, ide->getDevices().at(0));
+}
+
+void VMConfig::addMemorySize(const QString &size)
+{
+    new DeviceMemory(size, &system);
 }
 
 QString VMConfig::get_vm_info()
