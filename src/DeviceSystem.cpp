@@ -1,12 +1,5 @@
 #include "DeviceSystem.h"
 
-const char DeviceSystem::typeName[] = "DeviceSystem";
-
-DeviceSystem::DeviceSystem(const QString &n, Device *parent) :
-    Device(n, parent)
-{
-}
-
 /******************************************************************************
 * MEMORY                                                                   *
 ******************************************************************************/
@@ -16,7 +9,7 @@ static const char xml_size[] = "MemorySize";
 
 
 DeviceMemory::DeviceMemory(const QString &memSize, Device *parent) :
-    DeviceSystem("Memory", parent), size(memSize)
+    Device("Memory", parent), size(memSize)
 {}
 
 
@@ -48,7 +41,8 @@ QString DeviceMemory::getCommandLineOption()
 * IDE HDD                                                                    *
 ******************************************************************************/
 
-DeviceMemoryForm::DeviceMemoryForm(DeviceMemory *dev) : device(dev)
+DeviceMemoryForm::DeviceMemoryForm(DeviceMemory *dev)
+    : device(dev)
 {
     QGroupBox *memoryFormGroup = this;
     QLabel *memLbl = new QLabel("Memory size (MB)");

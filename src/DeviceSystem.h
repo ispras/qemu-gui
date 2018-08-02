@@ -5,19 +5,7 @@
 #include "QemuGUICommon.h"
 
 
-class DeviceSystem : public Device
-{
-public:
-    static const char typeName[];
-
-    DeviceSystem() {}
-    DeviceSystem(const QString &n, Device *parent);
-
-    virtual QString getDeviceTypeName() { return typeName; }
-};
-
-
-class DeviceMemory : public DeviceSystem
+class DeviceMemory : public Device
 {
 public:
     static const char typeName[];

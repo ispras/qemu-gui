@@ -60,7 +60,6 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
     {
         /* Default config */
         new Device("CPU", &system);
-        //new Device("Memory", &system);
         new Device("Machine", &system);
     }
 }
