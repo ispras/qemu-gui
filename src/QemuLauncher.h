@@ -6,6 +6,7 @@
 #include <QTcpSocket>
 
 #include "VMConfig.h"
+#include "CommandLineParameters.h"
 
 class QemuLauncher : public QObject
 {

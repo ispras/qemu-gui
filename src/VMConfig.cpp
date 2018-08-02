@@ -146,9 +146,9 @@ QString VMConfig::get_dir_path()
     return dir_path;
 }
 
-QString VMConfig::getCommandLine()
+QString VMConfig::getCommandLine(CommandLineParameters &cmdParams)
 {
-    return system.getCommandLine();
+    return system.getCommandLine(cmdParams);
 }
 
 void VMConfig::remove_directory_vm()

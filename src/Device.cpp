@@ -71,10 +71,10 @@ void Device::read(QXmlStreamReader &xml)
     }
 }
 
-QString Device::getCommandLine()
+QString Device::getCommandLine(CommandLineParameters &cmdParams)
 {
-    QString res = getCommandLineOption() + " ";
+    QString res = getCommandLineOption(cmdParams) + " ";
     foreach(Device *dev, devices)
-        res += dev->getCommandLine();
+        res += dev->getCommandLine(cmdParams);
     return res;
 }

@@ -58,10 +58,12 @@ void DeviceIdeHd::readParameters(QXmlStreamReader &xml)
     image = xml.readElementText();
 }
 
-QString DeviceIdeHd::getCommandLineOption()
+QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
 {
     /* TODO: use -drive option and correct id */
-    return "-hda " + image;
+    QString id = cmdParams.getNextID();
+    return " -drive file=" + image + ",if=none,id=" + id +
+        " -device ide-hd,bus=" + "ide.1" + ",drive=" + id;
 }
 
 /***************************************************************************
@@ -93,7 +95,8 @@ DeviceIdeHdForm::DeviceIdeHdForm(DeviceIdeHd *dev) : device(dev)
 
 void DeviceIdeHdForm::editImage()
 {
-    QString newImage = QFileDialog::getOpenFileName(nullptr, "Selecting image", "", "*.qcow *.qcow2 *.raw");
+    QString newImage = QFileDialog::getOpenFileName(nullptr, "Selecting image",
+        "", "*.qcow *.qcow2 *.raw");
     if (!newImage.isEmpty())
     {
         emit newImageSet(newImage);
