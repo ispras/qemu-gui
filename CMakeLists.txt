@@ -17,7 +17,7 @@ add_executable(qemu-gui src/main.cpp src/CreateVMForm.cpp src/QemuGUI.cpp
     src/QMPInteraction.cpp src/TerminalSettingsForm.cpp
     src/TerminalTab.cpp src/ConnectionSettingsForm.cpp src/QemuSocket.cpp
     src/Device.cpp src/DeviceBus.cpp src/DeviceStorage.cpp
-    src/DeviceFactory.cpp src/AddDeviceForm.cpp
+    src/DeviceFactory.cpp src/AddDeviceForm.cpp src/DeviceSystem.cpp
     src/QemuImgLauncher.cpp)
 
 # Use the Widgets module from Qt 5.

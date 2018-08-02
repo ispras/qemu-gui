@@ -5,10 +5,9 @@
 #include <QtWidgets>
 #include "VMConfig.h"
 #include "QemuImgLauncher.h"
+#include "QemuGUICommon.h"
 
 
-#define MAX_RAM_VALUE (32768 / 2)
-#define MIN_RAM_VALUE 4
 
 
 class CreateVMForm : public QWidget

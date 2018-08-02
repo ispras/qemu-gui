@@ -367,7 +367,7 @@ void CreateVMForm::create_vm()
     configVM = new VMConfig(nullptr, pathtovm_edit->text());
 
     configVM->set_name(name_edit->text());
-
+    configVM->addMemorySize(QString::number(ram_spin->value()));
     if (!imageplace_edit->text().isEmpty())
         configVM->addDefaultIDE(imageplace_edit->text());
 
