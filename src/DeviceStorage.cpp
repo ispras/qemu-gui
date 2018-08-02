@@ -61,9 +61,11 @@ void DeviceIdeHd::readParameters(QXmlStreamReader &xml)
 QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
 {
     /* TODO: use -drive option and correct id */
+    DeviceBusIde *bus = dynamic_cast<DeviceBusIde *> (parent());
+    Q_ASSERT(bus);
     QString id = cmdParams.getNextID();
     return " -drive file=" + image + ",if=none,id=" + id +
-        " -device ide-hd,bus=" + "ide.1" + ",drive=" + id;
+        " -device ide-hd,bus=" + bus->getDescription() + ",drive=" + id;
 }
 
 /***************************************************************************
