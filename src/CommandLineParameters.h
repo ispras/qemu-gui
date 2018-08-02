@@ -3,11 +3,11 @@
 
 #include <QtWidgets>
 
-class CommandLineParameters : public QObject
+class CommandLineParameters
 {
 public:
-    CommandLineParameters(QObject *parent = 0) : id(0) {}
-    QString getID();
+    CommandLineParameters() : id(0) {}
+    QString getNextID();
 
 private:
     int id;

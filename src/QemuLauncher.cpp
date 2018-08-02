@@ -30,7 +30,7 @@ void QemuLauncher::kill_qemu_process()
 
 void QemuLauncher::start_qemu()
 {
-    CommandLineParameters *cmdParams = new CommandLineParameters(this);
+    CommandLineParameters cmdParams;
     qemu = new QProcess();
     qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
     connect(qemu, SIGNAL(finished(int, QProcess::ExitStatus)), 

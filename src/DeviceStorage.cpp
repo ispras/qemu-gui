@@ -58,10 +58,10 @@ void DeviceIdeHd::readParameters(QXmlStreamReader &xml)
     image = xml.readElementText();
 }
 
-QString DeviceIdeHd::getCommandLineOption(CommandLineParameters *cmdParams)
+QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
 {
     /* TODO: use -drive option and correct id */
-    QString id = cmdParams->getID();
+    QString id = cmdParams.getNextID();
     return " -drive file=" + image + ",if=none,id=" + id +
         " -device ide-hd,bus=" + "ide.1" + ",drive=" + id;
 }

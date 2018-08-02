@@ -25,7 +25,7 @@ public:
 
     QString get_name();
     QString get_dir_path();
-    QString getCommandLine(CommandLineParameters *cmdParams);
+    QString getCommandLine(CommandLineParameters &cmdParams);
     Device *getSystemDevice() { return &system; }
 
     void remove_directory_vm();

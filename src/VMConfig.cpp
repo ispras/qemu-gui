@@ -146,7 +146,7 @@ QString VMConfig::get_dir_path()
     return dir_path;
 }
 
-QString VMConfig::getCommandLine(CommandLineParameters *cmdParams)
+QString VMConfig::getCommandLine(CommandLineParameters &cmdParams)
 {
     return system.getCommandLine(cmdParams);
 }

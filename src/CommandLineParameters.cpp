@@ -1,6 +1,6 @@
 #include "CommandLineParameters.h"
 
-QString CommandLineParameters::getID()
+QString CommandLineParameters::getNextID()
 {
     return "device-" + QString::number(id++);
 }
