@@ -59,7 +59,7 @@ public:
 protected:
     virtual void saveParameters(QXmlStreamWriter &xml) const;
     virtual void readParameters(QXmlStreamReader &xml);
-    virtual QString getCommandLineOption();
+    virtual QString getCommandLineOption(CommandLineParameters *cmdParams);
 
 private:
     QString image;

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QtWidgets>
+#include "CommandLineParameters.h"
 
 class Device : public QObject
 {
@@ -16,7 +17,7 @@ public:
     void addDevice(Device *dev);
     const Devices &getDevices() const { return devices; }
     QString getDescription() const;
-    QString getCommandLine();
+    QString getCommandLine(CommandLineParameters *cmdParams);
 
     void save(QXmlStreamWriter &xml) const;
     void read(QXmlStreamReader &xml);
@@ -27,7 +28,7 @@ public:
 protected:
     virtual void saveParameters(QXmlStreamWriter &xml) const {}
     virtual void readParameters(QXmlStreamReader &xml) {}
-    virtual QString getCommandLineOption() { return ""; }
+    virtual QString getCommandLineOption(CommandLineParameters *cmdParams) { return ""; }
 
 private:
     QString name;

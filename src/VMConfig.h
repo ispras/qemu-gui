@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QtWidgets>
 #include "Device.h"
+#include "CommandLineParameters.h"
 
 class VMConfig : public QObject
 {
@@ -24,7 +25,7 @@ public:
 
     QString get_name();
     QString get_dir_path();
-    QString getCommandLine();
+    QString getCommandLine(CommandLineParameters *cmdParams);
     Device *getSystemDevice() { return &system; }
 
     void remove_directory_vm();

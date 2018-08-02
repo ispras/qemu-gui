@@ -30,12 +30,15 @@ void QemuLauncher::kill_qemu_process()
 
 void QemuLauncher::start_qemu()
 {
+    CommandLineParameters *cmdParams = new CommandLineParameters(this);
     qemu = new QProcess();
     qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
-    connect(qemu, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(finish_qemu(int, QProcess::ExitStatus)));
+    connect(qemu, SIGNAL(finished(int, QProcess::ExitStatus)), 
+        this, SLOT(finish_qemu(int, QProcess::ExitStatus)));
     QString mon = " -monitor \"tcp:127.0.0.1:" + port_monitor + ",server,nowait\"";
     QString qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,nowait\"";
-    qemu->start(qemu_dir + " " + virtual_machine->getCommandLine() + mon + qmp);
+    qDebug() << qemu_dir + " " + virtual_machine->getCommandLine(cmdParams) + mon + qmp;
+    qemu->start(qemu_dir + " " + virtual_machine->getCommandLine(cmdParams) + mon + qmp);
     qemu->waitForFinished(-1);
 }
 
