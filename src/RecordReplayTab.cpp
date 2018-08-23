@@ -39,6 +39,11 @@ RecordReplayTab::~RecordReplayTab()
 
 }
 
+void RecordReplayTab::setVM(VMConfig * vm)
+{
+    this->vm = vm;
+}
+
 void RecordReplayTab::connect_signals()
 {
     connect(rec_btn, SIGNAL(clicked()), this, SLOT(record_execution()));
@@ -65,7 +70,12 @@ void RecordReplayTab::widget_placement()
 
 void RecordReplayTab::record_execution()
 {
-    QMessageBox::about(this, "", "record");
+    QDir rrDir(vm->get_dir_path() + "/RecordReplay");
+    if (!rrDir.exists())
+    {
+        rrDir.mkdir(vm->get_dir_path() + "/RecordReplay");
+    }
+    emit startRR();
 }
 
 void RecordReplayTab::replay_execution()

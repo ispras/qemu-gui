@@ -2,6 +2,7 @@
 #define RECORDREPLAYTAB_H
 
 #include <QtWidgets>
+#include "VMConfig.h"
 
 class RecordReplayTab : public QWidget
 {
@@ -10,6 +11,10 @@ class RecordReplayTab : public QWidget
 public:
     RecordReplayTab(QWidget *parent = 0);
     ~RecordReplayTab();
+
+    void setVM(VMConfig *vm);
+private:
+    VMConfig *vm;
 
 private:
     void connect_signals();
@@ -28,6 +33,9 @@ private:
     QPushButton *rpl_btn;
     QAction *rename_act;
     QAction *delete_act;
+
+signals:
+    void startRR();
 };
 
 #endif // RECORDREPLAYTAB_H

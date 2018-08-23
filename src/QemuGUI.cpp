@@ -239,6 +239,8 @@ void QemuGUI::connect_signals()
 
     connect(this, SIGNAL(monitor_connect(int)), 
         terminal_tab, SLOT(terminalTab_connect(int)));
+
+    connect(rec_replay_tab, SIGNAL(startRR()), this, SLOT(play_machine()));
 }
 
 QString QemuGUI::delete_exclude_vm(bool delete_vm)
@@ -380,7 +382,10 @@ void QemuGUI::listVM_item_selection_changed()
     {
         VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
         if (vm)
+        {
             info_lbl->setText(vm->get_vm_info());
+            rec_replay_tab->setVM(vm);
+        }
         propBox->setVisible(true);
         edit_btn->setVisible(true);
         delete_act->setDisabled(false);
