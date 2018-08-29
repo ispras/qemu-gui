@@ -63,9 +63,21 @@ QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
     /* TODO: use -drive option and correct id */
     DeviceBusIde *bus = dynamic_cast<DeviceBusIde *> (parent());
     Q_ASSERT(bus);
-    QString id = cmdParams.getNextID();
-    return " -drive file=" + image + ",if=none,id=" + id +
-        " -device ide-hd,bus=" + bus->getDescription() + ",drive=" + id;
+
+    if (cmdParams.getLaunchMode() == LaunchMode::Normal)
+    {
+        QString id = cmdParams.getNextID();
+        return " -drive file=" + image + ",if=none,id=" + id +
+            " -device ide-hd,bus=" + bus->getDescription() + ",drive=" + id;
+    }
+    else
+    {
+        QString idFile = cmdParams.getNextID();
+        QString idDriver = cmdParams.getNextID();
+        return " -drive file=" + image + ",if=none,id=" + idFile +
+            " -drive driver=blkreplay,if=none,image=" + idFile + ",id=" + idDriver +
+            " -device ide-hd,drive=" + idDriver;
+    }
 }
 
 /***************************************************************************

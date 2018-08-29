@@ -240,7 +240,7 @@ void QemuGUI::connect_signals()
     connect(this, SIGNAL(monitor_connect(int)), 
         terminal_tab, SLOT(terminalTab_connect(int)));
 
-    connect(rec_replay_tab, SIGNAL(startRR()), this, SLOT(play_machine()));
+    connect(rec_replay_tab, SIGNAL(startRR(LaunchMode)), this, SLOT(play_machine(LaunchMode)));
 }
 
 QString QemuGUI::delete_exclude_vm(bool delete_vm)
@@ -296,7 +296,7 @@ void QemuGUI::play_machine()
 
             QThread *thread = new QThread();
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
-                global_config->get_vm_by_name(listVM->currentItem()->text()), qmp_port, monitor_port);
+                global_config->get_vm_by_name(listVM->currentItem()->text()), qmp_port, monitor_port, launchMode);
             launch_qemu->moveToThread(thread);
             connect(thread, SIGNAL(started()), launch_qemu, SLOT(start_qemu()));
             connect(launch_qemu, SIGNAL(qemu_laucher_finished()), this, SLOT(finish_qemu()));
@@ -315,6 +315,13 @@ void QemuGUI::play_machine()
             emit qmp_resume_qemu();
         }
     }
+    launchMode = LaunchMode::Normal;
+}
+
+void QemuGUI::play_machine(LaunchMode mode)
+{
+    launchMode = mode;
+    play_machine();
 }
 
 void QemuGUI::finish_qemu()

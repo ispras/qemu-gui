@@ -2,7 +2,7 @@
 
 
 QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
-    const QString &port_qmp, const QString &port_monitor, QObject *parent)
+    const QString &port_qmp, const QString &port_monitor, LaunchMode mode, QObject *parent)
     : QObject(parent), virtual_machine(vm)
 {
     qemu_dir = qemu_install_dir_path
@@ -14,6 +14,7 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
 
     this->port_monitor = port_monitor;
     this->port_qmp = port_qmp;
+    this->mode = mode;
     qemu = NULL;
 }
 
@@ -30,15 +31,30 @@ void QemuLauncher::kill_qemu_process()
 
 void QemuLauncher::start_qemu()
 {
-    CommandLineParameters cmdParams;
+    CommandLineParameters cmdParams(mode);
     qemu = new QProcess();
     qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
     connect(qemu, SIGNAL(finished(int, QProcess::ExitStatus)), 
         this, SLOT(finish_qemu(int, QProcess::ExitStatus)));
     QString mon = " -monitor \"tcp:127.0.0.1:" + port_monitor + ",server,nowait\"";
     QString qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,nowait\"";
-    qDebug() << qemu_dir + " " + virtual_machine->getCommandLine(cmdParams) + mon + qmp;
-    qemu->start(qemu_dir + " " + virtual_machine->getCommandLine(cmdParams) + mon + qmp);
+    if (mode == LaunchMode::Normal)
+    {
+        qDebug() << qemu_dir + " " + virtual_machine->getCommandLine(cmdParams) + mon + qmp;
+        qemu->start("\"" + qemu_dir + "\" " + 
+            virtual_machine->getCommandLine(cmdParams) + mon + qmp);
+    }
+    else
+    {
+        QString rr = mode == LaunchMode::Record ? "record" : "replay";
+        QString recordReplay = "-icount shift=7,rr=" + rr + ",rrfile=" + 
+            virtual_machine->getRRDirectory() + "/replay.bin";
+
+        qDebug() << qemu_dir + " " + recordReplay + virtual_machine->getCommandLine(cmdParams) + mon + qmp;
+        qemu->start("\"" + qemu_dir + "\" " + recordReplay + 
+            virtual_machine->getCommandLine(cmdParams) + mon + qmp);
+
+    }
     qemu->waitForFinished(-1);
 }
 

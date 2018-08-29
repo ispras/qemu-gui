@@ -31,11 +31,15 @@ public:
     Device *getSystemDevice() { return &system; }
 
     void remove_directory_vm();
+
+    void setRRDirectory(const QString &dir);
+    QString getRRDirectory();
 private:
     QFile *list_of_vm_file = NULL;
 
     QString name_vm;
     QString dir_path;
+    QString dirRR;
 
     Device system;
 };

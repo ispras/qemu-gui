@@ -7,6 +7,7 @@
 
 #include "VMConfig.h"
 #include "CommandLineParameters.h"
+#include "QemuGUICommon.h"
 
 class QemuLauncher : public QObject
 {
@@ -14,7 +15,7 @@ class QemuLauncher : public QObject
 
 public:
     QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm, 
-        const QString &port_qmp, const QString &port_monitor, QObject *parent = 0);
+        const QString &port_qmp, const QString &port_monitor, LaunchMode mode, QObject *parent = 0);
     ~QemuLauncher();
 
 public:
@@ -28,6 +29,7 @@ private:
     QTcpSocket monitor;
     QString port_qmp;
     QString port_monitor;
+    LaunchMode mode;
 
 public slots:
     void start_qemu();

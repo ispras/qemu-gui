@@ -164,6 +164,16 @@ void VMConfig::remove_directory_vm()
         remove_directory(del_dir);
 }
 
+void VMConfig::setRRDirectory(const QString & dir)
+{
+    dirRR = dir;
+}
+
+QString VMConfig::getRRDirectory()
+{
+    return dirRR;
+}
+
 static bool remove_directory(QDir dir)
 {
     int res = 0;

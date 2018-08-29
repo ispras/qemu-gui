@@ -3,6 +3,7 @@
 
 #include <QtWidgets>
 #include "VMConfig.h"
+#include "QemuGUICommon.h"
 
 class RecordReplayTab : public QWidget
 {
@@ -26,7 +27,8 @@ private:
     void execution_listItemSelectionChanged();
     void rename_ctxmenu();
     void delete_ctxmenu();
-
+    QString getCommonRRDir();
+    
 private:
     QListWidget *execution_list;
     QPushButton *rec_btn;
@@ -34,8 +36,15 @@ private:
     QAction *rename_act;
     QAction *delete_act;
 
+    QDialog *nameDirDialog;
+    QLineEdit *nameEdit;
+    QString commonDirRR;
+
+private slots:
+    void setRRNameDir();
+
 signals:
-    void startRR();
+    void startRR(LaunchMode mode);
 };
 
 #endif // RECORDREPLAYTAB_H
