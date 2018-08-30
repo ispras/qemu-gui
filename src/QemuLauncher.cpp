@@ -1,9 +1,11 @@
 #include "QemuLauncher.h"
-
+#include "CommandLineParameters.h"
 
 QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
-    const QString &port_qmp, const QString &port_monitor, LaunchMode mode, QObject *parent)
-    : QObject(parent), virtual_machine(vm)
+    const QString &port_qmp, const QString &port_monitor, LaunchMode mode,
+    const QString &dirRR, QObject *parent)
+    : QObject(parent), virtual_machine(vm), port_monitor(port_monitor),
+    port_qmp(port_qmp), mode(mode), dirRR(dirRR)
 {
     qemu_dir = qemu_install_dir_path
 #ifdef Q_OS_WIN
@@ -11,10 +13,6 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
 #else
         + "/qemu-system-i386";
 #endif
-
-    this->port_monitor = port_monitor;
-    this->port_qmp = port_qmp;
-    this->mode = mode;
     qemu = NULL;
 }
 
@@ -38,23 +36,16 @@ void QemuLauncher::start_qemu()
         this, SLOT(finish_qemu(int, QProcess::ExitStatus)));
     QString mon = " -monitor \"tcp:127.0.0.1:" + port_monitor + ",server,nowait\"";
     QString qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,nowait\"";
-    if (mode == LaunchMode::Normal)
+    QString recordReplay = "";
+    if (mode != LaunchMode::NORMAL)
     {
-        qDebug() << qemu_dir + " " + virtual_machine->getCommandLine(cmdParams) + mon + qmp;
-        qemu->start("\"" + qemu_dir + "\" " + 
-            virtual_machine->getCommandLine(cmdParams) + mon + qmp);
+        QString rr = mode == LaunchMode::RECORD ? "record" : "replay";
+        recordReplay = "-icount shift=7,rr=" + rr + ",rrfile=" + 
+            dirRR + "/replay.bin";
     }
-    else
-    {
-        QString rr = mode == LaunchMode::Record ? "record" : "replay";
-        QString recordReplay = "-icount shift=7,rr=" + rr + ",rrfile=" + 
-            virtual_machine->getRRDirectory() + "/replay.bin";
-
-        qDebug() << qemu_dir + " " + recordReplay + virtual_machine->getCommandLine(cmdParams) + mon + qmp;
-        qemu->start("\"" + qemu_dir + "\" " + recordReplay + 
-            virtual_machine->getCommandLine(cmdParams) + mon + qmp);
-
-    }
+    qDebug() << qemu_dir + " " + recordReplay + virtual_machine->getCommandLine(cmdParams) + mon + qmp;
+    qemu->start("\"" + qemu_dir + "\" " + recordReplay +
+        virtual_machine->getCommandLine(cmdParams) + mon + qmp);
     qemu->waitForFinished(-1);
 }
 

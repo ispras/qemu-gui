@@ -68,7 +68,7 @@ private:
     QString qmp_port = "";
     QString monitor_port = "";
 
-    LaunchMode launchMode = LaunchMode::Normal;
+    LaunchMode launchMode = LaunchMode::NORMAL;
 
 
 private:

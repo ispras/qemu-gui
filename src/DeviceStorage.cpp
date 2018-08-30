@@ -1,5 +1,6 @@
 #include "DeviceStorage.h"
 #include "DeviceBus.h"
+#include "CommandLineParameters.h"
 
 DeviceStorageController::DeviceStorageController(const QString &n, Device *parent)
     : Device(n, parent)
@@ -64,7 +65,7 @@ QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
     DeviceBusIde *bus = dynamic_cast<DeviceBusIde *> (parent());
     Q_ASSERT(bus);
 
-    if (cmdParams.getLaunchMode() == LaunchMode::Normal)
+    if (cmdParams.getLaunchMode() == LaunchMode::NORMAL)
     {
         QString id = cmdParams.getNextID();
         return " -drive file=" + image + ",if=none,id=" + id +
@@ -74,7 +75,7 @@ QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
     {
         QString idFile = cmdParams.getNextID();
         QString idDriver = cmdParams.getNextID();
-        return " -drive file=" + image + ",if=none,id=" + idFile +
+        return " -drive file=" + image + ",if=none,id=" + idFile + ",snapshot=on" +
             " -drive driver=blkreplay,if=none,image=" + idFile + ",id=" + idDriver +
             " -device ide-hd,drive=" + idDriver;
     }

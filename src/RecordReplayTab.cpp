@@ -7,6 +7,7 @@ RecordReplayTab::RecordReplayTab(QWidget *parent)
         RecordReplayTab::setObjectName(QStringLiteral("RecordReplayTab"));
     resize(400, 300);
     
+    //TODO: for each vm its list
     execution_list = new QListWidget();
     rec_btn = new QPushButton("Start record");
     rpl_btn = new QPushButton("Start replay");
@@ -42,6 +43,11 @@ RecordReplayTab::~RecordReplayTab()
 void RecordReplayTab::setVM(VMConfig * vm)
 {
     this->vm = vm;
+}
+
+QString RecordReplayTab::getCurrentDirRR()
+{
+    return currentDirRR;
 }
 
 void RecordReplayTab::connect_signals()
@@ -101,9 +107,8 @@ void RecordReplayTab::replay_execution()
 {
     if (execution_list->currentItem())
     {
-        vm->setRRDirectory(getCommonRRDir() + "/" + execution_list->currentItem()->text());
-        QMessageBox::about(this, "", "replay");
-        emit startRR(LaunchMode::Replay);
+        currentDirRR = getCommonRRDir() + "/" + execution_list->currentItem()->text();
+        emit startRR(LaunchMode::REPLAY);
     }
 }
 
@@ -160,9 +165,9 @@ void RecordReplayTab::setRRNameDir()
     {
         rrDir.mkdir(getCommonRRDir() + "/" + name);
     }
-    vm->setRRDirectory(rrDir.path());
+    currentDirRR = rrDir.path();
 
     nameDirDialog->close();
-    emit startRR(LaunchMode::Record);
+    emit startRR(LaunchMode::RECORD);
 }
 

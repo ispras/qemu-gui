@@ -296,7 +296,9 @@ void QemuGUI::play_machine()
 
             QThread *thread = new QThread();
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
-                global_config->get_vm_by_name(listVM->currentItem()->text()), qmp_port, monitor_port, launchMode);
+                global_config->get_vm_by_name(listVM->currentItem()->text()), 
+                qmp_port, monitor_port, launchMode, 
+                launchMode != LaunchMode::NORMAL ? rec_replay_tab->getCurrentDirRR() : "");
             launch_qemu->moveToThread(thread);
             connect(thread, SIGNAL(started()), launch_qemu, SLOT(start_qemu()));
             connect(launch_qemu, SIGNAL(qemu_laucher_finished()), this, SLOT(finish_qemu()));
@@ -315,7 +317,7 @@ void QemuGUI::play_machine()
             emit qmp_resume_qemu();
         }
     }
-    launchMode = LaunchMode::Normal;
+    launchMode = LaunchMode::NORMAL;
 }
 
 void QemuGUI::play_machine(LaunchMode mode)

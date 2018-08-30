@@ -16,6 +16,4 @@ template<typename... Args> struct QOverload {
 #define MAX_RAM_VALUE (32768 / 2)
 #define MIN_RAM_VALUE 4
 
-enum LaunchMode { Normal, Record, Replay };
-
 #endif

@@ -2,7 +2,7 @@
 #define COMMANDLINEPARAMETERS_H
 
 #include <QtWidgets>
-#include "QemuGUICommon.h"
+#include "QemuLauncher.h"
 
 class CommandLineParameters
 {
@@ -16,7 +16,6 @@ public:
 private:
     int id;
     LaunchMode mode; /* normal, record, replay */
-    QString dirRR;
 
 };
 

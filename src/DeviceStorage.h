@@ -2,7 +2,6 @@
 #define DEVICESTORAGE_H
 
 #include "Device.h"
-#include "QemuGUICommon.h"
 
 /*class DeviceStorage : public Device
 {

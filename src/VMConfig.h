@@ -5,7 +5,8 @@
 #include <QtWidgets>
 #include "Device.h"
 #include "DeviceUsb.h"
-#include "CommandLineParameters.h"
+
+class CommandLineParameters;
 
 class VMConfig : public QObject
 {
@@ -32,14 +33,11 @@ public:
 
     void remove_directory_vm();
 
-    void setRRDirectory(const QString &dir);
-    QString getRRDirectory();
 private:
     QFile *list_of_vm_file = NULL;
 
     QString name_vm;
     QString dir_path;
-    QString dirRR;
 
     Device system;
 };

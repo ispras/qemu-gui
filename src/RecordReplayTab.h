@@ -3,7 +3,7 @@
 
 #include <QtWidgets>
 #include "VMConfig.h"
-#include "QemuGUICommon.h"
+#include "QemuLauncher.h"
 
 class RecordReplayTab : public QWidget
 {
@@ -14,6 +14,8 @@ public:
     ~RecordReplayTab();
 
     void setVM(VMConfig *vm);
+    QString getCurrentDirRR();
+
 private:
     VMConfig *vm;
 
@@ -39,6 +41,7 @@ private:
     QDialog *nameDirDialog;
     QLineEdit *nameEdit;
     QString commonDirRR;
+    QString currentDirRR;
 
 private slots:
     void setRRNameDir();

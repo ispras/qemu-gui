@@ -3,7 +3,8 @@
 
 #include <QWidget>
 #include <QtWidgets>
-#include "CommandLineParameters.h"
+
+class CommandLineParameters;
 
 class Device : public QObject
 {
