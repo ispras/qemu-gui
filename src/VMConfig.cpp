@@ -129,6 +129,12 @@ void VMConfig::addMemorySize(const QString &size)
     new DeviceMemory(size, &system);
 }
 
+void VMConfig::addUsbDevice()
+{
+    qDebug() << "---usb" << (new DeviceUsb(&system))->getDeviceTypeName();
+    //save_vm_config();
+}
+
 QString VMConfig::get_vm_info()
 {
     QString info = "Name: " + name_vm + "\n" + "Directory: " + dir_path + "\n";

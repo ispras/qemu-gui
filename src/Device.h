@@ -3,7 +3,8 @@
 
 #include <QWidget>
 #include <QtWidgets>
-#include "CommandLineParameters.h"
+
+class CommandLineParameters;
 
 class Device : public QObject
 {
@@ -24,6 +25,7 @@ public:
 
     virtual QString getDeviceTypeName() const { return "Device"; }
     virtual QWidget *getEditorForm() { return NULL; }
+    virtual QStringList getDeviceListToAdd() { return QStringList(); }
 
 protected:
     virtual void saveParameters(QXmlStreamWriter &xml) const {}

@@ -4,7 +4,9 @@
 #include <QWidget>
 #include <QtWidgets>
 #include "Device.h"
-#include "CommandLineParameters.h"
+#include "DeviceUsb.h"
+
+class CommandLineParameters;
 
 class VMConfig : public QObject
 {
@@ -21,6 +23,7 @@ public:
     void set_name(const QString &name_vm_);
     void addDefaultIDE(const QString &image);
     void addMemorySize(const QString &size);
+    void addUsbDevice();
     QString get_vm_info();
 
     QString get_name();
@@ -29,6 +32,7 @@ public:
     Device *getSystemDevice() { return &system; }
 
     void remove_directory_vm();
+
 private:
     QFile *list_of_vm_file = NULL;
 

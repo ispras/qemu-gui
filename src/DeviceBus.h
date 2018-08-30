@@ -22,6 +22,7 @@ public:
     DeviceBusIde(int id, DeviceIdeController *parent);
 
     virtual QString getDeviceTypeName() const { return typeName; }
+    virtual QStringList getDeviceListToAdd() { return QStringList({ "Device0", "Device1", "Device2" }); }
 };
 
 #endif // DEVICEBUS_H

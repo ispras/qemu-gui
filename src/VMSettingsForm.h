@@ -5,6 +5,7 @@
 #include "VMConfig.h"
 #include "AddDeviceForm.h"
 #include "DeviceStorage.h"
+#include "DeviceUsb.h"
 
 class VMSettingsForm : public QWidget
 {
@@ -15,7 +16,6 @@ public:
     ~VMSettingsForm();
 
 public slots:
-    void addNewDevice(const QString &devName);
 
 private:
     VMConfig *vm;
@@ -34,6 +34,8 @@ private slots:
     void save_settings();
     void onDeviceTreeItemClicked(QTreeWidgetItem *item, int column);
     void showContextMenu(const QPoint &pos);
+    void addNewDevice(const QString &devName);
+    void addNewSystemDevice(const QString &devName);
 
 };
 

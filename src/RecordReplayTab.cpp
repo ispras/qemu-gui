@@ -7,6 +7,7 @@ RecordReplayTab::RecordReplayTab(QWidget *parent)
         RecordReplayTab::setObjectName(QStringLiteral("RecordReplayTab"));
     resize(400, 300);
     
+    //TODO: for each vm its list
     execution_list = new QListWidget();
     rec_btn = new QPushButton("Start record");
     rpl_btn = new QPushButton("Start replay");
@@ -39,6 +40,16 @@ RecordReplayTab::~RecordReplayTab()
 
 }
 
+void RecordReplayTab::setVM(VMConfig * vm)
+{
+    this->vm = vm;
+}
+
+QString RecordReplayTab::getCurrentDirRR()
+{
+    return currentDirRR;
+}
+
 void RecordReplayTab::connect_signals()
 {
     connect(rec_btn, SIGNAL(clicked()), this, SLOT(record_execution()));
@@ -65,12 +76,40 @@ void RecordReplayTab::widget_placement()
 
 void RecordReplayTab::record_execution()
 {
-    QMessageBox::about(this, "", "record");
+    QDir rrDir(getCommonRRDir());
+    if (!rrDir.exists())
+    {
+        rrDir.mkdir(getCommonRRDir());
+    }
+
+    nameDirDialog = new QDialog();
+    nameDirDialog->setModal(true);
+    nameDirDialog->setAttribute(Qt::WA_DeleteOnClose);
+    nameEdit = new QLineEdit(nameDirDialog);
+    QDialogButtonBox *okCancelBtn = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+
+    QHBoxLayout *topLay = new QHBoxLayout();
+    topLay->addWidget(new QLabel("Input name:"));
+    topLay->addWidget(nameEdit);
+
+    QVBoxLayout *mainLay = new QVBoxLayout();
+    mainLay->addLayout(topLay);
+    mainLay->addWidget(okCancelBtn);
+
+    nameDirDialog->setLayout(mainLay);
+    nameDirDialog->show();
+
+    connect(okCancelBtn, &QDialogButtonBox::accepted, this, &RecordReplayTab::setRRNameDir);
+    connect(okCancelBtn, &QDialogButtonBox::rejected, nameDirDialog, &QDialog::close);
 }
 
 void RecordReplayTab::replay_execution()
 {
-    QMessageBox::about(this, "", "replay");
+    if (execution_list->currentItem())
+    {
+        currentDirRR = getCommonRRDir() + "/" + execution_list->currentItem()->text();
+        emit startRR(LaunchMode::REPLAY);
+    }
 }
 
 void RecordReplayTab::execution_listItemSelectionChanged()
@@ -96,5 +135,39 @@ void RecordReplayTab::delete_ctxmenu()
         rename_act->setDisabled(true);
         delete_act->setDisabled(true);
     }
+}
+
+QString RecordReplayTab::getCommonRRDir()
+{
+    return vm->get_dir_path() + "/RecordReplay";
+}
+
+void RecordReplayTab::setRRNameDir()
+{
+    QString name = nameEdit->text();
+    QList <QListWidgetItem*> items = execution_list->findItems(name, 
+        Qt::MatchFlag::MatchContains);
+
+    foreach(QListWidgetItem *it, items)
+    {
+        if (QString::compare(name, it->text(), Qt::CaseInsensitive) == 0)
+        {
+            QMessageBox::critical(this, "Error", "Name " + name + " already exists");
+            return;
+        }
+    }
+
+    QListWidgetItem *it = new QListWidgetItem();
+    it->setText(name);
+    execution_list->addItem(it);
+    QDir rrDir(getCommonRRDir() + "/" + name);
+    if (!rrDir.exists())
+    {
+        rrDir.mkdir(getCommonRRDir() + "/" + name);
+    }
+    currentDirRR = rrDir.path();
+
+    nameDirDialog->close();
+    emit startRR(LaunchMode::RECORD);
 }
 

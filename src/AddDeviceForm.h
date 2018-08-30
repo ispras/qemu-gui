@@ -8,7 +8,7 @@ class AddDeviceForm : public QWidget
     Q_OBJECT
 
 public:
-    AddDeviceForm(QWidget *parent = 0);
+    AddDeviceForm(const QStringList &listDevice);
     ~AddDeviceForm();
 
 public slots:

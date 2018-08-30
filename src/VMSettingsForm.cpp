@@ -104,27 +104,50 @@ void VMSettingsForm::onDeviceTreeItemClicked(QTreeWidgetItem *item, int column)
 
 void VMSettingsForm::showContextMenu(const QPoint & pos)
 {
+    // trash all
     QTreeWidgetItem *item = deviceTree->itemAt(pos);
-    deviceTree->setCurrentItem(item);
-
-    // temp
-    if (QString().compare(item->text(0), "ide.0", Qt::CaseInsensitive) == 0 ||
-        QString().compare(item->text(0), "ide.1", Qt::CaseInsensitive) == 0)
+    if (item)
     {
-        QAction *addDeviceAct = new QAction("Add device", this);
-        addDeviceAct->setStatusTip(tr("Add device"));
+        DeviceTreeItem *devItem = dynamic_cast<DeviceTreeItem*>(item);
+        Q_ASSERT(devItem);
+        Device *dev = devItem->getDevice();
 
-        AddDeviceForm *addDev = new AddDeviceForm();
-        addDev->setAttribute(Qt::WA_DeleteOnClose);
+        if (!dev->getDeviceListToAdd().isEmpty())
+        {
+            deviceTree->setCurrentItem(item);
 
-        connect(addDeviceAct, SIGNAL(triggered()), addDev, SLOT(addDevice()));
-        connect(addDev, SIGNAL(deviceWantsToAdd(const QString &)),
-            this, SLOT(addNewDevice(const QString &)));
+            QAction *addDeviceAct = new QAction("Add device", this);
+            addDeviceAct->setStatusTip(tr("Add device"));
+
+            AddDeviceForm *addDev = new AddDeviceForm(dev->getDeviceListToAdd());
+            addDev->setAttribute(Qt::WA_DeleteOnClose);
+
+            connect(addDeviceAct, SIGNAL(triggered()), addDev, SLOT(addDevice()));
+            connect(addDev, SIGNAL(deviceWantsToAdd(const QString &)),
+                this, SLOT(addNewDevice(const QString &)));
+
+            QMenu menu(this);
+            menu.addAction(addDeviceAct);
+
+            menu.exec(deviceTree->mapToGlobal(pos));
+        }
+    }
+    else
+    {
+        qDebug() << "add add add";
+        QAction *addDeviceAct = new QAction("Add system device", this);
+        addDeviceAct->setStatusTip(tr("Add system device"));
+
+        AddDeviceForm *addSystemDev = new AddDeviceForm(QStringList({ "Usb", "...", }));
+        addSystemDev->setAttribute(Qt::WA_DeleteOnClose);
+
+        connect(addDeviceAct, SIGNAL(triggered()), addSystemDev, SLOT(addDevice()));
+        connect(addSystemDev, SIGNAL(deviceWantsToAdd(const QString &)),
+            this, SLOT(addNewSystemDevice(const QString &)));
 
         QMenu menu(this);
         menu.addAction(addDeviceAct);
 
-        QPoint pt(pos);
         menu.exec(deviceTree->mapToGlobal(pos));
     }
 }
@@ -148,6 +171,17 @@ void VMSettingsForm::addNewDevice(const QString &devName)
     deviceTree->currentItem()->addChildren(children);
     deviceTree->currentItem()->addChild(item);
     deviceTree->currentItem()->setExpanded(true);
+}
+
+void VMSettingsForm::addNewSystemDevice(const QString &devName)
+{
+    if (QString::compare(devName, "Usb") == 0)
+    {
+        vm->addUsbDevice();
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        item->setText(0, "Usb");
+        deviceTree->invisibleRootItem()->addChild(item);
+    }
 }
 
 /***************************************************************************

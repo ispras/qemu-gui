@@ -68,6 +68,8 @@ private:
     QString qmp_port = "";
     QString monitor_port = "";
 
+    LaunchMode launchMode = LaunchMode::NORMAL;
+
 
 private:
     QIcon set_button_icon_for_state(const QString &normal_icon, const QString &disable_icon);
@@ -92,6 +94,7 @@ private slots:
     void delete_vm_ctxmenu();
     void exclude_vm_ctxmenu();
     void play_machine();
+    void play_machine(LaunchMode mode);
     void finish_qemu();
     void pause_machine();
     void stop_machine();
