@@ -152,7 +152,7 @@ void RecordReplayTab::setRRNameDir()
     {
         if (QString::compare(name, it->text(), Qt::CaseInsensitive) == 0)
         {
-            QMessageBox::critical(this, "Error", "Name " + name + " is already exist");
+            QMessageBox::critical(this, "Error", "Name " + name + " already exists");
             return;
         }
     }
