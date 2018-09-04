@@ -46,10 +46,6 @@ ConnectionSettingsForm::~ConnectionSettingsForm()
 }
 
 
-void ConnectionSettingsForm::closeEvent(QCloseEvent *event)
-{
-}
-
 void ConnectionSettingsForm::save_connection_settings()
 {
     if (qmp_line->text().isEmpty() || monitor_line->text().isEmpty() || qmp_line->text() == monitor_line->text())

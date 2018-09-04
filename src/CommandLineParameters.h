@@ -8,7 +8,7 @@ class CommandLineParameters
 {
 public:
     CommandLineParameters(LaunchMode mode) : id(0), mode(mode) {}
-    CommandLineParameters() : id(0) {}
+    CommandLineParameters() : id(0), mode(LaunchMode::NORMAL) {}
     
     QString getNextID();
     LaunchMode getLaunchMode();

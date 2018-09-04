@@ -90,6 +90,7 @@ void RecordReplayTab::record_execution()
     nameDirDialog->setModal(true);
     nameDirDialog->setAttribute(Qt::WA_DeleteOnClose);
     nameEdit = new QLineEdit(nameDirDialog);
+    nameEdit->setValidator(new QRegExpValidator(QRegExp("[A-Za-z0-9_]*"), this));
     QDialogButtonBox *okCancelBtn = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
     QHBoxLayout *topLay = new QHBoxLayout();
