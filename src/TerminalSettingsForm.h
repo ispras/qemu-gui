@@ -14,9 +14,6 @@ public:
     TerminalSettingsForm(QTextEdit *terminal, QWidget *parent = 0);
     ~TerminalSettingsForm();
 
-protected:
-    void closeEvent(QCloseEvent * event);
-
 private:
     QTextEdit *test_text;
 
