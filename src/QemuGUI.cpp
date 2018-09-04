@@ -393,7 +393,8 @@ void QemuGUI::listVM_item_selection_changed()
         if (vm)
         {
             info_lbl->setText(vm->get_vm_info());
-            rec_replay_tab->setVM(vm);
+            vm->fillReplayList();
+            rec_replay_tab->setRecordReplayList(vm);
         }
         propBox->setVisible(true);
         edit_btn->setVisible(true);

@@ -11,6 +11,7 @@ RecordReplayTab::RecordReplayTab(QWidget *parent)
     execution_list = new QListWidget();
     rec_btn = new QPushButton("Start record");
     rpl_btn = new QPushButton("Start replay");
+    rpl_btn->setEnabled(false);
 
     rename_act = new QAction("Rename", execution_list);
     delete_act = new QAction("Delete", execution_list);
@@ -40,9 +41,12 @@ RecordReplayTab::~RecordReplayTab()
 
 }
 
-void RecordReplayTab::setVM(VMConfig * vm)
+void RecordReplayTab::setRecordReplayList(VMConfig * vm)
 {
     this->vm = vm;
+    execution_list->clear();
+    execution_list->addItems(vm->getReplayList());
+    rpl_btn->setEnabled(false);
 }
 
 QString RecordReplayTab::getCurrentDirRR()
@@ -114,6 +118,7 @@ void RecordReplayTab::replay_execution()
 
 void RecordReplayTab::execution_listItemSelectionChanged()
 {
+    rpl_btn->setEnabled(true);
     rename_act->setDisabled(false);
     delete_act->setDisabled(false);
 }

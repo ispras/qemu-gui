@@ -164,6 +164,17 @@ void VMConfig::remove_directory_vm()
         remove_directory(del_dir);
 }
 
+void VMConfig::fillReplayList()
+{
+    QDir rrDir(dir_path + "/RecordReplay");
+    QStringList dirs = rrDir.entryList(QDir::Dirs | QDir::AllDirs | QDir::Filter::NoDotAndDotDot);
+    replayList.clear();
+    foreach (QString name, dirs)
+    {
+        replayList.append(name);
+    }
+}
+
 static bool remove_directory(QDir dir)
 {
     int res = 0;

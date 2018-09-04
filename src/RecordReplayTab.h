@@ -13,7 +13,7 @@ public:
     RecordReplayTab(QWidget *parent = 0);
     ~RecordReplayTab();
 
-    void setVM(VMConfig *vm);
+    void setRecordReplayList(VMConfig *vm);
     QString getCurrentDirRR();
 
 private:

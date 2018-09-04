@@ -51,5 +51,6 @@ void QemuLauncher::start_qemu()
 
 void QemuLauncher::finish_qemu(int exitCode, QProcess::ExitStatus ExitStatus)
 {
+    qDebug() << "exit code" << exitCode << "exit status" << ExitStatus;
     emit qemu_laucher_finished();
 }

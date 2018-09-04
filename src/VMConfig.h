@@ -30,6 +30,8 @@ public:
     QString get_dir_path();
     QString getCommandLine(CommandLineParameters &cmdParams);
     Device *getSystemDevice() { return &system; }
+    QStringList getReplayList() { return replayList; }
+    void fillReplayList();
 
     void remove_directory_vm();
 
@@ -40,6 +42,8 @@ private:
     QString dir_path;
 
     Device system;
+    QStringList replayList;
+
 };
 
 #endif //VMCONFIG_H
