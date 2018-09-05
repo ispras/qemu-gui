@@ -46,10 +46,38 @@ private:
 
 private slots:
     void setRRNameDir();
-    void renameRRItem(QListWidgetItem *item);
+    void renameRRRecord();
+
+public slots:
+    void enableBtns(bool state);
+    void recordDeleteRecords();
 
 signals:
     void startRR(LaunchMode mode);
+};
+
+
+/******************************************************************************
+* EXECUTION_LIST DELEGATE                                                     *
+******************************************************************************/
+
+class RecordRRDelegate : public QItemDelegate
+{
+    Q_OBJECT
+
+public:
+    RecordRRDelegate(QObject *parent = 0);
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option,
+        const QModelIndex &index) const;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const;
+    void setModelData(QWidget *editor, QAbstractItemModel *model,
+        const QModelIndex &index) const;
+
+private slots:
+    void editingFinished();
+
+signals:
+    void renamingEnded();
 };
 
 #endif // RECORDREPLAYTAB_H

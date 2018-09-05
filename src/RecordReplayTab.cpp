@@ -1,5 +1,7 @@
 #include "RecordReplayTab.h"
 
+const QString regExpForName = "[A-Za-z0-9_-][A-Za-z0-9_-\\s]+";
+
 RecordReplayTab::RecordReplayTab(QWidget *parent)
     : QWidget(parent)
 {
@@ -34,8 +36,6 @@ RecordReplayTab::RecordReplayTab(QWidget *parent)
 
     widget_placement();
     connect_signals();
-
-    //TODO disable buttons record and replay while qemu is working
 }
 
 RecordReplayTab::~RecordReplayTab()
@@ -63,8 +63,6 @@ void RecordReplayTab::connect_signals()
 
     connect(execution_list, SIGNAL(itemSelectionChanged()), 
         this, SLOT(execution_listItemSelectionChanged()));
-    connect(execution_list, SIGNAL(itemChanged(QListWidgetItem *)),
-        this, SLOT(renameRRItem(QListWidgetItem *)));
 
     connect(rename_act, SIGNAL(triggered()), this, SLOT(rename_ctxmenu()));
     connect(delete_act, SIGNAL(triggered()), this, SLOT(delete_ctxmenu()));
@@ -95,7 +93,7 @@ void RecordReplayTab::record_execution()
     nameDirDialog->setModal(true);
     nameDirDialog->setAttribute(Qt::WA_DeleteOnClose);
     nameEdit = new QLineEdit(nameDirDialog);
-    nameEdit->setValidator(new QRegExpValidator(QRegExp("[A-Za-z0-9_-][A-Za-z0-9_-\\s]+"), this));
+    nameEdit->setValidator(new QRegExpValidator(QRegExp(regExpForName), this));
     QDialogButtonBox *okCancelBtn = new QDialogButtonBox(QDialogButtonBox::Ok
         | QDialogButtonBox::Cancel);
 
@@ -139,8 +137,10 @@ void RecordReplayTab::rename_ctxmenu()
         oldRRName = execution_list->currentItem()->text();
         execution_list->currentItem()->setFlags(execution_list->currentItem()->flags()
             | Qt::ItemIsEditable);
+        RecordRRDelegate *rrDelegate = new RecordRRDelegate();
+        connect(rrDelegate, SIGNAL(renamingEnded()), this, SLOT(renameRRRecord()));
+        execution_list->setItemDelegateForRow(execution_list->currentRow(), rrDelegate);
         execution_list->editItem(execution_list->currentItem());
-        // TODO validator
     }
 }
 
@@ -148,12 +148,17 @@ void RecordReplayTab::delete_ctxmenu()
 {    
     if (execution_list->currentItem())
     {
-        QString name = execution_list->currentItem()->text();
-        vm->remove_directory_vm(getCommonRRDir() + "/" + name);
-        delete execution_list->currentItem();
-        execution_list->clearSelection();
-        rename_act->setDisabled(true);
-        delete_act->setDisabled(true);
+        int answer = QMessageBox::question(this, "Deleting", "Are you sure?",
+            QMessageBox::Yes, QMessageBox::No);
+        if (answer == QMessageBox::Yes)
+        {
+            QString name = execution_list->currentItem()->text();
+            vm->remove_directory_vm(getCommonRRDir() + "/" + name);
+            delete execution_list->currentItem();
+            execution_list->clearSelection();
+            rename_act->setDisabled(true);
+            delete_act->setDisabled(true);
+        }
     }
 }
 
@@ -162,8 +167,9 @@ QString RecordReplayTab::getCommonRRDir()
     return vm->get_dir_path() + "/RecordReplay";
 }
 
-void RecordReplayTab::renameRRItem(QListWidgetItem *item)
+void RecordReplayTab::renameRRRecord()
 {
+    QListWidgetItem *item = execution_list->currentItem();
     if (QString::compare(oldRRName, item->text()) != 0)
     {
         QDir dir(getCommonRRDir() + "/" + oldRRName);
@@ -171,11 +177,22 @@ void RecordReplayTab::renameRRItem(QListWidgetItem *item)
             getCommonRRDir() + "/" + item->text()))
         {
             QMessageBox::critical((QWidget *) this->parent(),
-                "Error", "Record was not rename");
+                "Error", "Record was not renamed");
         }
         oldRRName = item->text();
         item->setFlags(item->flags() & ~Qt::ItemFlag::ItemIsEditable);
     }
+}
+
+void RecordReplayTab::recordDeleteRecords()
+{
+    execution_list->clear();
+}
+
+void RecordReplayTab::enableBtns(bool state)
+{
+    rec_btn->setEnabled(state);
+    rpl_btn->setEnabled(state);
 }
 
 void RecordReplayTab::setRRNameDir()
@@ -205,5 +222,47 @@ void RecordReplayTab::setRRNameDir()
 
     nameDirDialog->close();
     emit startRR(LaunchMode::RECORD);
+}
+
+
+/******************************************************************************
+* EXECUTION_LIST DELEGATE                                                     *
+******************************************************************************/
+
+RecordRRDelegate::RecordRRDelegate(QObject *parent)
+    :QItemDelegate(parent)
+{
+}
+
+QWidget *RecordRRDelegate::createEditor(QWidget *parent,
+    const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QLineEdit* editor =  new QLineEdit(parent);
+    editor->setValidator(new QRegExpValidator(QRegExp(regExpForName)));
+    
+    connect(editor, SIGNAL(editingFinished()),
+        this, SLOT(editingFinished()));
+    
+    return editor;
+}
+
+void RecordRRDelegate::setEditorData(QWidget *editor, 
+    const QModelIndex &index) const
+{
+    QString value = index.model()->data(index).toString();
+    QLineEdit *name = dynamic_cast <QLineEdit*> (editor);
+    name->setText(value);
+}
+
+void RecordRRDelegate::setModelData(QWidget *editor,
+    QAbstractItemModel *model, const QModelIndex &index) const
+{
+    QLineEdit *name = dynamic_cast<QLineEdit*> (editor);
+    model->setData(index, name->text(), Qt::EditRole);
+}
+
+void RecordRRDelegate::editingFinished()
+{
+    emit renamingEnded();
 }
 
