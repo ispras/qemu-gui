@@ -1,6 +1,6 @@
 #include "RecordReplayTab.h"
 
-const QString regExpForName = "[A-Za-z0-9_-][A-Za-z0-9_-\\s]+";
+static const char regExpForName[] = "[A-Za-z0-9_-][A-Za-z0-9_-\\s]+";
 
 RecordReplayTab::RecordReplayTab(QWidget *parent)
     : QWidget(parent)
