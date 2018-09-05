@@ -12,9 +12,6 @@ public:
     ConnectionSettingsForm(GlobalConfig *global_config, QWidget *parent = 0);
     ~ConnectionSettingsForm();
 
-protected:
-    void closeEvent(QCloseEvent * event);
-
 private:
     GlobalConfig *global_config;
     QLineEdit *qmp_line;

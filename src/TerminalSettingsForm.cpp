@@ -76,10 +76,6 @@ TerminalSettingsForm::~TerminalSettingsForm()
 }
 
 
-void TerminalSettingsForm::closeEvent(QCloseEvent *event)
-{
-}
-
 void TerminalSettingsForm::set_background_color()
 {
     QColor color = QColorDialog::getColor();

@@ -37,6 +37,9 @@ private slots:
     void addNewDevice(const QString &devName);
     void addNewSystemDevice(const QString &devName);
 
+signals:
+    void settingsDeleteRecords();
+
 };
 
 class DeviceTreeItem : public QTreeWidgetItem

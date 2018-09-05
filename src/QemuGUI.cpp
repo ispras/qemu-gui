@@ -179,7 +179,8 @@ void QemuGUI::resume_qemu_btn_state()
     qemu_pause->setEnabled(true);
 }
 
-QIcon QemuGUI::set_button_icon_for_state(const QString &normal_icon, const QString &disable_icon)
+QIcon QemuGUI::set_button_icon_for_state(const QString &normal_icon, 
+    const QString &disable_icon)
 {
     QIcon icon;
     QPixmap pix_normal, pix_disable;
@@ -240,7 +241,10 @@ void QemuGUI::connect_signals()
     connect(this, SIGNAL(monitor_connect(int)), 
         terminal_tab, SLOT(terminalTab_connect(int)));
 
-    connect(rec_replay_tab, SIGNAL(startRR(LaunchMode)), this, SLOT(play_machine(LaunchMode)));
+    connect(rec_replay_tab, SIGNAL(startRR(LaunchMode)), 
+        this, SLOT(play_machine(LaunchMode)));
+    connect(this, SIGNAL(recordReplayEnableBtns(bool)), 
+        rec_replay_tab, SLOT(enableBtns(bool)));
 }
 
 QString QemuGUI::delete_exclude_vm(bool delete_vm)
@@ -323,6 +327,7 @@ void QemuGUI::play_machine()
 void QemuGUI::play_machine(LaunchMode mode)
 {
     launchMode = mode;
+    emit recordReplayEnableBtns(false);
     play_machine();
 }
 
@@ -336,6 +341,7 @@ void QemuGUI::finish_qemu()
     launch_qemu = NULL;
     delete qmp;
     qmp = NULL;
+    emit recordReplayEnableBtns(true);
 }
 
 void QemuGUI::pause_machine()
@@ -383,6 +389,8 @@ void QemuGUI::edit_settings()
     VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
     VMSettingsForm *settingsWindow = new VMSettingsForm(vm);
     settingsWindow->setAttribute(Qt::WA_DeleteOnClose);
+    connect(settingsWindow, SIGNAL(settingsDeleteRecords()),
+        rec_replay_tab, SLOT(recordDeleteRecords()));
 }
 
 void QemuGUI::listVM_item_selection_changed()
@@ -393,7 +401,8 @@ void QemuGUI::listVM_item_selection_changed()
         if (vm)
         {
             info_lbl->setText(vm->get_vm_info());
-            rec_replay_tab->setVM(vm);
+            vm->fillReplayList();
+            rec_replay_tab->setRecordReplayList(vm);
         }
         propBox->setVisible(true);
         edit_btn->setVisible(true);

@@ -41,7 +41,7 @@ void QemuLauncher::start_qemu()
     {
         QString rr = mode == LaunchMode::RECORD ? "record" : "replay";
         recordReplay = "-icount shift=7,rr=" + rr + ",rrfile=" + 
-            dirRR + "/replay.bin";
+            "\"" + dirRR + "\"" + "/replay.bin";
     }
     qDebug() << qemu_dir + " " + recordReplay + virtual_machine->getCommandLine(cmdParams) + mon + qmp;
     qemu->start("\"" + qemu_dir + "\" " + recordReplay +
@@ -51,5 +51,6 @@ void QemuLauncher::start_qemu()
 
 void QemuLauncher::finish_qemu(int exitCode, QProcess::ExitStatus ExitStatus)
 {
+    qDebug() << "exit code" << exitCode << "exit status" << ExitStatus;
     emit qemu_laucher_finished();
 }

@@ -113,6 +113,7 @@ signals:
     void qmp_resume_qemu();
     void qmp_stop_qemu();
     void monitor_connect(int);
+    void recordReplayEnableBtns(bool);
 
 };
 

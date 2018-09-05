@@ -78,8 +78,16 @@ void VMSettingsForm::widget_placement()
 
 void VMSettingsForm::save_settings()
 {
-    vm->save_vm_config();
-    close();
+    int answer = QMessageBox::question(this, "Saving",
+        "All executions will be removed. Are you sure?",
+        QMessageBox::Yes, QMessageBox::No);
+    if (answer == QMessageBox::Yes)
+    {
+        vm->save_vm_config();
+        vm->remove_directory_vm(vm->get_dir_path() + "/RecordReplay");
+        emit settingsDeleteRecords();
+        close();
+    }
 }
 
 void VMSettingsForm::onDeviceTreeItemClicked(QTreeWidgetItem *item, int column)
