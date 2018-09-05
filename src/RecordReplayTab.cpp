@@ -83,10 +83,10 @@ void RecordReplayTab::widget_placement()
 
 void RecordReplayTab::record_execution()
 {
-    QDir rrDir(getCommonRRDir());
+    QDir rrDir(vm->getPathRRDir());
     if (!rrDir.exists())
     {
-        rrDir.mkdir(getCommonRRDir());
+        rrDir.mkdir(vm->getPathRRDir());
     }
 
     nameDirDialog = new QDialog();
@@ -118,7 +118,7 @@ void RecordReplayTab::replay_execution()
 {
     if (execution_list->currentItem())
     {
-        currentDirRR = getCommonRRDir() + "/" + execution_list->currentItem()->text();
+        currentDirRR = vm->getPathRRDir() + "/" + execution_list->currentItem()->text();
         emit startRR(LaunchMode::REPLAY);
     }
 }
@@ -153,7 +153,7 @@ void RecordReplayTab::delete_ctxmenu()
         if (answer == QMessageBox::Yes)
         {
             QString name = execution_list->currentItem()->text();
-            vm->remove_directory_vm(getCommonRRDir() + "/" + name);
+            vm->remove_directory_vm(vm->getPathRRDir() + "/" + name);
             delete execution_list->currentItem();
             execution_list->clearSelection();
             rename_act->setDisabled(true);
@@ -162,19 +162,14 @@ void RecordReplayTab::delete_ctxmenu()
     }
 }
 
-QString RecordReplayTab::getCommonRRDir()
-{
-    return vm->get_dir_path() + "/RecordReplay";
-}
-
 void RecordReplayTab::renameRRRecord()
 {
     QListWidgetItem *item = execution_list->currentItem();
     if (QString::compare(oldRRName, item->text()) != 0)
     {
-        QDir dir(getCommonRRDir() + "/" + oldRRName);
-        if (!dir.rename(getCommonRRDir() + "/" + oldRRName,
-            getCommonRRDir() + "/" + item->text()))
+        QDir dir(vm->getPathRRDir() + "/" + oldRRName);
+        if (!dir.rename(vm->getPathRRDir() + "/" + oldRRName,
+            vm->getPathRRDir() + "/" + item->text()))
         {
             QMessageBox::critical((QWidget *) this->parent(),
                 "Error", "Record was not renamed");
@@ -197,31 +192,34 @@ void RecordReplayTab::enableBtns(bool state)
 
 void RecordReplayTab::setRRNameDir()
 {
-    QString name = nameEdit->text().trimmed();
-    QList <QListWidgetItem*> items = execution_list->findItems(name, 
-        Qt::MatchFlag::MatchContains);
-
-    foreach(QListWidgetItem *it, items)
+    if (!nameEdit->text().isEmpty())
     {
-        if (QString::compare(name, it->text(), Qt::CaseInsensitive) == 0)
+        QString name = nameEdit->text().trimmed();
+        QList <QListWidgetItem*> items = execution_list->findItems(name,
+            Qt::MatchFlag::MatchContains);
+
+        foreach(QListWidgetItem *it, items)
         {
-            QMessageBox::critical(this, "Error", "Name " + name + " already exists");
-            return;
+            if (QString::compare(name, it->text(), Qt::CaseInsensitive) == 0)
+            {
+                QMessageBox::critical(this, "Error", "Name " + name + " already exists");
+                return;
+            }
         }
-    }
 
-    QListWidgetItem *it = new QListWidgetItem();
-    it->setText(name);
-    execution_list->addItem(it);
-    QDir rrDir(getCommonRRDir() + "/" + name);
-    if (!rrDir.exists())
-    {
-        rrDir.mkdir(getCommonRRDir() + "/" + name);
-    }
-    currentDirRR = rrDir.path();
+        QListWidgetItem *it = new QListWidgetItem();
+        it->setText(name);
+        execution_list->addItem(it);
+        QDir rrDir(vm->getPathRRDir() + "/" + name);
+        if (!rrDir.exists())
+        {
+            rrDir.mkdir(vm->getPathRRDir() + "/" + name);
+        }
+        currentDirRR = rrDir.path();
 
-    nameDirDialog->close();
-    emit startRR(LaunchMode::RECORD);
+        nameDirDialog->close();
+        emit startRR(LaunchMode::RECORD);
+    }
 }
 
 

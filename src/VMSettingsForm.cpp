@@ -84,7 +84,7 @@ void VMSettingsForm::save_settings()
     if (answer == QMessageBox::Yes)
     {
         vm->save_vm_config();
-        vm->remove_directory_vm(vm->get_dir_path() + "/RecordReplay");
+        vm->remove_directory_vm(vm->getPathRRDir());
         emit settingsDeleteRecords();
         close();
     }

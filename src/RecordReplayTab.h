@@ -29,7 +29,6 @@ private:
     void execution_listItemSelectionChanged();
     void rename_ctxmenu();
     void delete_ctxmenu();
-    QString getCommonRRDir();
     
 private:
     QListWidget *execution_list;
