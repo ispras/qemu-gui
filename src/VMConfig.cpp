@@ -159,7 +159,12 @@ QString VMConfig::getCommandLine(CommandLineParameters &cmdParams)
 
 void VMConfig::remove_directory_vm()
 {
-    QDir del_dir(dir_path);
+    remove_directory_vm(dir_path);
+}
+
+void VMConfig::remove_directory_vm(const QString & dir)
+{
+    QDir del_dir(dir);
     if (del_dir.exists())
         remove_directory(del_dir);
 }

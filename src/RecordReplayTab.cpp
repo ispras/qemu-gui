@@ -34,6 +34,8 @@ RecordReplayTab::RecordReplayTab(QWidget *parent)
 
     widget_placement();
     connect_signals();
+
+    //TODO disable buttons record and replay while qemu is working
 }
 
 RecordReplayTab::~RecordReplayTab()
@@ -59,7 +61,10 @@ void RecordReplayTab::connect_signals()
     connect(rec_btn, SIGNAL(clicked()), this, SLOT(record_execution()));
     connect(rpl_btn, SIGNAL(clicked()), this, SLOT(replay_execution()));
 
-    connect(execution_list, SIGNAL(itemSelectionChanged()), this, SLOT(execution_listItemSelectionChanged()));
+    connect(execution_list, SIGNAL(itemSelectionChanged()), 
+        this, SLOT(execution_listItemSelectionChanged()));
+    connect(execution_list, SIGNAL(itemChanged(QListWidgetItem *)),
+        this, SLOT(renameRRItem(QListWidgetItem *)));
 
     connect(rename_act, SIGNAL(triggered()), this, SLOT(rename_ctxmenu()));
     connect(delete_act, SIGNAL(triggered()), this, SLOT(delete_ctxmenu()));
@@ -90,8 +95,9 @@ void RecordReplayTab::record_execution()
     nameDirDialog->setModal(true);
     nameDirDialog->setAttribute(Qt::WA_DeleteOnClose);
     nameEdit = new QLineEdit(nameDirDialog);
-    nameEdit->setValidator(new QRegExpValidator(QRegExp("[A-Za-z0-9_]*"), this));
-    QDialogButtonBox *okCancelBtn = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    nameEdit->setValidator(new QRegExpValidator(QRegExp("[A-Za-z0-9_-][A-Za-z0-9_-\\s]+"), this));
+    QDialogButtonBox *okCancelBtn = new QDialogButtonBox(QDialogButtonBox::Ok
+        | QDialogButtonBox::Cancel);
 
     QHBoxLayout *topLay = new QHBoxLayout();
     topLay->addWidget(new QLabel("Input name:"));
@@ -104,8 +110,10 @@ void RecordReplayTab::record_execution()
     nameDirDialog->setLayout(mainLay);
     nameDirDialog->show();
 
-    connect(okCancelBtn, &QDialogButtonBox::accepted, this, &RecordReplayTab::setRRNameDir);
-    connect(okCancelBtn, &QDialogButtonBox::rejected, nameDirDialog, &QDialog::close);
+    connect(okCancelBtn, &QDialogButtonBox::accepted,
+        this, &RecordReplayTab::setRRNameDir);
+    connect(okCancelBtn, &QDialogButtonBox::rejected,
+        nameDirDialog, &QDialog::close);
 }
 
 void RecordReplayTab::replay_execution()
@@ -128,7 +136,11 @@ void RecordReplayTab::rename_ctxmenu()
 {
     if (execution_list->currentItem())
     {
-        execution_list->currentItem()->setFlags(execution_list->currentItem()->flags() | Qt::ItemIsEditable);
+        oldRRName = execution_list->currentItem()->text();
+        execution_list->currentItem()->setFlags(execution_list->currentItem()->flags()
+            | Qt::ItemIsEditable);
+        execution_list->editItem(execution_list->currentItem());
+        // TODO validator
     }
 }
 
@@ -136,6 +148,8 @@ void RecordReplayTab::delete_ctxmenu()
 {    
     if (execution_list->currentItem())
     {
+        QString name = execution_list->currentItem()->text();
+        vm->remove_directory_vm(getCommonRRDir() + "/" + name);
         delete execution_list->currentItem();
         execution_list->clearSelection();
         rename_act->setDisabled(true);
@@ -148,9 +162,25 @@ QString RecordReplayTab::getCommonRRDir()
     return vm->get_dir_path() + "/RecordReplay";
 }
 
+void RecordReplayTab::renameRRItem(QListWidgetItem *item)
+{
+    if (QString::compare(oldRRName, item->text()) != 0)
+    {
+        QDir dir(getCommonRRDir() + "/" + oldRRName);
+        if (!dir.rename(getCommonRRDir() + "/" + oldRRName,
+            getCommonRRDir() + "/" + item->text()))
+        {
+            QMessageBox::critical((QWidget *) this->parent(),
+                "Error", "Record was not rename");
+        }
+        oldRRName = item->text();
+        item->setFlags(item->flags() & ~Qt::ItemFlag::ItemIsEditable);
+    }
+}
+
 void RecordReplayTab::setRRNameDir()
 {
-    QString name = nameEdit->text();
+    QString name = nameEdit->text().trimmed();
     QList <QListWidgetItem*> items = execution_list->findItems(name, 
         Qt::MatchFlag::MatchContains);
 

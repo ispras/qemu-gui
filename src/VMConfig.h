@@ -34,6 +34,7 @@ public:
     void fillReplayList();
 
     void remove_directory_vm();
+    void remove_directory_vm(const QString &dir);
 
 private:
     QFile *list_of_vm_file = NULL;

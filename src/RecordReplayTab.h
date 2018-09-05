@@ -42,9 +42,11 @@ private:
     QLineEdit *nameEdit;
     QString commonDirRR;
     QString currentDirRR;
+    QString oldRRName = "";
 
 private slots:
     void setRRNameDir();
+    void renameRRItem(QListWidgetItem *item);
 
 signals:
     void startRR(LaunchMode mode);
