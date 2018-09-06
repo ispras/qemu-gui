@@ -29,6 +29,11 @@ QByteArray QMPInteraction::cmd_continue()
     return "{ \"execute\": \"cont\" }";
 }
 
+QByteArray QMPInteraction::cmd_shutdown()
+{
+    return "{ \"execute\": \"quit\" }";
+}
+
 void QMPInteraction::what_said_qmp(QByteArray message)
 {
     qDebug() << "QMP: " << message;
@@ -67,3 +72,9 @@ void QMPInteraction::command_resume_qemu()
 {
     socket.write(cmd_continue());
 }
+
+void QMPInteraction::command_shutdown_qemu()
+{
+    socket.write(cmd_shutdown());
+}
+

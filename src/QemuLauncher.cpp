@@ -20,12 +20,6 @@ QemuLauncher::~QemuLauncher()
 {
 }
 
-void QemuLauncher::kill_qemu_process()
-{
-    qemu->kill();
-    emit qemu->finished(0, QProcess::ExitStatus::NormalExit);
-}
-
 
 void QemuLauncher::start_qemu()
 {
@@ -41,7 +35,7 @@ void QemuLauncher::start_qemu()
     {
         QString rr = mode == LaunchMode::RECORD ? "record" : "replay";
         recordReplay = "-icount shift=7,rr=" + rr + ",rrfile=" + 
-            "\"" + dirRR + "\"" + "/replay.bin";
+            "\"" + dirRR + "/replay.bin \" ";
     }
     qDebug() << qemu_dir + " " + recordReplay + virtual_machine->getCommandLine(cmdParams) + mon + qmp;
     qemu->start("\"" + qemu_dir + "\" " + recordReplay +
