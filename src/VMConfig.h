@@ -30,6 +30,7 @@ public:
     QString get_dir_path();
     QString getCommandLine(CommandLineParameters &cmdParams);
     Device *getSystemDevice() { return &system; }
+    QString getPathRRDir();
     QStringList getReplayList() { return replayList; }
     void fillReplayList();
 

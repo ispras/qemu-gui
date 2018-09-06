@@ -157,6 +157,11 @@ QString VMConfig::getCommandLine(CommandLineParameters &cmdParams)
     return system.getCommandLine(cmdParams);
 }
 
+QString VMConfig::getPathRRDir()
+{
+    return get_dir_path() + "/RecordReplay";
+}
+
 void VMConfig::remove_directory_vm()
 {
     remove_directory_vm(dir_path);
@@ -171,7 +176,7 @@ void VMConfig::remove_directory_vm(const QString & dir)
 
 void VMConfig::fillReplayList()
 {
-    QDir rrDir(dir_path + "/RecordReplay");
+    QDir rrDir(getPathRRDir());
     QStringList dirs = rrDir.entryList(QDir::Dirs | QDir::AllDirs | QDir::Filter::NoDotAndDotDot);
     replayList.clear();
     foreach (QString name, dirs)
