@@ -187,7 +187,7 @@ void RecordReplayTab::recordDeleteRecords()
 void RecordReplayTab::enableBtns(bool state)
 {
     rec_btn->setEnabled(state);
-    rpl_btn->setEnabled(state);
+    rpl_btn->setEnabled(execution_list->currentItem() && state);
 }
 
 void RecordReplayTab::setRRNameDir()

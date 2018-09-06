@@ -296,7 +296,7 @@ void QemuGUI::play_machine()
             vm_state = VMState::Running;
             qemu_play->setDisabled(true);
             qemu_stop->setEnabled(true);
-            qemu_pause->setEnabled(true);
+            qemu_pause->setEnabled(launchMode == LaunchMode::NORMAL ? true : false);
 
             QThread *thread = new QThread();
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
@@ -311,6 +311,7 @@ void QemuGUI::play_machine()
             qmp = new QMPInteraction(nullptr, qmp_port.toInt());
             connect(this, SIGNAL(qmp_resume_qemu()), qmp, SLOT(command_resume_qemu()));
             connect(this, SIGNAL(qmp_stop_qemu()), qmp, SLOT(command_stop_qemu()));
+            connect(this, SIGNAL(qmp_shutdown_qemu()), qmp, SLOT(command_shutdown_qemu()));
             connect(qmp, SIGNAL(qemu_resumed()), this, SLOT(resume_qemu_btn_state()));
             connect(qmp, SIGNAL(qemu_stopped()), this, SLOT(stop_qemu_btn_state()));
 
@@ -347,12 +348,11 @@ void QemuGUI::finish_qemu()
 void QemuGUI::pause_machine()
 {
     emit qmp_stop_qemu();
-    //terminal_text->insertPlainText("Qemu has stopped\n");
 }
 
 void QemuGUI::stop_machine()
 {
-    launch_qemu->kill_qemu_process();
+    emit qmp_shutdown_qemu();
 }
 
 void QemuGUI::create_machine()

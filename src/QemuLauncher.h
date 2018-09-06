@@ -20,9 +20,6 @@ public:
         const QString &dirRR, QObject *parent = 0);
     ~QemuLauncher();
 
-public:
-    void kill_qemu_process();
-
 private:
     QString qemu_dir;
     VMConfig *virtual_machine;

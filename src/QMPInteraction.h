@@ -21,6 +21,7 @@ private:
     QByteArray init();
     QByteArray cmd_stop();
     QByteArray cmd_continue();
+    QByteArray cmd_shutdown();
     void what_said_qmp(QByteArray message);
 
 public slots:
@@ -28,6 +29,7 @@ public slots:
     void connectedSocket();
     void command_stop_qemu();
     void command_resume_qemu();
+    void command_shutdown_qemu();
 
 signals :
     void qemu_resumed();
