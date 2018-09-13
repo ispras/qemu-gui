@@ -21,7 +21,8 @@ public:
     ~QemuLauncher();
 
 private:
-    QString qemu_dir;
+    QString qemuDirPath;
+    QString qemuExePath;
     VMConfig *virtual_machine;
     QProcess *qemu;
 
@@ -30,6 +31,17 @@ private:
     QString port_monitor;
     LaunchMode mode;
     QString dirRR;
+
+    QString mon;
+    QString qmp;
+    QString recordReplay;
+    QString cmd;
+
+private:
+    void createOverlay(const QString & image, const QString & overlay);
+
+private slots:
+    void finishCreatingOverlay(int exitCode);
 
 public slots:
     void start_qemu();

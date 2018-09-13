@@ -392,12 +392,12 @@ void CreateVMForm::create_vm()
             "." + format_combo->currentText();
 
         QThread *thread = new QThread();
-        QemuImgLauncher *imgLaucher = new QemuImgLauncher(qemu_dir, 
+        QemuImgLauncher *imgLauncher = new QemuImgLauncher(qemu_dir, 
             format_combo->currentText(), imageName, hddsize_spin->value());
 
-        imgLaucher->moveToThread(thread);
-        connect(thread, SIGNAL(started()), imgLaucher, SLOT(start_qemu_img()));
-        connect(imgLaucher, SIGNAL(qemu_img_finished(int)), 
+        imgLauncher->moveToThread(thread);
+        connect(thread, SIGNAL(started()), imgLauncher, SLOT(startQemuImgCreateDisk()));
+        connect(imgLauncher, SIGNAL(qemu_img_finished(int)), 
             this, SLOT(finish_qemu_img(int)));
         thread->start();
     }
