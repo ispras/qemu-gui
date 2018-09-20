@@ -61,7 +61,6 @@ void DeviceIdeHd::readParameters(QXmlStreamReader &xml)
 
 QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
 {
-    /* TODO: use -drive option and correct id */
     DeviceBusIde *bus = dynamic_cast<DeviceBusIde *> (parent());
     Q_ASSERT(bus);
 
@@ -74,24 +73,13 @@ QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
     }
     else
     {
-        if (QString::compare(cmdParams.getOverlayNameFromDevice(), "") == 0 &&
-            cmdParams.getLaunchMode() == LaunchMode::RECORD)
-        {
-            cmdParams.setImage(image);
-            return "";
-        }
-        else
-        {
-            QString idFile = cmdParams.getNextID();
-            QString overlay = cmdParams.getLaunchMode() == LaunchMode::RECORD ?
-                cmdParams.getOverlayNameFromDevice() : cmdParams.getOverlayName();
-            QString cmdFile = "-drive file=" + overlay + ",if=none,id=" + idFile;
-            QString idDriver = cmdParams.getNextID();
-            cmdParams.setOverlayNameFromDeviceNull();
+        QString overlay = cmdParams.getOverlay(image);
+        QString idFile = cmdParams.getNextID();
+        QString cmdFile = "-drive file=" + overlay + ",if=none,id=" + idFile;
+        QString idDriver = cmdParams.getNextID();
             
-            return cmdFile + " -drive driver=blkreplay,if=none,image=" +
-                idFile + ",id=" + idDriver + " -device ide-hd,drive=" + idDriver;
-        }
+        return cmdFile + " -drive driver=blkreplay,if=none,image=" +
+            idFile + ",id=" + idDriver + " -device ide-hd,drive=" + idDriver;
     }
 }
 

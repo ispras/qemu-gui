@@ -12,8 +12,14 @@ LaunchMode CommandLineParameters::getLaunchMode()
 
 QString CommandLineParameters::getOverlayName()
 {
-    overlayDevice = overlayPath + "/overlay" + QString::number(diskID++) + ".ovl";
-    return overlayDevice;
+    return overlayPath + "/overlay" + QString::number(diskID++) + ".ovl";
+}
+
+QString CommandLineParameters::getOverlay(const QString & image)
+{
+    images.append(image);
+    overlays.append(getOverlayName());
+    return overlays.back();
 }
 
 

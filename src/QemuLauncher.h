@@ -37,8 +37,11 @@ private:
     QString recordReplay;
     QString cmd;
 
+    int countOfDisk;
+    int overlayCreate;
+
 private:
-    void createOverlay(const QString & image, const QString & overlay);
+    void createOverlays(const QStringList & image, const QStringList & overlays);
 
 private slots:
     void finishCreatingOverlay(int exitCode);

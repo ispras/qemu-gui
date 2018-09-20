@@ -14,20 +14,21 @@ public:
     LaunchMode getLaunchMode();
 
     /* record|replay */
-    void setImage(const QString & imageName) { image = imageName; }
-    QString getImage() { return image; }
+    QStringList getImages() { return images; }
+    QStringList getOverlays() { return overlays; }
     void setOverlayDir(const QString & path) { overlayPath = path; }
+    QString getOverlay(const QString & image);
+
+private:
     QString getOverlayName();
-    QString getOverlayNameFromDevice() { return overlayDevice; }
-    void setOverlayNameFromDeviceNull() { overlayDevice = ""; }
 
 private:
     int id;
     LaunchMode mode; /* normal, record, replay */
-    QString image;
+    QStringList images;
+    QStringList overlays;
     int diskID;
     QString overlayPath;
-    QString overlayDevice;
 
 };
 
