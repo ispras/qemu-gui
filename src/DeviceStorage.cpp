@@ -73,7 +73,7 @@ QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
     }
     else
     {
-        QString overlay = cmdParams.getOverlay(image);
+        QString overlay = cmdParams.getOverlayForImage(image);
         QString idFile = cmdParams.getNextID();
         QString cmdFile = "-drive file=" + overlay + ",if=none,id=" + idFile;
         QString idDriver = cmdParams.getNextID();

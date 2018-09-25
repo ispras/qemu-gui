@@ -14,10 +14,10 @@ public:
     LaunchMode getLaunchMode();
 
     /* record|replay */
-    QStringList getImages() { return images; }
-    QStringList getOverlays() { return overlays; }
+    QStringList getImages() const { return images; }
+    QStringList getOverlays() const { return overlays; }
     void setOverlayDir(const QString & path) { overlayPath = path; }
-    QString getOverlay(const QString & image);
+    QString getOverlayForImage(const QString & image);
 
 private:
     QString getOverlayName();

@@ -15,7 +15,7 @@ QString CommandLineParameters::getOverlayName()
     return overlayPath + "/overlay" + QString::number(diskID++) + ".ovl";
 }
 
-QString CommandLineParameters::getOverlay(const QString & image)
+QString CommandLineParameters::getOverlayForImage(const QString & image)
 {
     images.append(image);
     overlays.append(getOverlayName());

@@ -37,11 +37,12 @@ private:
     QString recordReplay;
     QString cmd;
 
-    int countOfDisk;
-    int overlayCreate;
+    QStringList images;
+    QStringList overlays;
 
 private:
-    void createOverlays(const QStringList & image, const QStringList & overlays);
+    void createOverlays();
+    void launchQemu();
 
 private slots:
     void finishCreatingOverlay(int exitCode);

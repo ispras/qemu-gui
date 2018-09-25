@@ -40,29 +40,32 @@ void QemuLauncher::start_qemu()
         if (mode == LaunchMode::RECORD)
         {
             cmd = virtual_machine->getCommandLine(cmdParams);
-            createOverlays(cmdParams.getImages(), cmdParams.getOverlays());
+            images = cmdParams.getImages();
+            overlays = cmdParams.getOverlays();
+            createOverlays();
             qDebug() << "\n\n" << cmd << "\n\n";
         }
     }
     if (mode != LaunchMode::RECORD)
     {
-        qDebug() << qemuExePath + " " + recordReplay +
-            virtual_machine->getCommandLine(cmdParams) + mon + qmp;
-        qemu->start("\"" + qemuExePath + "\" " + recordReplay +
-            virtual_machine->getCommandLine(cmdParams) + mon + qmp);
-        qemu->waitForFinished(-1);
+        cmd = virtual_machine->getCommandLine(cmdParams);
+        launchQemu();
     }
 }
 
-void QemuLauncher::createOverlays(const QStringList & images, const QStringList & overlays)
+void QemuLauncher::createOverlays()
 {
-    countOfDisk = images.size();
-    overlayCreate = 0;
-    for (int i = 0; i < countOfDisk ; i++)
+    if (images.isEmpty())
+    {
+        launchQemu();
+    }
+    else
     {
         QThread *thread = new QThread();
         QemuImgLauncher *imgLauncher = new QemuImgLauncher(qemuDirPath, "qcow2",
-            images[i], overlays[i]);
+            images.at(0), overlays.at(0));
+        images.removeFirst();
+        overlays.removeFirst();
 
         imgLauncher->moveToThread(thread);
         connect(thread, SIGNAL(started()), imgLauncher, SLOT(startQemuImgCreateOverlay()));
@@ -70,6 +73,13 @@ void QemuLauncher::createOverlays(const QStringList & images, const QStringList 
             this, SLOT(finishCreatingOverlay(int)));
         thread->start();
     }
+}
+
+void QemuLauncher::launchQemu()
+{
+    qDebug() << qemuExePath + " " + recordReplay + cmd + mon + qmp;
+    qemu->start("\"" + qemuExePath + "\" " + recordReplay + cmd + mon + qmp);
+    qemu->waitForFinished(-1);
 }
 
 void QemuLauncher::finish_qemu(int exitCode, QProcess::ExitStatus ExitStatus)
@@ -80,15 +90,9 @@ void QemuLauncher::finish_qemu(int exitCode, QProcess::ExitStatus ExitStatus)
 
 void QemuLauncher::finishCreatingOverlay(int exitCode)
 {
-    ++overlayCreate;
     if (exitCode == 0)
     {
-        if (overlayCreate == countOfDisk)
-        {
-            qDebug() << qemuExePath + " " + recordReplay + cmd + mon + qmp;
-            qemu->start("\"" + qemuExePath + "\" " + recordReplay + cmd + mon + qmp);
-            qemu->waitForFinished(-1);
-        }
+        createOverlays();
     }
     else
     {
