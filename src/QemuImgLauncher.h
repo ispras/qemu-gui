@@ -9,18 +9,29 @@ class QemuImgLauncher : public QObject
     Q_OBJECT
 
 public:
+    QemuImgLauncher(const QString &qemuImg, const QString &imageFormat,
+        const QString &imageName, QObject *parent = 0);
     QemuImgLauncher(const QString &qemuImg, const QString &imageFormat, 
         const QString &imageName, int imageSize, QObject *parent = 0);
+    QemuImgLauncher(const QString &qemuImg, const QString &imageFormat,
+        const QString &imageName, const QString &path, QObject *parent = 0);
+
     ~QemuImgLauncher();
 
+    
 private:
     QString qemuImg;
     QString imageFormat;
     QString imageName;
     int imageSize; /* in megabytes */
+    QString overlayName;
+
+private:
+    void startQemuImg(const QString &cmd);
 
 public slots:
-    void start_qemu_img();
+    void startQemuImgCreateDisk();
+    void startQemuImgCreateOverlay();
     void finish_qemu_img(int exitCode, QProcess::ExitStatus ExitStatus);
 
 signals:

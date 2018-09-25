@@ -21,7 +21,8 @@ public:
     ~QemuLauncher();
 
 private:
-    QString qemu_dir;
+    QString qemuDirPath;
+    QString qemuExePath;
     VMConfig *virtual_machine;
     QProcess *qemu;
 
@@ -31,12 +32,28 @@ private:
     LaunchMode mode;
     QString dirRR;
 
+    QString mon;
+    QString qmp;
+    QString recordReplay;
+    QString cmd;
+
+    QStringList images;
+    QStringList overlays;
+
+private:
+    void createOverlays();
+    void launchQemu();
+
+private slots:
+    void finishCreatingOverlay(int exitCode);
+
 public slots:
     void start_qemu();
     void finish_qemu(int exitCode, QProcess::ExitStatus ExitStatus);
 
 signals:
     void qemu_laucher_finished();
+    void creatingOverlayFailed();
 
 };
 

@@ -50,6 +50,7 @@ private slots:
 public slots:
     void enableBtns(bool state);
     void recordDeleteRecords();
+    void deleteRecordFolder();
 
 signals:
     void startRR(LaunchMode mode);

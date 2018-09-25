@@ -61,23 +61,25 @@ void DeviceIdeHd::readParameters(QXmlStreamReader &xml)
 
 QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
 {
-    /* TODO: use -drive option and correct id */
     DeviceBusIde *bus = dynamic_cast<DeviceBusIde *> (parent());
     Q_ASSERT(bus);
 
-    QString idFile = cmdParams.getNextID();
-    QString cmdFile = " -drive file=" + image + ",if=none,id=" + idFile;
     if (cmdParams.getLaunchMode() == LaunchMode::NORMAL)
     {
-        return  cmdFile +
-            " -device ide-hd,bus=" + bus->getDescription() + ",drive=" + idFile;
+        QString idFile = cmdParams.getNextID();
+        QString cmdFile = " -drive file=" + image + ",if=none,id=" + idFile;
+        return  cmdFile + " -device ide-hd,bus=" + bus->getDescription() +
+            ",drive=" + idFile;
     }
     else
     {
+        QString overlay = cmdParams.getOverlayForImage(image);
+        QString idFile = cmdParams.getNextID();
+        QString cmdFile = "-drive file=" + overlay + ",if=none,id=" + idFile;
         QString idDriver = cmdParams.getNextID();
-        return cmdFile + ",snapshot=on" +
-            " -drive driver=blkreplay,if=none,image=" + idFile + ",id=" + idDriver +
-            " -device ide-hd,drive=" + idDriver;
+            
+        return cmdFile + " -drive driver=blkreplay,if=none,image=" +
+            idFile + ",id=" + idDriver + " -device ide-hd,drive=" + idDriver;
     }
 }
 

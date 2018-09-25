@@ -184,6 +184,16 @@ void RecordReplayTab::recordDeleteRecords()
     execution_list->clear();
 }
 
+void RecordReplayTab::deleteRecordFolder()
+{
+    QString name = execution_list->item(execution_list->count() - 1)->text();
+    vm->remove_directory_vm(vm->getPathRRDir() + "/" + name);
+    delete execution_list->item(execution_list->count() - 1);
+    execution_list->clearSelection();
+    rename_act->setDisabled(true);
+    delete_act->setDisabled(true);
+}
+
 void RecordReplayTab::enableBtns(bool state)
 {
     rec_btn->setEnabled(state);
