@@ -107,6 +107,7 @@ private slots:
     void qemu_install_dir_combo_index_changed(int index);
     void set_terminal_settings();
     void launch_settings();
+    void overlayFailed();
 
 
 signals:
@@ -115,6 +116,7 @@ signals:
     void qmp_shutdown_qemu();
     void monitor_connect(int);
     void recordReplayEnableBtns(bool);
+    void deleteRecord();
 
 };
 

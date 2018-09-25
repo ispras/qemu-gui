@@ -63,7 +63,7 @@ void QemuLauncher::createOverlays()
     {
         QThread *thread = new QThread();
         QemuImgLauncher *imgLauncher = new QemuImgLauncher(qemuDirPath, "qcow2",
-            images.at(0), overlays.at(0));
+            images.first(), overlays.first());
         images.removeFirst();
         overlays.removeFirst();
 
@@ -96,6 +96,7 @@ void QemuLauncher::finishCreatingOverlay(int exitCode)
     }
     else
     {
+        emit creatingOverlayFailed();
         qDebug() << "Error with creation overlay, sorry";
     }
 }

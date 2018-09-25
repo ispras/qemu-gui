@@ -53,6 +53,7 @@ public slots:
 
 signals:
     void qemu_laucher_finished();
+    void creatingOverlayFailed();
 
 };
 

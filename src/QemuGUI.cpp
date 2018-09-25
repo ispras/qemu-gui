@@ -315,6 +315,8 @@ void QemuGUI::play_machine()
             connect(qmp, SIGNAL(qemu_resumed()), this, SLOT(resume_qemu_btn_state()));
             connect(qmp, SIGNAL(qemu_stopped()), this, SLOT(stop_qemu_btn_state()));
 
+            connect(launch_qemu, SIGNAL(creatingOverlayFailed()), this, SLOT(overlayFailed()));
+            
             emit monitor_connect(monitor_port.toInt());
         }
         else if (vm_state == VMState::Stopped)
@@ -512,6 +514,13 @@ void QemuGUI::launch_settings()
 
     connect(connections_settings, SIGNAL(done_connection_settings(QString, QString)), 
         this, SLOT(set_connection_settings(QString, QString)));
+}
+
+void QemuGUI::overlayFailed()
+{
+    QMessageBox::critical(this, "Error", "Overlay is not created");
+    connect(this, SIGNAL(deleteRecord()), rec_replay_tab, SLOT(deleteRecordFolder()));
+    emit deleteRecord();
 }
 
 void QemuGUI::set_connection_settings(const QString &qmp, const QString &monitor)
