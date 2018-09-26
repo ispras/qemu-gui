@@ -60,6 +60,7 @@ protected:
     virtual void saveParameters(QXmlStreamWriter &xml) const;
     virtual void readParameters(QXmlStreamReader &xml);
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams);
+    virtual bool checkValidationDeviceInfo();
 
 private:
     QString image;
@@ -81,6 +82,7 @@ private:
 
 signals:
     void newImageSet(QString);
+    void newDiskCompleted(QString);
 };
 
 #endif // DEVICESTORAGE_H

@@ -83,6 +83,13 @@ QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
     }
 }
 
+bool DeviceIdeHd::checkValidationDeviceInfo()
+{
+    if (!getImage().isEmpty())
+        return true;
+    return false;
+}
+
 /***************************************************************************
 * DeviceIdeHdForm                                                          *
 ***************************************************************************/
@@ -96,6 +103,10 @@ DeviceIdeHdForm::DeviceIdeHdForm(DeviceIdeHd *dev) : device(dev)
     selectImageBtn->setFixedWidth(30);
     imageLine->setText(device->getImage());
     imageLine->setReadOnly(true);
+    if (device->getImage().isEmpty())
+    {
+        imageLine->setStyleSheet("background: #EE756F");
+    }
 
     QVBoxLayout *mainLay = new QVBoxLayout();
     QHBoxLayout *topLay = new QHBoxLayout();
@@ -108,6 +119,7 @@ DeviceIdeHdForm::DeviceIdeHdForm(DeviceIdeHd *dev) : device(dev)
     ideFormGroup->setLayout(mainLay);
     connect(selectImageBtn, &QPushButton::clicked, this, &DeviceIdeHdForm::editImage);
     connect(this, SIGNAL(newImageSet(QString)), imageLine, SLOT(setText(QString)));
+    connect(this, SIGNAL(newDiskCompleted(QString)), imageLine, SLOT(setStyleSheet(QString)));
 }
 
 void DeviceIdeHdForm::editImage()
@@ -117,6 +129,7 @@ void DeviceIdeHdForm::editImage()
     if (!newImage.isEmpty())
     {
         emit newImageSet(newImage);
+        emit newDiskCompleted("");
         device->setNewHDD(newImage);
     }
 }

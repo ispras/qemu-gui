@@ -2,9 +2,15 @@
 
 QemuImgLauncher::QemuImgLauncher(const QString &qemuImg, const QString &imageFormat,
     const QString &imageName, QObject *parent) :
-    QObject(parent), qemuImg(qemuImg + "/qemu-img.exe"), imageFormat(imageFormat),
+    QObject(parent), imageFormat(imageFormat),
     imageName(imageName)
 {
+    this->qemuImg = qemuImg
+#ifdef Q_OS_WIN
+        + "/qemu-img.exe";
+#else
+        + "/qemu-img";
+#endif
 }
 
 QemuImgLauncher::QemuImgLauncher(const QString &qemuImg, const QString &imageFormat, 

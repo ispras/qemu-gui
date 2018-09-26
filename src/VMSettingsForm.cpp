@@ -63,6 +63,23 @@ QWidget* VMSettingsForm::emptyForm()
     return deviceInfoGroup;
 }
 
+bool VMSettingsForm::deviceTreeTraversal(QList <Device *> device)
+{
+    bool ret = true;
+    foreach(Device *dev, device)
+    {
+        if (!dev->checkValidationDeviceInfo())
+        {
+            ret = false;
+        } 
+        if (ret)
+        {
+            ret = deviceTreeTraversal(dev->getDevices());
+        }
+    }
+    return ret;
+}
+
 void VMSettingsForm::widget_placement()
 {
     splitter = new QSplitter();
@@ -78,15 +95,23 @@ void VMSettingsForm::widget_placement()
 
 void VMSettingsForm::save_settings()
 {
-    int answer = QMessageBox::question(this, "Saving",
-        "All executions will be removed. Are you sure?",
-        QMessageBox::Yes, QMessageBox::No);
-    if (answer == QMessageBox::Yes)
+    if (deviceTreeTraversal(vm->getSystemDevice()->getDevices()))
     {
-        vm->save_vm_config();
-        vm->remove_directory_vm(vm->getPathRRDir());
-        emit settingsDeleteRecords();
-        close();
+        int answer = QMessageBox::question(this, "Saving",
+            "All executions will be removed. Are you sure?",
+            QMessageBox::Yes, QMessageBox::No);
+        if (answer == QMessageBox::Yes)
+        {
+            vm->save_vm_config();
+            vm->remove_directory_vm(vm->getPathRRDir());
+            emit settingsDeleteRecords();
+            close();
+        }
+    }
+    else
+    {
+        QMessageBox::critical(this, "Error",
+            "No all devices have valid information");
     }
 }
 
@@ -162,23 +187,23 @@ void VMSettingsForm::showContextMenu(const QPoint & pos)
 
 void VMSettingsForm::addNewDevice(const QString &devName)
 {
-    QTreeWidgetItem *item = new QTreeWidgetItem();
-    item->setText(0, devName);
-
-    QList<QTreeWidgetItem *> children = deviceTree->currentItem()->takeChildren();
-    foreach(QTreeWidgetItem *it, children)
+    DeviceTreeItem *devItem = dynamic_cast<DeviceTreeItem*>(deviceTree->currentItem());
+    Q_ASSERT(devItem);
+    Device *dev = devItem->getDevice();
+    if (devItem->childCount() < 2) /* temp */
     {
-        if (QString().compare(it->text(0), devName) == 0)
-        {
-            deviceTree->currentItem()->addChildren(children);
-            QMessageBox::critical(this, "Error", "Device already exist");
-            return;
-        }
-    }
+        DeviceIdeHd *newDev = new DeviceIdeHd("", dev);
+        qDebug() << newDev->getDeviceTypeName();
 
-    deviceTree->currentItem()->addChildren(children);
-    deviceTree->currentItem()->addChild(item);
-    deviceTree->currentItem()->setExpanded(true);
+        DeviceTreeItem *it = new DeviceTreeItem(newDev);
+        deviceTree->currentItem()->addChild(it);
+        deviceTree->setCurrentItem(it);
+        onDeviceTreeItemClicked(it, 0);
+    }
+    else
+    {
+        QMessageBox::critical(this, "Error", "Too much devices");
+    }
 }
 
 void VMSettingsForm::addNewSystemDevice(const QString &devName)

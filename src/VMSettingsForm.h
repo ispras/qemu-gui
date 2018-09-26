@@ -29,6 +29,7 @@ private:
     void connect_signals();
     void widget_placement();
     QWidget *emptyForm();
+    bool deviceTreeTraversal(QList<Device *> device);
 
 private slots:
     void save_settings();

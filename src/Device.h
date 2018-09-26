@@ -26,6 +26,7 @@ public:
     virtual QString getDeviceTypeName() const { return "Device"; }
     virtual QWidget *getEditorForm() { return NULL; }
     virtual QStringList getDeviceListToAdd() { return QStringList(); }
+    virtual bool checkValidationDeviceInfo() { return true; }
 
 protected:
     virtual void saveParameters(QXmlStreamWriter &xml) const {}
