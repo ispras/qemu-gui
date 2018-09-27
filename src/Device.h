@@ -16,6 +16,7 @@ public:
     typedef QList<Device *> Devices;
 
     void addDevice(Device *dev);
+    void removeDevice(Device *dev);
     const Devices &getDevices() const { return devices; }
     QString getDescription() const;
     QString getCommandLine(CommandLineParameters &cmdParams);

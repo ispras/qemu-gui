@@ -25,6 +25,11 @@ void Device::addDevice(Device *dev)
     dev->setParent(this);
 }
 
+void Device::removeDevice(Device *dev)
+{
+    devices.removeOne(dev);
+}
+
 QString Device::getDescription() const
 {
     return name;

@@ -63,9 +63,9 @@ QWidget* VMSettingsForm::emptyForm()
     return deviceInfoGroup;
 }
 
-Device * VMSettingsForm::isDevicesValid(Device * device)
+Device * VMSettingsForm::isDevicesValid(Device *device)
 {
-    Device * retDevice = NULL;
+    Device *retDevice = NULL;
     foreach(Device *dev, device->getDevices())
     {
         if (!dev->checkValidationDeviceInfo())
@@ -136,7 +136,7 @@ void VMSettingsForm::onDeviceTreeItemClicked(QTreeWidgetItem *item, int column)
     splitter->setSizes(QList<int>{150, 250});
 }
 
-void VMSettingsForm::showContextMenu(const QPoint & pos)
+void VMSettingsForm::showContextMenu(const QPoint &pos)
 {
     // trash all
     QTreeWidgetItem *item = deviceTree->itemAt(pos);
@@ -165,24 +165,39 @@ void VMSettingsForm::showContextMenu(const QPoint & pos)
 
             menu.exec(deviceTree->mapToGlobal(pos));
         }
+        else
+        {
+            foreach(Device *device, vm->getSystemDevice()->getDevices())
+            {
+                if (dev == device) return;
+            }
+            deviceTree->setCurrentItem(item);
+            QAction *removeDeviceAct = new QAction("Remove device", this);
+            removeDeviceAct->setStatusTip(tr("Remove device"));
+            connect(removeDeviceAct, SIGNAL(triggered()), this, SLOT(removeDevice()));
+
+            QMenu menu(this);
+            menu.addAction(removeDeviceAct);
+            menu.exec(deviceTree->mapToGlobal(pos));
+        }
     }
     else
     {
-        qDebug() << "add add add";
-        QAction *addDeviceAct = new QAction("Add system device", this);
-        addDeviceAct->setStatusTip(tr("Add system device"));
+        //qDebug() << "add add add";
+        //QAction *addDeviceAct = new QAction("Add system device", this);
+        //addDeviceAct->setStatusTip(tr("Add system device"));
 
-        AddDeviceForm *addSystemDev = new AddDeviceForm(QStringList({ "Usb", "...", }));
-        addSystemDev->setAttribute(Qt::WA_DeleteOnClose);
+        //AddDeviceForm *addSystemDev = new AddDeviceForm(QStringList({ "Usb", "...", }));
+        //addSystemDev->setAttribute(Qt::WA_DeleteOnClose);
 
-        connect(addDeviceAct, SIGNAL(triggered()), addSystemDev, SLOT(addDevice()));
-        connect(addSystemDev, SIGNAL(deviceWantsToAdd(const QString &)),
-            this, SLOT(addNewSystemDevice(const QString &)));
+        //connect(addDeviceAct, SIGNAL(triggered()), addSystemDev, SLOT(addDevice()));
+        //connect(addSystemDev, SIGNAL(deviceWantsToAdd(const QString &)),
+        //    this, SLOT(addNewSystemDevice(const QString &)));
 
-        QMenu menu(this);
-        menu.addAction(addDeviceAct);
+        //QMenu menu(this);
+        //menu.addAction(addDeviceAct);
 
-        menu.exec(deviceTree->mapToGlobal(pos));
+        //menu.exec(deviceTree->mapToGlobal(pos));
     }
 }
 
@@ -214,6 +229,16 @@ void VMSettingsForm::addNewSystemDevice(const QString &devName)
         item->setText(0, "Usb");
         deviceTree->invisibleRootItem()->addChild(item);
     }
+}
+
+void VMSettingsForm::removeDevice()
+{
+    DeviceTreeItem *devItem = dynamic_cast<DeviceTreeItem *>(deviceTree->currentItem());
+    Q_ASSERT(devItem);
+    Device *dev = devItem->getDevice();
+    Device *devParent = (Device *) dev->parent();
+    devParent->removeDevice(dev);
+    delete devItem;
 }
 
 /***************************************************************************
