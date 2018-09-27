@@ -63,21 +63,21 @@ QWidget* VMSettingsForm::emptyForm()
     return deviceInfoGroup;
 }
 
-bool VMSettingsForm::deviceTreeTraversal(QList <Device *> device)
+Device * VMSettingsForm::isDevicesValid(Device * device)
 {
-    bool ret = true;
-    foreach(Device *dev, device)
+    Device * retDevice = NULL;
+    foreach(Device *dev, device->getDevices())
     {
         if (!dev->checkValidationDeviceInfo())
         {
-            ret = false;
+            retDevice = dev;
         } 
-        if (ret)
+        if (!retDevice)
         {
-            ret = deviceTreeTraversal(dev->getDevices());
+            retDevice = isDevicesValid(dev);
         }
     }
-    return ret;
+    return retDevice;
 }
 
 void VMSettingsForm::widget_placement()
@@ -95,10 +95,11 @@ void VMSettingsForm::widget_placement()
 
 void VMSettingsForm::save_settings()
 {
-    if (deviceTreeTraversal(vm->getSystemDevice()->getDevices()))
+    Device *dev;
+    if ((dev = isDevicesValid(vm->getSystemDevice())) == NULL)
     {
         int answer = QMessageBox::question(this, "Saving",
-            "All executions will be removed. Are you sure?",
+            "All recorded executions will be removed. Are you sure?",
             QMessageBox::Yes, QMessageBox::No);
         if (answer == QMessageBox::Yes)
         {
@@ -111,7 +112,7 @@ void VMSettingsForm::save_settings()
     else
     {
         QMessageBox::critical(this, "Error",
-            "No all devices have valid information");
+            "Device " + dev->getDescription() + " has invalid information");
     }
 }
 
@@ -193,8 +194,6 @@ void VMSettingsForm::addNewDevice(const QString &devName)
     if (devItem->childCount() < 2) /* temp */
     {
         DeviceIdeHd *newDev = new DeviceIdeHd("", dev);
-        qDebug() << newDev->getDeviceTypeName();
-
         DeviceTreeItem *it = new DeviceTreeItem(newDev);
         deviceTree->currentItem()->addChild(it);
         deviceTree->setCurrentItem(it);
