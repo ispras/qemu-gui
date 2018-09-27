@@ -236,9 +236,17 @@ void VMSettingsForm::removeDevice()
     DeviceTreeItem *devItem = dynamic_cast<DeviceTreeItem *>(deviceTree->currentItem());
     Q_ASSERT(devItem);
     Device *dev = devItem->getDevice();
-    Device *devParent = (Device *) dev->parent();
-    devParent->removeDevice(dev);
-    delete devItem;
+    int answer = QMessageBox::question(this, "Removing",
+        "Device " + dev->getDescription() + " will be removed. Are you sure?",
+        QMessageBox::Yes, QMessageBox::No);
+    if (answer == QMessageBox::Yes)
+    {
+        Device *devParent = (Device *)dev->parent();
+        devParent->removeDevice(dev);
+        deviceTree->setCurrentItem(devItem->parent());
+        onDeviceTreeItemClicked(devItem->parent(), 0);
+        delete devItem;        
+    }
 }
 
 /***************************************************************************
