@@ -29,6 +29,7 @@ private:
     void connect_signals();
     void widget_placement();
     QWidget *emptyForm();
+    Device *isDevicesValid(Device *device);
 
 private slots:
     void save_settings();
@@ -36,6 +37,7 @@ private slots:
     void showContextMenu(const QPoint &pos);
     void addNewDevice(const QString &devName);
     void addNewSystemDevice(const QString &devName);
+    void removeDevice();
 
 signals:
     void settingsDeleteRecords();

@@ -2,9 +2,15 @@
 
 QemuImgLauncher::QemuImgLauncher(const QString &qemuImg, const QString &imageFormat,
     const QString &imageName, QObject *parent) :
-    QObject(parent), qemuImg(qemuImg + "/qemu-img.exe"), imageFormat(imageFormat),
-    imageName(imageName)
+    QObject(parent), imageFormat(imageFormat), imageName(imageName), 
+    imageSize(0)
 {
+    this->qemuImg = qemuImg
+#ifdef Q_OS_WIN
+        + "/qemu-img.exe";
+#else
+        + "/qemu-img";
+#endif
 }
 
 QemuImgLauncher::QemuImgLauncher(const QString &qemuImg, const QString &imageFormat, 
@@ -18,6 +24,7 @@ QemuImgLauncher::QemuImgLauncher(const QString &qemuImg, const QString &imageFor
     const QString &imageName, const QString &path, QObject *parent) :
     QemuImgLauncher(qemuImg, imageFormat, imageName, parent)
 {
+    imageSize = 0;
     overlayName = path;
 }
 

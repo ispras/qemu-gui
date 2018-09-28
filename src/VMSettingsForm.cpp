@@ -63,6 +63,23 @@ QWidget* VMSettingsForm::emptyForm()
     return deviceInfoGroup;
 }
 
+Device * VMSettingsForm::isDevicesValid(Device *device)
+{
+    Device *retDevice = NULL;
+    foreach(Device *dev, device->getDevices())
+    {
+        if (!dev->isDeviceValid())
+        {
+            retDevice = dev;
+        } 
+        if (!retDevice)
+        {
+            retDevice = isDevicesValid(dev);
+        }
+    }
+    return retDevice;
+}
+
 void VMSettingsForm::widget_placement()
 {
     splitter = new QSplitter();
@@ -78,15 +95,24 @@ void VMSettingsForm::widget_placement()
 
 void VMSettingsForm::save_settings()
 {
-    int answer = QMessageBox::question(this, "Saving",
-        "All executions will be removed. Are you sure?",
-        QMessageBox::Yes, QMessageBox::No);
-    if (answer == QMessageBox::Yes)
+    Device *dev = isDevicesValid(vm->getSystemDevice());
+    if (!dev)
     {
-        vm->save_vm_config();
-        vm->remove_directory_vm(vm->getPathRRDir());
-        emit settingsDeleteRecords();
-        close();
+        int answer = QMessageBox::question(this, "Saving",
+            "All recorded executions will be removed. Are you sure?",
+            QMessageBox::Yes, QMessageBox::No);
+        if (answer == QMessageBox::Yes)
+        {
+            vm->save_vm_config();
+            vm->remove_directory_vm(vm->getPathRRDir());
+            emit settingsDeleteRecords();
+            close();
+        }
+    }
+    else
+    {
+        QMessageBox::critical(this, "Error",
+            "Device " + dev->getDescription() + " has invalid information");
     }
 }
 
@@ -110,7 +136,7 @@ void VMSettingsForm::onDeviceTreeItemClicked(QTreeWidgetItem *item, int column)
     splitter->setSizes(QList<int>{150, 250});
 }
 
-void VMSettingsForm::showContextMenu(const QPoint & pos)
+void VMSettingsForm::showContextMenu(const QPoint &pos)
 {
     // trash all
     QTreeWidgetItem *item = deviceTree->itemAt(pos);
@@ -139,11 +165,26 @@ void VMSettingsForm::showContextMenu(const QPoint & pos)
 
             menu.exec(deviceTree->mapToGlobal(pos));
         }
+        else
+        {
+            foreach(Device *device, vm->getSystemDevice()->getDevices())
+            {
+                if (dev == device) return;
+            }
+            deviceTree->setCurrentItem(item);
+            QAction *removeDeviceAct = new QAction("Remove device", this);
+            removeDeviceAct->setStatusTip(tr("Remove device"));
+            connect(removeDeviceAct, SIGNAL(triggered()), this, SLOT(removeDevice()));
+
+            QMenu menu(this);
+            menu.addAction(removeDeviceAct);
+            menu.exec(deviceTree->mapToGlobal(pos));
+        }
     }
     else
     {
         qDebug() << "add add add";
-        QAction *addDeviceAct = new QAction("Add system device", this);
+        QAction *addDeviceAct = new QAction("Add system device (dont use it)", this);
         addDeviceAct->setStatusTip(tr("Add system device"));
 
         AddDeviceForm *addSystemDev = new AddDeviceForm(QStringList({ "Usb", "...", }));
@@ -162,23 +203,21 @@ void VMSettingsForm::showContextMenu(const QPoint & pos)
 
 void VMSettingsForm::addNewDevice(const QString &devName)
 {
-    QTreeWidgetItem *item = new QTreeWidgetItem();
-    item->setText(0, devName);
-
-    QList<QTreeWidgetItem *> children = deviceTree->currentItem()->takeChildren();
-    foreach(QTreeWidgetItem *it, children)
+    DeviceTreeItem *devItem = dynamic_cast<DeviceTreeItem*>(deviceTree->currentItem());
+    Q_ASSERT(devItem);
+    Device *dev = devItem->getDevice();
+    if (devItem->childCount() < 2) /* temp */
     {
-        if (QString().compare(it->text(0), devName) == 0)
-        {
-            deviceTree->currentItem()->addChildren(children);
-            QMessageBox::critical(this, "Error", "Device already exist");
-            return;
-        }
+        DeviceIdeHd *newDev = new DeviceIdeHd("", dev);
+        DeviceTreeItem *it = new DeviceTreeItem(newDev);
+        deviceTree->currentItem()->addChild(it);
+        deviceTree->setCurrentItem(it);
+        onDeviceTreeItemClicked(it, 0);
     }
-
-    deviceTree->currentItem()->addChildren(children);
-    deviceTree->currentItem()->addChild(item);
-    deviceTree->currentItem()->setExpanded(true);
+    else
+    {
+        QMessageBox::critical(this, "Error", "Too much devices");
+    }
 }
 
 void VMSettingsForm::addNewSystemDevice(const QString &devName)
@@ -189,6 +228,24 @@ void VMSettingsForm::addNewSystemDevice(const QString &devName)
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, "Usb");
         deviceTree->invisibleRootItem()->addChild(item);
+    }
+}
+
+void VMSettingsForm::removeDevice()
+{
+    DeviceTreeItem *devItem = dynamic_cast<DeviceTreeItem *>(deviceTree->currentItem());
+    Q_ASSERT(devItem);
+    Device *dev = devItem->getDevice();
+    int answer = QMessageBox::question(this, "Removing",
+        "Device " + dev->getDescription() + " will be removed. Are you sure?",
+        QMessageBox::Yes, QMessageBox::No);
+    if (answer == QMessageBox::Yes)
+    {
+        Device *devParent = (Device *)dev->parent();
+        devParent->removeDevice(dev);
+        deviceTree->setCurrentItem(devItem->parent());
+        onDeviceTreeItemClicked(devItem->parent(), 0);
+        delete devItem;        
     }
 }
 

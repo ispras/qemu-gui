@@ -16,6 +16,7 @@ public:
     typedef QList<Device *> Devices;
 
     void addDevice(Device *dev);
+    void removeDevice(Device *dev);
     const Devices &getDevices() const { return devices; }
     QString getDescription() const;
     QString getCommandLine(CommandLineParameters &cmdParams);
@@ -26,6 +27,7 @@ public:
     virtual QString getDeviceTypeName() const { return "Device"; }
     virtual QWidget *getEditorForm() { return NULL; }
     virtual QStringList getDeviceListToAdd() { return QStringList(); }
+    virtual bool isDeviceValid() { return true; }
 
 protected:
     virtual void saveParameters(QXmlStreamWriter &xml) const {}
