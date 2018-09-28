@@ -83,11 +83,9 @@ QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
     }
 }
 
-bool DeviceIdeHd::checkValidationDeviceInfo()
+bool DeviceIdeHd::isDeviceValid()
 {
-    if (!getImage().isEmpty())
-        return true;
-    return false;
+    return !getImage().isEmpty();
 }
 
 /***************************************************************************

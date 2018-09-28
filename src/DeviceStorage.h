@@ -60,7 +60,7 @@ protected:
     virtual void saveParameters(QXmlStreamWriter &xml) const;
     virtual void readParameters(QXmlStreamReader &xml);
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams);
-    virtual bool checkValidationDeviceInfo();
+    virtual bool isDeviceValid();
 
 private:
     QString image;

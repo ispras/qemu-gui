@@ -68,7 +68,7 @@ Device * VMSettingsForm::isDevicesValid(Device *device)
     Device *retDevice = NULL;
     foreach(Device *dev, device->getDevices())
     {
-        if (!dev->checkValidationDeviceInfo())
+        if (!dev->isDeviceValid())
         {
             retDevice = dev;
         } 
@@ -95,8 +95,8 @@ void VMSettingsForm::widget_placement()
 
 void VMSettingsForm::save_settings()
 {
-    Device *dev;
-    if ((dev = isDevicesValid(vm->getSystemDevice())) == NULL)
+    Device *dev = isDevicesValid(vm->getSystemDevice());
+    if (!dev)
     {
         int answer = QMessageBox::question(this, "Saving",
             "All recorded executions will be removed. Are you sure?",
@@ -183,21 +183,21 @@ void VMSettingsForm::showContextMenu(const QPoint &pos)
     }
     else
     {
-        //qDebug() << "add add add";
-        //QAction *addDeviceAct = new QAction("Add system device", this);
-        //addDeviceAct->setStatusTip(tr("Add system device"));
+        qDebug() << "add add add";
+        QAction *addDeviceAct = new QAction("Add system device (dont use it)", this);
+        addDeviceAct->setStatusTip(tr("Add system device"));
 
-        //AddDeviceForm *addSystemDev = new AddDeviceForm(QStringList({ "Usb", "...", }));
-        //addSystemDev->setAttribute(Qt::WA_DeleteOnClose);
+        AddDeviceForm *addSystemDev = new AddDeviceForm(QStringList({ "Usb", "...", }));
+        addSystemDev->setAttribute(Qt::WA_DeleteOnClose);
 
-        //connect(addDeviceAct, SIGNAL(triggered()), addSystemDev, SLOT(addDevice()));
-        //connect(addSystemDev, SIGNAL(deviceWantsToAdd(const QString &)),
-        //    this, SLOT(addNewSystemDevice(const QString &)));
+        connect(addDeviceAct, SIGNAL(triggered()), addSystemDev, SLOT(addDevice()));
+        connect(addSystemDev, SIGNAL(deviceWantsToAdd(const QString &)),
+            this, SLOT(addNewSystemDevice(const QString &)));
 
-        //QMenu menu(this);
-        //menu.addAction(addDeviceAct);
+        QMenu menu(this);
+        menu.addAction(addDeviceAct);
 
-        //menu.exec(deviceTree->mapToGlobal(pos));
+        menu.exec(deviceTree->mapToGlobal(pos));
     }
 }
 
