@@ -12,11 +12,24 @@ Device properties:
 
 static const char xml_name[] = "Name";
 
+Device::Device()
+{
+    init();
+}
+
 Device::Device(const QString &n, Device *parent)
     : QObject(NULL), name(n)
 {
+    init();
     if (parent)
         parent->addDevice(this);
+}
+
+void Device::init()
+{
+    static int lastId = 0;
+
+    id = "device-" + QString::number(lastId++);
 }
 
 void Device::addDevice(Device *dev)
@@ -78,7 +91,7 @@ void Device::read(QXmlStreamReader &xml)
 
 QString Device::getCommandLine(CommandLineParameters &cmdParams)
 {
-    QString res = getCommandLineOption(cmdParams) + " ";
+    QString res = getCommandLineOption(cmdParams);
     foreach(Device *dev, devices)
         res += dev->getCommandLine(cmdParams);
     return res;

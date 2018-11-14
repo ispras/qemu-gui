@@ -9,8 +9,8 @@ DeviceBus::DeviceBus(const QString &n, Device *parent)
 
 const char DeviceBusIde::typeName[] = "DeviceBusIde";
 
-DeviceBusIde::DeviceBusIde(int id, DeviceIdeController *parent)
-    : DeviceBus(QString("ide.%1").arg(id), parent)
+DeviceBusIde::DeviceBusIde(int n, DeviceIdeController *parent)
+    : DeviceBus(QString("ide.%1").arg(num), parent), num(n)
 {
 
 }

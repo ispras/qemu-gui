@@ -19,10 +19,14 @@ class DeviceBusIde : public DeviceBus
 public:
     static const char typeName[];
 
-    DeviceBusIde(int id, DeviceIdeController *parent);
+    DeviceBusIde(int n, DeviceIdeController *parent);
 
     virtual QString getDeviceTypeName() const { return typeName; }
     virtual QStringList getDeviceListToAdd() { return QStringList({ "IDE-HD" }); }
+
+    int getNumber() const { return num; }
+private:
+    int num;
 };
 
 #endif // DEVICEBUS_H

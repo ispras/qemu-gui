@@ -10,7 +10,7 @@ class Device : public QObject
 {
     Q_OBJECT
 public:
-    Device() {}
+    Device();
     Device(const QString &n, Device *parent = 0);
 
     typedef QList<Device *> Devices;
@@ -29,13 +29,20 @@ public:
     virtual QStringList getDeviceListToAdd() { return QStringList(); }
     virtual bool isDeviceValid() { return true; }
 
+    const QString &getId() const { return id; }
 protected:
     virtual void saveParameters(QXmlStreamWriter &xml) const {}
     virtual void readParameters(QXmlStreamReader &xml) {}
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams) { return ""; }
 
 private:
+    void init();
+
+private:
     QString name;
+    // Device id for the command line.
+    // Does not need to be saved in the config file.
+    QString id;
     Devices devices;
 };
 

@@ -3,6 +3,8 @@
 
 #include "Device.h"
 
+
+
 namespace DeviceFactory
 {
     Device *createDevice(QStringRef name);
