@@ -1,10 +1,13 @@
 #include "DeviceSystem.h"
+#include "DeviceFactory.h"
 
 /******************************************************************************
 * MEMORY                                                                   *
 ******************************************************************************/
 
 const char DeviceMemory::typeName[] = "DeviceMemory";
+REGISTER_DEVICE(DeviceMemory)
+
 static const char xml_size[] = "MemorySize";
 
 

@@ -6,18 +6,24 @@
 namespace DeviceFactory
 {
 
-Device *createDevice(QStringRef name)
+Device *createDevice(const QString &name)
 {
-    if (name == DeviceIdeController::typeName)
-        return new DeviceIdeController();
-    if (name == DeviceIdeHd::typeName)
-        return new DeviceIdeHd();
-    if (name == DeviceMemory::typeName)
-        return new DeviceMemory();
-    if (name == DeviceUsb::typeName)
-        return new DeviceUsb();
+    auto create = Internal::getDeviceRegistry().value(name);
+    if (create)
+        return create();
 
     return new Device();
+}
+
+namespace Internal
+{
+
+DeviceRegistry &getDeviceRegistry()
+{
+    static DeviceRegistry reg;
+    return reg;
+}
+
 }
 
 }

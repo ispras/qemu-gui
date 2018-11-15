@@ -83,7 +83,7 @@ void Device::read(QXmlStreamReader &xml)
 
     while (xml.readNextStartElement())
     {
-        Device *dev = DeviceFactory::createDevice(xml.name());
+        Device *dev = DeviceFactory::createDevice(QString().append(xml.name()));
         addDevice(dev);
         dev->read(xml);
     }

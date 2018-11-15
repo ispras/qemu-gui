@@ -1,5 +1,6 @@
 #include "DeviceStorage.h"
 #include "DeviceBus.h"
+#include "DeviceFactory.h"
 #include "CommandLineParameters.h"
 
 DeviceStorageController::DeviceStorageController(const QString &n, Device *parent)
@@ -9,6 +10,7 @@ DeviceStorageController::DeviceStorageController(const QString &n, Device *paren
 }
 
 const char DeviceIdeController::typeName[] = "DeviceIdeController";
+REGISTER_DEVICE(DeviceIdeController)
 
 DeviceIdeController::DeviceIdeController(Device *parent)
     : DeviceStorageController("IDE", parent)
@@ -35,6 +37,8 @@ DeviceStorage::DeviceStorage(const QString &n, Device *parent)
  ******************************************************************************/
 
 const char DeviceIdeHd::typeName[] = "DeviceIdeHd";
+REGISTER_DEVICE(DeviceIdeHd)
+
 static const char xml_image[] = "Image";
 
 DeviceIdeHd::DeviceIdeHd(const QString &img, Device *parent)

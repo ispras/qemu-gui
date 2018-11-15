@@ -1,7 +1,7 @@
 #include "DeviceUsb.h"
+#include "DeviceFactory.h"
 
 const char DeviceUsb::typeName[] = "DeviceUsb";
-
 
 DeviceUsb::DeviceUsb(Device *parent) :
     Device("Usb", parent)
