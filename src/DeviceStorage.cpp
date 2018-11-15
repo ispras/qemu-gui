@@ -20,6 +20,8 @@ void DeviceIdeController::initDefault()
 {
     new DeviceBusIde(0, this);
     new DeviceBusIde(1, this);
+    // TODO: allow non-default ide controllers
+    setId("ide");
 }
 
 DeviceStorage::DeviceStorage(const QString &n, Device *parent)

@@ -31,6 +31,8 @@ public:
 
     const QString &getId() const { return id; }
 protected:
+    void setId(const QString &s) { id = s; }
+
     virtual void saveParameters(QXmlStreamWriter &xml) const {}
     virtual void readParameters(QXmlStreamReader &xml) {}
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams) { return ""; }
