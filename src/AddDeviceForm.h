@@ -2,13 +2,14 @@
 #define ADDDEVICEFORM_H
 
 #include <QtWidgets>
+#include "Device.h"
 
 class AddDeviceForm : public QWidget
 {
     Q_OBJECT
 
 public:
-    AddDeviceForm(const QStringList &listDevice);
+    AddDeviceForm(const Devices &listDevice);
     ~AddDeviceForm();
 
 public slots:

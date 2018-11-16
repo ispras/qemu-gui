@@ -19,6 +19,8 @@ public:
     void setSize(const QString &newSize) { size = newSize; }
     int getSize() const { return size.toInt(); }
 
+    virtual BusType needsBus() const { return BusType::System; }
+
 protected:
     virtual void saveParameters(QXmlStreamWriter &xml) const;
     virtual void readParameters(QXmlStreamReader &xml);
@@ -41,8 +43,6 @@ private:
 
     private slots:
     void sizeChanged(int val);
-
-
 };
 
 

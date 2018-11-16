@@ -15,8 +15,6 @@ public:
 
     virtual QString getDeviceTypeName() const { return typeName; }
     virtual QWidget *getEditorForm();
-    virtual QStringList getDeviceListToAdd() { return QStringList({"EHCI", "XHCI"}); }
-
 
 protected:
     virtual QString getCommandLineOption();

@@ -7,6 +7,7 @@
 namespace DeviceFactory
 {
     Device *createDevice(const QString &name);
+    Devices getDevicesForBus(BusType t);
 
     namespace Internal
     {

@@ -1,7 +1,7 @@
 #include "AddDeviceForm.h"
 
 
-AddDeviceForm::AddDeviceForm(const QStringList &listDevice)
+AddDeviceForm::AddDeviceForm(const Devices &listDevice)
 {
     if (AddDeviceForm::objectName().isEmpty())
         AddDeviceForm::setObjectName(QStringLiteral("AddDeviceForm"));
@@ -29,7 +29,10 @@ AddDeviceForm::AddDeviceForm(const QStringList &listDevice)
     connect(addBtn, &QPushButton::clicked, this, &AddDeviceForm::addNewDevice);
     connect(cancelBtn, &QPushButton::clicked, this, &QWidget::close);
 
-    deviceList->addItems(listDevice);
+    foreach(auto dev, listDevice)
+    {
+        deviceList->addItem(dev->getDeviceTypeName());
+    }
     deviceList->setCurrentRow(0);
 }
 

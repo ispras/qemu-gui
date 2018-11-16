@@ -1,5 +1,5 @@
 #include "VMSettingsForm.h"
-
+#include "DeviceFactory.h"
 
 VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
     : QWidget(parent), vm(vmconf)
@@ -142,52 +142,62 @@ void VMSettingsForm::showContextMenu(const QPoint &pos)
     QTreeWidgetItem *item = deviceTree->itemAt(pos);
     if (item)
     {
+        deviceTree->setCurrentItem(item);
+        QMenu menu(this);
+
         DeviceTreeItem *devItem = dynamic_cast<DeviceTreeItem*>(item);
         Q_ASSERT(devItem);
         Device *dev = devItem->getDevice();
 
-        if (!dev->getDeviceListToAdd().isEmpty())
+        Devices addDevices = DeviceFactory::getDevicesForBus(dev->providesBus());
+        if (!addDevices.isEmpty())
         {
-            deviceTree->setCurrentItem(item);
-
             QAction *addDeviceAct = new QAction("Add device", this);
             addDeviceAct->setStatusTip(tr("Add device"));
 
-            AddDeviceForm *addDev = new AddDeviceForm(dev->getDeviceListToAdd());
+            AddDeviceForm *addDev = new AddDeviceForm(addDevices);
             addDev->setAttribute(Qt::WA_DeleteOnClose);
 
             connect(addDeviceAct, SIGNAL(triggered()), addDev, SLOT(addDevice()));
             connect(addDev, SIGNAL(deviceWantsToAdd(const QString &)),
                 this, SLOT(addNewDevice(const QString &)));
 
-            QMenu menu(this);
             menu.addAction(addDeviceAct);
-
-            menu.exec(deviceTree->mapToGlobal(pos));
         }
-        else
+
+        bool canRemove = true;
+        foreach(Device *device, vm->getSystemDevice()->getDevices())
         {
-            foreach(Device *device, vm->getSystemDevice()->getDevices())
-            {
-                if (dev == device) return;
-            }
-            deviceTree->setCurrentItem(item);
+            if (dev == device)
+                canRemove = false;
+        }
+        // TODO: protect bus items from removing
+        if (canRemove)
+        {
             QAction *removeDeviceAct = new QAction("Remove device", this);
             removeDeviceAct->setStatusTip(tr("Remove device"));
             connect(removeDeviceAct, SIGNAL(triggered()), this, SLOT(removeDevice()));
-
-            QMenu menu(this);
             menu.addAction(removeDeviceAct);
+        }
+        if (!menu.isEmpty())
+        {
             menu.exec(deviceTree->mapToGlobal(pos));
         }
+
+        foreach(Device *device, addDevices)
+        {
+            delete device;
+        }
     }
+    /*
+    TODO
     else
     {
         qDebug() << "add add add";
         QAction *addDeviceAct = new QAction("Add system device (dont use it)", this);
         addDeviceAct->setStatusTip(tr("Add system device"));
 
-        AddDeviceForm *addSystemDev = new AddDeviceForm(QStringList({ "Usb", "...", }));
+        AddDeviceForm *addSystemDev = NULL;//new AddDeviceForm(QStringList({ "Usb", "...", }));
         addSystemDev->setAttribute(Qt::WA_DeleteOnClose);
 
         connect(addDeviceAct, SIGNAL(triggered()), addSystemDev, SLOT(addDevice()));
@@ -199,6 +209,7 @@ void VMSettingsForm::showContextMenu(const QPoint &pos)
 
         menu.exec(deviceTree->mapToGlobal(pos));
     }
+    */
 }
 
 void VMSettingsForm::addNewDevice(const QString &devName)

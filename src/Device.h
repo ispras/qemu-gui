@@ -4,7 +4,18 @@
 #include <QWidget>
 #include <QtWidgets>
 
+class Device;
 class CommandLineParameters;
+
+enum class BusType
+{
+    None,
+    System,
+    IDE,
+    PCI,
+};
+
+typedef QList<Device *> Devices;
 
 class Device : public QObject
 {
@@ -12,8 +23,6 @@ class Device : public QObject
 public:
     Device();
     Device(const QString &n, Device *parent = 0);
-
-    typedef QList<Device *> Devices;
 
     void addDevice(Device *dev);
     void removeDevice(Device *dev);
@@ -26,8 +35,10 @@ public:
 
     virtual QString getDeviceTypeName() const { return "Device"; }
     virtual QWidget *getEditorForm() { return NULL; }
-    virtual QStringList getDeviceListToAdd() { return QStringList(); }
     virtual bool isDeviceValid() { return true; }
+
+    virtual BusType providesBus() const { return BusType::None; }
+    virtual BusType needsBus() const { return BusType::None; }
 
     const QString &getId() const { return id; }
 protected:

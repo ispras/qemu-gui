@@ -27,6 +27,7 @@ public:
     DeviceIdeController(Device *parent);
 
     virtual QString getDeviceTypeName() const { return typeName; }
+    virtual BusType needsBus() const { return BusType::PCI; }
 
 private:
     void initDefault();
@@ -52,6 +53,8 @@ public:
 
     virtual QString getDeviceTypeName() const { return typeName; }
     virtual QWidget *getEditorForm();
+
+    virtual BusType needsBus() const { return BusType::IDE; }
 
     void setNewHDD(const QString &imageName) { image = imageName; }
     QString getImage() const { return image; }

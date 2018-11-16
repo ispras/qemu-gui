@@ -15,6 +15,27 @@ Device *createDevice(const QString &name)
     return new Device();
 }
 
+
+Devices getDevicesForBus(BusType t)
+{
+    Devices res;
+    Internal::DeviceRegistry &reg = Internal::getDeviceRegistry();
+    foreach(auto create, reg)
+    {
+        Device *d = create();
+        if (d->needsBus() == t)
+        {
+            res.append(d);
+        }
+        else
+        {
+            delete d;
+        }
+    }
+    return res;
+}
+
+
 namespace Internal
 {
 
