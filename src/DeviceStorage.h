@@ -70,25 +70,6 @@ private:
 };
 
 
-class DeviceIdeHdForm : public QGroupBox
-{
-Q_OBJECT
-
-public:
-    DeviceIdeHdForm(DeviceIdeHd *dev);
-    
-private:
-    DeviceIdeHd *device;
-
-    private slots:
-    void editImage();
-
-signals:
-    void newImageSet(QString);
-    void newDiskCompleted(QString);
-};
-
-
 class DeviceIdeCdrom : public DeviceStorage
 {
 
@@ -116,22 +97,5 @@ private:
     QString image;
 };
 
-class DeviceIdeCdromForm : public QGroupBox
-{
-    Q_OBJECT
-
-public:
-    DeviceIdeCdromForm(DeviceIdeCdrom *dev);
-
-private:
-    DeviceIdeCdrom *device;
-
-    private slots:
-    void editImage();
-
-signals:
-    void newImageSet(QString);
-    void newDiskCompleted(QString);
-};
 
 #endif // DEVICESTORAGE_H
