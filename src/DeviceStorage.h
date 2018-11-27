@@ -70,22 +70,32 @@ private:
 };
 
 
-class DeviceIdeHdForm : public QGroupBox
+class DeviceIdeCdrom : public DeviceStorage
 {
-Q_OBJECT
 
 public:
-    DeviceIdeHdForm(DeviceIdeHd *dev);
-    
+    static const char typeName[];
+
+    DeviceIdeCdrom() {}
+    DeviceIdeCdrom(const QString &img, Device *parent);
+
+    virtual QString getDeviceTypeName() const { return typeName; }
+    virtual QWidget *getEditorForm();
+
+    virtual BusType needsBus() const { return BusType::IDE; }
+
+    void setCDImage(const QString &imageName) { image = imageName; }
+    QString getImage() const { return image; }
+
+protected:
+    virtual void saveParameters(QXmlStreamWriter &xml) const;
+    virtual void readParameters(QXmlStreamReader &xml);
+    virtual QString getCommandLineOption(CommandLineParameters &cmdParams);
+    virtual bool isDeviceValid();
+
 private:
-    DeviceIdeHd *device;
-
-    private slots:
-    void editImage();
-
-signals:
-    void newImageSet(QString);
-    void newDiskCompleted(QString);
+    QString image;
 };
+
 
 #endif // DEVICESTORAGE_H

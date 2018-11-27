@@ -440,7 +440,8 @@ void QemuGUI::listVM_current_item_changed(QListWidgetItem *current, QListWidgetI
 
 void QemuGUI::add_qemu_install_dir_btn()
 {
-    QString qemu_install_dir = QFileDialog::getExistingDirectory(this, "Select Qemu directory", "");
+    QString qemu_install_dir = QFileDialog::getExistingDirectory(qemu_install_dir_settings,
+        "Select Qemu directory", "");
     if (qemu_install_dir != "")
     {
         if (qemu_install_dir_list->findItems(qemu_install_dir, 

@@ -219,7 +219,15 @@ void VMSettingsForm::addNewDevice(const QString &devName)
     Device *dev = devItem->getDevice();
     if (devItem->childCount() < 2) /* temp */
     {
-        DeviceIdeHd *newDev = new DeviceIdeHd("", dev);
+        Device *newDev = NULL;
+        if (!devName.compare("DeviceIdeCdrom"))
+        {
+            newDev = new DeviceIdeCdrom("", dev);
+        }
+        else if (!devName.compare("DeviceIdeHd"))
+        {
+            newDev = new DeviceIdeHd("", dev);
+        }
         DeviceTreeItem *it = new DeviceTreeItem(newDev);
         deviceTree->currentItem()->addChild(it);
         deviceTree->setCurrentItem(it);
