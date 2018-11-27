@@ -98,7 +98,7 @@ void RecordReplayTab::record_execution()
         | QDialogButtonBox::Cancel);
 
     QHBoxLayout *topLay = new QHBoxLayout();
-    topLay->addWidget(new QLabel("Input name:"));
+    topLay->addWidget(new QLabel("Execution name:"));
     topLay->addWidget(nameEdit);
 
     QVBoxLayout *mainLay = new QVBoxLayout();
