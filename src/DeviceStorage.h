@@ -48,7 +48,7 @@ class DeviceIdeHd : public DeviceStorage
 public:
     static const char typeName[];
 
-    DeviceIdeHd() {}
+    DeviceIdeHd();
     DeviceIdeHd(const QString &img, Device *parent);
 
     virtual QString getDeviceTypeName() const { return typeName; }
@@ -76,7 +76,7 @@ class DeviceIdeCdrom : public DeviceStorage
 public:
     static const char typeName[];
 
-    DeviceIdeCdrom() {}
+    DeviceIdeCdrom();
     DeviceIdeCdrom(const QString &img, Device *parent);
 
     virtual QString getDeviceTypeName() const { return typeName; }

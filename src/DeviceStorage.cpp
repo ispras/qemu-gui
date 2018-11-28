@@ -42,6 +42,11 @@ REGISTER_DEVICE(DeviceIdeHd)
 
 static const char xml_image[] = "Image";
 
+DeviceIdeHd::DeviceIdeHd()
+    : DeviceStorage("IDE-HD", NULL)
+{
+}
+
 DeviceIdeHd::DeviceIdeHd(const QString &img, Device *parent)
     : DeviceStorage("IDE-HD", parent), image(img)
 {
@@ -108,6 +113,11 @@ bool DeviceIdeHd::isDeviceValid()
 
 const char DeviceIdeCdrom::typeName[] = "DeviceIdeCdrom";
 REGISTER_DEVICE(DeviceIdeCdrom)
+
+DeviceIdeCdrom::DeviceIdeCdrom()
+    : DeviceStorage("IDE-CDROM", NULL)
+{
+}
 
 DeviceIdeCdrom::DeviceIdeCdrom(const QString &img, Device *parent)
     : DeviceStorage("IDE-CDROM", parent), image(img)
