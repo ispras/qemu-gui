@@ -20,6 +20,7 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
     deviceTree->setHeaderHidden(1);
     deviceTree->setColumnCount(1);
 
+    addDev = NULL;
 
     foreach(Device *dev, vm->getSystemDevice()->getDevices())
     {
@@ -34,7 +35,6 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
 
 VMSettingsForm::~VMSettingsForm()
 {
-
 }
 
 void VMSettingsForm::connect_signals()
@@ -49,6 +49,8 @@ void VMSettingsForm::connect_signals()
 
     connect(deviceTree, &QTreeWidget::customContextMenuRequested,
         this, &VMSettingsForm::showContextMenu);
+
+    connect(&menu, &QMenu::aboutToHide, this, &VMSettingsForm::menuClose);
 }
 
 QWidget* VMSettingsForm::emptyForm()
@@ -143,24 +145,21 @@ void VMSettingsForm::showContextMenu(const QPoint &pos)
     if (item)
     {
         deviceTree->setCurrentItem(item);
-        QMenu menu(this);
 
         DeviceTreeItem *devItem = dynamic_cast<DeviceTreeItem*>(item);
         Q_ASSERT(devItem);
         Device *dev = devItem->getDevice();
 
-        Devices addDevices = DeviceFactory::getDevicesForBus(dev->providesBus());
-        if (!addDevices.isEmpty())
+        addDev = new AddDeviceForm(dev);
+        addDev->setAttribute(Qt::WA_DeleteOnClose);
+        if (addDev->getAddDevicesCount())
         {
             QAction *addDeviceAct = new QAction("Add device", this);
             addDeviceAct->setStatusTip(tr("Add device"));
 
-            AddDeviceForm *addDev = new AddDeviceForm(addDevices);
-            addDev->setAttribute(Qt::WA_DeleteOnClose);
-
             connect(addDeviceAct, SIGNAL(triggered()), addDev, SLOT(addDevice()));
-            connect(addDev, SIGNAL(deviceWantsToAdd(const QString &)),
-                this, SLOT(addNewDevice(const QString &)));
+            connect(addDev, SIGNAL(deviceWantsToAdd(Device *)),
+                this, SLOT(addNewDevice(Device *)));
 
             menu.addAction(addDeviceAct);
         }
@@ -183,10 +182,9 @@ void VMSettingsForm::showContextMenu(const QPoint &pos)
         {
             menu.exec(deviceTree->mapToGlobal(pos));
         }
-
-        foreach(Device *device, addDevices)
+        else
         {
-            delete device;
+            delete addDev;
         }
     }
     /*
@@ -212,23 +210,15 @@ void VMSettingsForm::showContextMenu(const QPoint &pos)
     */
 }
 
-void VMSettingsForm::addNewDevice(const QString &devName)
+void VMSettingsForm::addNewDevice(Device *newDevice)
 {
     DeviceTreeItem *devItem = dynamic_cast<DeviceTreeItem*>(deviceTree->currentItem());
     Q_ASSERT(devItem);
     Device *dev = devItem->getDevice();
     if (devItem->childCount() < 2) /* temp */
     {
-        Device *newDev = NULL;
-        if (!devName.compare("DeviceIdeCdrom"))
-        {
-            newDev = new DeviceIdeCdrom("", dev);
-        }
-        else if (!devName.compare("DeviceIdeHd"))
-        {
-            newDev = new DeviceIdeHd("", dev);
-        }
-        DeviceTreeItem *it = new DeviceTreeItem(newDev);
+        dev->addDevice(newDevice);
+        DeviceTreeItem *it = new DeviceTreeItem(newDevice);
         deviceTree->currentItem()->addChild(it);
         deviceTree->setCurrentItem(it);
         onDeviceTreeItemClicked(it, 0);
@@ -260,12 +250,22 @@ void VMSettingsForm::removeDevice()
         QMessageBox::Yes, QMessageBox::No);
     if (answer == QMessageBox::Yes)
     {
-        Device *devParent = (Device *)dev->parent();
+        Device *devParent = dynamic_cast<Device *>(dev->parent());
+        Q_ASSERT(devParent);
         devParent->removeDevice(dev);
         deviceTree->setCurrentItem(devItem->parent());
         onDeviceTreeItemClicked(devItem->parent(), 0);
         delete devItem;        
     }
+}
+
+void VMSettingsForm::menuClose()
+{
+    if (!menu.activeAction())
+    {
+        delete addDev;
+    }
+    menu.clear();
 }
 
 /***************************************************************************

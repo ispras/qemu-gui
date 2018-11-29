@@ -3,27 +3,32 @@
 
 #include <QtWidgets>
 #include "Device.h"
+#include <QMap>
 
 class AddDeviceForm : public QWidget
 {
     Q_OBJECT
 
 public:
-    AddDeviceForm(const Devices &listDevice);
+    AddDeviceForm(const Device *device);
     ~AddDeviceForm();
+
+    int getAddDevicesCount();
 
 public slots:
     void addDevice();
 
 private:
     QListWidget *deviceList;
+    Devices addDevices;
     
 
 private slots:
     void addNewDevice();
+    void addNewDeviceDblClick(QListWidgetItem *item);
 
 signals:
-    void deviceWantsToAdd(const QString &);
+    void deviceWantsToAdd(Device *);
 
 
 };

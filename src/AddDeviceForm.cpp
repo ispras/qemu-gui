@@ -1,7 +1,8 @@
 #include "AddDeviceForm.h"
+#include "DeviceFactory.h"
 
 
-AddDeviceForm::AddDeviceForm(const Devices &listDevice)
+AddDeviceForm::AddDeviceForm(const Device *device)
 {
     if (AddDeviceForm::objectName().isEmpty())
         AddDeviceForm::setObjectName(QStringLiteral("AddDeviceForm"));
@@ -28,27 +29,45 @@ AddDeviceForm::AddDeviceForm(const Devices &listDevice)
 
     connect(addBtn, &QPushButton::clicked, this, &AddDeviceForm::addNewDevice);
     connect(cancelBtn, &QPushButton::clicked, this, &QWidget::close);
+    connect(deviceList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), 
+        this, SLOT(addNewDeviceDblClick(QListWidgetItem *)));
 
-    foreach(auto dev, listDevice)
+    addDevices = DeviceFactory::getDevicesForBus(device->providesBus());
+    foreach(auto dev, addDevices)
     {
         deviceList->addItem(dev->getDeviceTypeName());
     }
-    deviceList->setCurrentRow(0);
 }
 
 AddDeviceForm::~AddDeviceForm()
 {
+    foreach(auto dev, addDevices)
+    {
+        delete dev;
+    }
+}
 
+int AddDeviceForm::getAddDevicesCount()
+{
+    return deviceList->count();
+}
+
+void AddDeviceForm::addNewDeviceDblClick(QListWidgetItem *item)
+{
+    addNewDevice();
 }
 
 void AddDeviceForm::addDevice()
 {
+    deviceList->setCurrentRow(0);
     show();
 }
 
 void AddDeviceForm::addNewDevice()
 {
-    emit deviceWantsToAdd(deviceList->currentItem()->text());
+    Device *newDevice = addDevices.at(deviceList->currentRow());
+    addDevices.removeOne(newDevice);
+    emit deviceWantsToAdd(newDevice);
     close();
 }
 
