@@ -20,6 +20,8 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
     deviceTree->setHeaderHidden(1);
     deviceTree->setColumnCount(1);
 
+    addDev = NULL;
+
     foreach(Device *dev, vm->getSystemDevice()->getDevices())
     {
         DeviceTreeItem *it = new DeviceTreeItem(dev);
@@ -212,7 +214,7 @@ void VMSettingsForm::addNewDevice(Device *newDevice)
 {
     DeviceTreeItem *devItem = dynamic_cast<DeviceTreeItem*>(deviceTree->currentItem());
     Q_ASSERT(devItem);
-    auto *dev = devItem->getDevice();
+    Device *dev = devItem->getDevice();
     if (devItem->childCount() < 2) /* temp */
     {
         dev->addDevice(newDevice);
@@ -248,7 +250,8 @@ void VMSettingsForm::removeDevice()
         QMessageBox::Yes, QMessageBox::No);
     if (answer == QMessageBox::Yes)
     {
-        Device *devParent = (Device *)dev->parent();
+        Device *devParent = dynamic_cast<Device *>(dev->parent());
+        Q_ASSERT(devParent);
         devParent->removeDevice(dev);
         deviceTree->setCurrentItem(devItem->parent());
         onDeviceTreeItemClicked(devItem->parent(), 0);

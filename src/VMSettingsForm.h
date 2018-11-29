@@ -19,7 +19,7 @@ public slots:
 
 private:
     VMConfig *vm;
-    AddDeviceForm *addDev = NULL;
+    AddDeviceForm *addDev;
 
     QTreeWidget *deviceTree;
     QDialogButtonBox *savecancel_btn;

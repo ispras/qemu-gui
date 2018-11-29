@@ -29,29 +29,33 @@ AddDeviceForm::AddDeviceForm(const Device *device)
 
     connect(addBtn, &QPushButton::clicked, this, &AddDeviceForm::addNewDevice);
     connect(cancelBtn, &QPushButton::clicked, this, &QWidget::close);
+    connect(deviceList, SIGNAL(itemDoubleClicked(QListWidgetItem *)), 
+        this, SLOT(addNewDeviceDblClick(QListWidgetItem *)));
 
     addDevices = DeviceFactory::getDevicesForBus(device->providesBus());
     foreach(auto dev, addDevices)
     {
+        devices.insert(deviceList->count(), dev);
         deviceList->addItem(dev->getDeviceTypeName());
-        devices.insert(dev->getDeviceTypeName(), dev);
     }
 }
 
 AddDeviceForm::~AddDeviceForm()
 {
-    if (!isDeleted)
+    foreach(auto dev, addDevices)
     {
-        foreach(auto dev, addDevices)
-        {
-            delete dev;
-        }
+        delete dev;
     }
 }
 
 int AddDeviceForm::getAddDevicesCount()
 {
     return deviceList->count();
+}
+
+void AddDeviceForm::addNewDeviceDblClick(QListWidgetItem *item)
+{
+    addNewDevice();
 }
 
 void AddDeviceForm::addDevice()
@@ -62,13 +66,8 @@ void AddDeviceForm::addDevice()
 
 void AddDeviceForm::addNewDevice()
 {
-    Device *newDevice = devices.value(deviceList->currentItem()->text());
-    foreach(auto dev, addDevices)
-    {
-        if (dev != newDevice)
-            delete dev;
-    }
-    isDeleted = true;
+    Device *newDevice = devices.value(deviceList->currentRow());
+    addDevices.removeOne(newDevice);
     emit deviceWantsToAdd(newDevice);
     close();
 }

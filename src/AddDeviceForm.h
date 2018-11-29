@@ -21,12 +21,12 @@ public slots:
 private:
     QListWidget *deviceList;
     Devices addDevices;
-    QMap <QString, Device *> devices;
-    bool isDeleted = false;
+    QMap <int, Device *> devices;
     
 
 private slots:
     void addNewDevice();
+    void addNewDeviceDblClick(QListWidgetItem *item);
 
 signals:
     void deviceWantsToAdd(Device *);

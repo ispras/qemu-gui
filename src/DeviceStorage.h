@@ -66,6 +66,7 @@ protected:
     virtual bool isDeviceValid();
 
 private:
+    static const char deviceName[];
     QString image;
 };
 
@@ -94,6 +95,7 @@ protected:
     virtual bool isDeviceValid();
 
 private:
+    static const char deviceName[];
     QString image;
 };
 
