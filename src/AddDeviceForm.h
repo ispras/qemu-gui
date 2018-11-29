@@ -21,7 +21,6 @@ public slots:
 private:
     QListWidget *deviceList;
     Devices addDevices;
-    QMap <int, Device *> devices;
     
 
 private slots:

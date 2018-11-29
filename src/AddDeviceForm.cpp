@@ -35,7 +35,6 @@ AddDeviceForm::AddDeviceForm(const Device *device)
     addDevices = DeviceFactory::getDevicesForBus(device->providesBus());
     foreach(auto dev, addDevices)
     {
-        devices.insert(deviceList->count(), dev);
         deviceList->addItem(dev->getDeviceTypeName());
     }
 }
@@ -66,7 +65,7 @@ void AddDeviceForm::addDevice()
 
 void AddDeviceForm::addNewDevice()
 {
-    Device *newDevice = devices.value(deviceList->currentRow());
+    Device *newDevice = addDevices.at(deviceList->currentRow());
     addDevices.removeOne(newDevice);
     emit deviceWantsToAdd(newDevice);
     close();
