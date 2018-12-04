@@ -33,6 +33,21 @@ private:
     void initDefault();
 };
 
+class DevicePciController : public DeviceStorageController
+{
+public:
+    static const char typeName[];
+
+    DevicePciController() { initDefault(); }
+    DevicePciController(Device *parent);
+
+    virtual QString getDeviceTypeName() const { return typeName; }
+    virtual BusType needsBus() const { return BusType::System; }
+
+private:
+    void initDefault();
+};
+
 class DeviceStorage : public Device
 {
 public:

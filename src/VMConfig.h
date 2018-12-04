@@ -21,7 +21,7 @@ public:
     void save_vm_config() const;
     void createVMFolder(const QString &path) const;
     void set_name(const QString &name_vm_);
-    void addDefaultIDE(const QString &image);
+    void addDefaultBus(const QString &image);
     void addMemorySize(const QString &size);
     void addUsbDevice();
     QString get_vm_info();

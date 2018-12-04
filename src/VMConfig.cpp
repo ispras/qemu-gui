@@ -118,10 +118,14 @@ void VMConfig::set_name(const QString &name_vm_)
     name_vm = name_vm_;
 }
 
-void VMConfig::addDefaultIDE(const QString &image)
+void VMConfig::addDefaultBus(const QString &image)
 {
-    Device *ide = new DeviceIdeController(&system);
-    new DeviceIdeHd(image, ide->getDevices().at(0));
+    Device *pci = new DevicePciController(&system);
+    Device *ide = new DeviceIdeController(pci);
+    if (!image.isEmpty())
+    {
+        new DeviceIdeHd(image, ide->getDevices().at(0));
+    }
 }
 
 void VMConfig::addMemorySize(const QString &size)
