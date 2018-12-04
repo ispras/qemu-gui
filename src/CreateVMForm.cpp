@@ -368,17 +368,16 @@ void CreateVMForm::create_vm()
 
     configVM->set_name(name_edit->text());
     configVM->addMemorySize(QString::number(ram_spin->value()));
-    if (!imageplace_edit->text().isEmpty())
-        configVM->addDefaultIDE(imageplace_edit->text());
 
     if (!hdd_new_rb->isChecked())
     {
+        configVM->addDefaultBus(imageplace_edit->text());
         emit createVM_new_vm_is_complete(configVM);
         close();
     }
     else
     {
-        configVM->addDefaultIDE(pathtovm_edit->text() + "/" + 
+        configVM->addDefaultBus(pathtovm_edit->text() + "/" + 
             name_edit->text() + "." + format_combo->currentText());
         configVM->createVMFolder(pathtovm_edit->text());
         setVisible(false);

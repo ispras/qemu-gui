@@ -5,6 +5,7 @@
 
 class DeviceStorageController;
 class DeviceIdeController;
+class DevicePciController;
 
 class DeviceBus : public Device
 {
@@ -29,5 +30,22 @@ public:
 private:
     int num;
 };
+
+
+//class DeviceBusPci : public DeviceBus
+//{
+//public:
+//    static const char typeName[];
+//
+//    DeviceBusPci(int n, DevicePciController *parent);
+//
+//    virtual QString getDeviceTypeName() const { return typeName; }
+//
+//    virtual BusType providesBus() const { return BusType::PCI; }
+//
+//    int getNumber() const { return num; }
+//private:
+//    int num;
+//};
 
 #endif // DEVICEBUS_H

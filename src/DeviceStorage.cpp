@@ -27,6 +27,20 @@ void DeviceIdeController::initDefault()
     setId("ide");
 }
 
+const char DevicePciController::typeName[] = "DevicePciController";
+REGISTER_DEVICE(DevicePciController)
+
+DevicePciController::DevicePciController(Device *parent)
+    : DeviceStorageController("PCI", parent)
+{
+    initDefault();
+}
+
+void DevicePciController::initDefault()
+{
+    setId("pci");
+}
+
 DeviceStorage::DeviceStorage(const QString &n, Device *parent)
     : Device(n, parent)
 {
