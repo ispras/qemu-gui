@@ -140,7 +140,6 @@ void VMSettingsForm::onDeviceTreeItemClicked(QTreeWidgetItem *item, int column)
 
 void VMSettingsForm::showContextMenu(const QPoint &pos)
 {
-    // trash all
     QTreeWidgetItem *item = deviceTree->itemAt(pos);
     if (item)
     {
@@ -164,14 +163,7 @@ void VMSettingsForm::showContextMenu(const QPoint &pos)
             menu.addAction(addDeviceAct);
         }
 
-        bool canRemove = true;
-        foreach(Device *device, vm->getSystemDevice()->getDevices())
-        {
-            if (dev == device)
-                canRemove = false;
-        }
-        // TODO: protect bus items from removing
-        if (canRemove)
+        if (dev->isRemovable())
         {
             QAction *removeDeviceAct = new QAction("Remove device", this);
             removeDeviceAct->setStatusTip(tr("Remove device"));
@@ -212,6 +204,7 @@ void VMSettingsForm::showContextMenu(const QPoint &pos)
 
 void VMSettingsForm::addNewDevice(Device *newDevice)
 {
+    /* TODO: devices can have various count of children */
     DeviceTreeItem *devItem = dynamic_cast<DeviceTreeItem*>(deviceTree->currentItem());
     Q_ASSERT(devItem);
     Device *dev = devItem->getDevice();

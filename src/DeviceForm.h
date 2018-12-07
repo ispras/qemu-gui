@@ -43,6 +43,23 @@ signals:
 };
 
 
+class DeviceScsiHdForm : public QGroupBox
+{
+    Q_OBJECT
+
+public:
+    DeviceScsiHdForm(DeviceScsiHd *dev);
+
+private:
+    DeviceScsiHd *device;
+
+    private slots:
+    void editImage();
+
+signals:
+    void newImageSet(QString);
+    void newDiskCompleted(QString);
+};
 
 
 #endif // DEVICEFORM_H

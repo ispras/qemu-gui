@@ -13,6 +13,7 @@ enum class BusType
     System,
     IDE,
     PCI,
+    SCSI,
 };
 
 typedef QList<Device *> Devices;
@@ -36,6 +37,7 @@ public:
     virtual QString getDeviceTypeName() const { return "Device"; }
     virtual QWidget *getEditorForm() { return NULL; }
     virtual bool isDeviceValid() { return true; }
+    virtual bool isRemovable() { return false; }
 
     virtual BusType providesBus() const { return BusType::None; }
     virtual BusType needsBus() const { return BusType::None; }
