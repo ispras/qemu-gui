@@ -351,7 +351,7 @@ void CreateVMForm::place_disk()
     if (hdd_exist_rb->isChecked())
     {
         QString filename = QFileDialog::getOpenFileName(this, "Select image", 
-            default_path, "*.qcow *.qcow2 *.vdi *.raw"); // and other
+            default_path, "*.qcow *.qcow2 *.vdi *.img *.raw"); // and other
         if (filename != "")
         {
             imageplace_edit->setText(filename);

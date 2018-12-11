@@ -24,7 +24,6 @@ QWidget *DeviceMemory::getEditorForm()
 
 void DeviceMemory::saveParameters(QXmlStreamWriter &xml) const
 {
-    Device::saveParameters(xml);
     xml.writeStartElement(xml_size);
     xml.writeCharacters(size);
     xml.writeEndElement();
@@ -32,7 +31,6 @@ void DeviceMemory::saveParameters(QXmlStreamWriter &xml) const
 
 void DeviceMemory::readParameters(QXmlStreamReader &xml)
 {
-    Device::readParameters(xml);
     xml.readNextStartElement();
     Q_ASSERT(xml.name() == xml_size);
     size = xml.readElementText();

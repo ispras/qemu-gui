@@ -15,6 +15,7 @@ static bool remove_directory(QDir dir);
 VMConfig::VMConfig(QObject *parent, const QString &path_vm)
     : QObject(parent), system("System")
 {
+    system.setRemovable(false);
     QString path = path_vm;
     QString xml_name;
     if (path_vm.section('/', -1) != const_xml_name)
@@ -59,8 +60,8 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
     else
     {
         /* Default config */
-        new Device("CPU", &system);
-        new Device("Machine", &system);
+        (new Device("CPU", &system))->setRemovable(false);
+        (new Device("Machine", &system))->setRemovable(false);
     }
 }
 
@@ -121,7 +122,9 @@ void VMConfig::set_name(const QString &name_vm_)
 void VMConfig::addDefaultBus(const QString &image)
 {
     Device *pci = new DevicePciController(&system);
+    pci->setRemovable(false);
     Device *ide = new DeviceIdeController(pci);
+    ide->setRemovable(false);
     if (!image.isEmpty())
     {
         new DeviceIdeHd(image, ide->getDevices().at(0));
@@ -130,7 +133,7 @@ void VMConfig::addDefaultBus(const QString &image)
 
 void VMConfig::addMemorySize(const QString &size)
 {
-    new DeviceMemory(size, &system);
+    (new DeviceMemory(size, &system))->setRemovable(false);
 }
 
 void VMConfig::addUsbDevice()

@@ -19,7 +19,6 @@ DeviceIdeController::DeviceIdeController()
     : DeviceStorageController(deviceName, NULL)
 {
     initDefault();
-    setRemovable(true);
 }
 
 DeviceIdeController::DeviceIdeController(Device *parent)
@@ -30,8 +29,8 @@ DeviceIdeController::DeviceIdeController(Device *parent)
 
 void DeviceIdeController::initDefault()
 {
-    new DeviceBusIde(0, this);
-    new DeviceBusIde(1, this);
+    (new DeviceBusIde(0, this))->setRemovable(false);
+    (new DeviceBusIde(1, this))->setRemovable(false);
     // TODO: allow non-default ide controllers
     setId("ide");
 }
@@ -69,7 +68,6 @@ DeviceScsiController::DeviceScsiController(Device *parent)
 void DeviceScsiController::initDefault()
 {
     setId("scsi");
-    setRemovable(true);
 }
 
 QString DeviceScsiController::getCommandLineOption(CommandLineParameters &cmdParams)
@@ -87,7 +85,6 @@ DeviceStorage::DeviceStorage(const QString &n, Device *parent)
 
 void DeviceStorage::saveParameters(QXmlStreamWriter &xml) const
 {
-    Device::saveParameters(xml);
     xml.writeStartElement(xml_image);
     xml.writeCharacters(getImage());
     xml.writeEndElement();
@@ -95,7 +92,6 @@ void DeviceStorage::saveParameters(QXmlStreamWriter &xml) const
 
 void DeviceStorage::readParameters(QXmlStreamReader &xml)
 {
-    Device::readParameters(xml);
     xml.readNextStartElement();
     Q_ASSERT(xml.name() == xml_image);
     setImage(xml.readElementText());
@@ -117,13 +113,12 @@ REGISTER_DEVICE(DeviceIdeHd)
 DeviceIdeHd::DeviceIdeHd()
     : DeviceStorage(deviceName, NULL)
 {
-    setRemovable(true);
 }
 
 DeviceIdeHd::DeviceIdeHd(const QString &img, Device *parent)
     : DeviceStorage(deviceName, parent)
 {
-    setRemovable(true);
+    setImage(img);
 }
 
 QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
@@ -173,13 +168,12 @@ REGISTER_DEVICE(DeviceIdeCdrom)
 DeviceIdeCdrom::DeviceIdeCdrom()
     : DeviceStorage(deviceName, NULL)
 {
-    setRemovable(true);
 }
 
 DeviceIdeCdrom::DeviceIdeCdrom(const QString &img, Device *parent)
     : DeviceStorage(deviceName, parent)
 {
-    setRemovable(true);
+    setImage(img);
 }
 
 QString DeviceIdeCdrom::getCommandLineOption(CommandLineParameters &cmdParams)
@@ -229,22 +223,24 @@ REGISTER_DEVICE(DeviceScsiHd)
 DeviceScsiHd::DeviceScsiHd()
     : DeviceStorage(deviceName, NULL)
 {
-    setRemovable(true);
 }
 
 DeviceScsiHd::DeviceScsiHd(const QString &img, Device *parent)
     : DeviceStorage(deviceName, parent)
 {
-    setRemovable(true);
+    setImage(img);
 }
 
 QString DeviceScsiHd::getCommandLineOption(CommandLineParameters &cmdParams)
 {
+    DeviceScsiController *scsi = dynamic_cast<DeviceScsiController *>(parent());
+    Q_ASSERT(scsi);
     if (cmdParams.getLaunchMode() == LaunchMode::NORMAL)
     {
         QString cmdFile = " -drive file=" + getImage() + ",if=none,id="
             + getId() + "-file";
-        return  cmdFile + " -device scsi-hd,drive=" + getId() + "-file";
+        return  cmdFile + " -device scsi-hd,drive=" + getId() + "-file"
+            + ",bus=" + scsi->getId() + ".0";
     }
     else
     {
@@ -255,7 +251,7 @@ QString DeviceScsiHd::getCommandLineOption(CommandLineParameters &cmdParams)
         return cmdFile + " -drive driver=blkreplay,if=none,image="
             + getId() + "-file,id=" + getId()
             + "-driver -device scsi-hd,drive=" + getId() + "-driver"
-            + ",id=" + getId();
+            + ",bus=" + scsi->getId() + ".0" + ",id=" + getId();
     }
 }
 

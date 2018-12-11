@@ -11,7 +11,7 @@ Device properties:
 */
 
 static const char xml_name[] = "Name";
-static const char xml_removable[] = "Removable";
+static const char xml_removable[] = "removable";
 
 Device::Device()
 {
@@ -31,7 +31,7 @@ void Device::init()
     static int lastId = 0;
 
     id = "device-" + QString::number(lastId++);
-    isCanRemove = false;
+    isCanRemove = true;
 }
 
 void Device::addDevice(Device *dev)
@@ -50,25 +50,15 @@ QString Device::getDescription() const
     return name;
 }
 
-void Device::saveParameters(QXmlStreamWriter &xml) const
-{
-    xml.writeStartElement(xml_removable);
-    xml.writeCharacters(isCanRemove ? "true" : "false");
-    xml.writeEndElement();
-}
-
-void Device::readParameters(QXmlStreamReader &xml)
-{
-    xml.readNextStartElement();
-    Q_ASSERT(xml.name() == xml_removable);
-    isCanRemove = (!xml.readElementText().compare("true")) ? true : false;
-}
-
 void Device::save(QXmlStreamWriter &xml) const
 {
     xml.writeStartElement(getDeviceTypeName());
 
     xml.writeStartElement(xml_name);
+    if (isCanRemove)
+    {
+        xml.writeAttribute(xml_removable, "true");
+    }
     xml.writeCharacters(name);
     xml.writeEndElement();
 
@@ -86,6 +76,8 @@ void Device::read(QXmlStreamReader &xml)
 
     xml.readNextStartElement();
     Q_ASSERT(xml.name() == xml_name);
+    if (xml.attributes().empty())
+        isCanRemove = false;
     name = xml.readElementText();
 
     readParameters(xml);

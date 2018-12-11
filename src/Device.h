@@ -38,17 +38,18 @@ public:
     virtual QWidget *getEditorForm() { return NULL; }
     virtual bool isDeviceValid() { return true; }
     virtual bool isRemovable() { return isCanRemove; }
+    void setRemovable(bool isRemove) { isCanRemove = isRemove; }
 
     virtual BusType providesBus() const { return BusType::None; }
     virtual BusType needsBus() const { return BusType::None; }
 
     const QString &getId() const { return id; }
+
 protected:
     void setId(const QString &s) { id = s; }
-    void setRemovable(bool isRemove) { isCanRemove = isRemove; }
 
-    virtual void saveParameters(QXmlStreamWriter &xml) const;
-    virtual void readParameters(QXmlStreamReader &xml);
+    virtual void saveParameters(QXmlStreamWriter &xml) const {};
+    virtual void readParameters(QXmlStreamReader &xml) {};
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams) { return ""; }
 
 private:
