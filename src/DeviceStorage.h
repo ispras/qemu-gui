@@ -106,8 +106,6 @@ public:
     DeviceIdeHd(const QString &img, Device *parent);
 
     virtual QString getDeviceTypeName() const { return typeName; }
-    //virtual QWidget *getEditorForm();
-
     virtual BusType needsBus() const { return BusType::IDE; }
 
 protected:
@@ -129,8 +127,6 @@ public:
     DeviceIdeCdrom(const QString &img, Device *parent);
 
     virtual QString getDeviceTypeName() const { return typeName; }
-    //virtual QWidget *getEditorForm();
-
     virtual BusType needsBus() const { return BusType::IDE; }
 
 protected:
@@ -152,8 +148,6 @@ public:
     DeviceScsiHd(const QString &img, Device *parent);
 
     virtual QString getDeviceTypeName() const { return typeName; }
-    //virtual QWidget *getEditorForm();
-
     virtual BusType needsBus() const { return BusType::SCSI; }
 
 protected:
