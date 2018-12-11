@@ -30,14 +30,13 @@ public:
     virtual BusType needsBus() const { return BusType::PCI; }
 
 protected:
-    virtual bool isRemovable() { return !isCanRemove.compare("true") ? true : false; }
-    virtual void saveParameters(QXmlStreamWriter &xml) const;
-    virtual void readParameters(QXmlStreamReader &xml);
+    //virtual bool isRemovable() { return !isCanRemove.compare("true") ? true : false; }
+    //virtual void saveParameters(QXmlStreamWriter &xml) const;
+    //virtual void readParameters(QXmlStreamReader &xml);
 
 private:
     void initDefault();
     static const char deviceName[];
-    QString isCanRemove;
 };
 
 class DevicePciController : public DeviceStorageController
@@ -71,7 +70,7 @@ public:
 
 protected:
     virtual BusType providesBus() const { return BusType::SCSI; }
-    virtual bool isRemovable() { return true; }
+    virtual QString getCommandLineOption(CommandLineParameters &cmdParams);
 
 private:
     void initDefault();
@@ -85,16 +84,16 @@ public:
     DeviceStorage(const QString &n, Device *parent);
 
     virtual QString getDeviceTypeName() const = 0;
+    virtual void setImage(const QString &img) { image = img; };
+    virtual QString getImage() const { return image; };
+    virtual QWidget *getEditorForm();
 
 protected:
     virtual void saveParameters(QXmlStreamWriter &xml) const;
     virtual void readParameters(QXmlStreamReader &xml);
-    virtual void setImage(const QString &img) = 0;
-    virtual QString getImage() const = 0;
 
 private:
-    QString getChildImage();
-    void setImageChild(const QString &img) const;
+    QString image;
 };
 
 class DeviceIdeHd : public DeviceStorage
@@ -107,21 +106,16 @@ public:
     DeviceIdeHd(const QString &img, Device *parent);
 
     virtual QString getDeviceTypeName() const { return typeName; }
-    virtual QWidget *getEditorForm();
+    //virtual QWidget *getEditorForm();
 
     virtual BusType needsBus() const { return BusType::IDE; }
-
-    QString getImage() const { return image; }
-    void setImage(const QString &img) { image = img; }
 
 protected:
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams);
     virtual bool isDeviceValid();
-    virtual bool isRemovable() { return true; }
 
 private:
     static const char deviceName[];
-    QString image;
 };
 
 
@@ -135,21 +129,16 @@ public:
     DeviceIdeCdrom(const QString &img, Device *parent);
 
     virtual QString getDeviceTypeName() const { return typeName; }
-    virtual QWidget *getEditorForm();
+    //virtual QWidget *getEditorForm();
 
     virtual BusType needsBus() const { return BusType::IDE; }
-
-    QString getImage() const { return image; }
-    void setImage(const QString &img) { image = img; }
 
 protected:
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams);
     virtual bool isDeviceValid();
-    virtual bool isRemovable() { return true; }
 
 private:
     static const char deviceName[];
-    QString image;
 };
 
 
@@ -163,21 +152,16 @@ public:
     DeviceScsiHd(const QString &img, Device *parent);
 
     virtual QString getDeviceTypeName() const { return typeName; }
-    virtual QWidget *getEditorForm();
+    //virtual QWidget *getEditorForm();
 
     virtual BusType needsBus() const { return BusType::SCSI; }
-
-    QString getImage() const { return image; }
-    void setImage(const QString &img) { image = img; }
 
 protected:
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams);
     virtual bool isDeviceValid();
-    virtual bool isRemovable() { return true; }
 
 private:
     static const char deviceName[];
-    QString image;
 };
 
 #endif // DEVICESTORAGE_H

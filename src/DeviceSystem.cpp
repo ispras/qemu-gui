@@ -13,7 +13,8 @@ static const char xml_size[] = "MemorySize";
 
 DeviceMemory::DeviceMemory(const QString &memSize, Device *parent) :
     Device("Memory", parent), size(memSize)
-{}
+{
+}
 
 
 QWidget *DeviceMemory::getEditorForm()
@@ -23,6 +24,7 @@ QWidget *DeviceMemory::getEditorForm()
 
 void DeviceMemory::saveParameters(QXmlStreamWriter &xml) const
 {
+    Device::saveParameters(xml);
     xml.writeStartElement(xml_size);
     xml.writeCharacters(size);
     xml.writeEndElement();
@@ -30,6 +32,7 @@ void DeviceMemory::saveParameters(QXmlStreamWriter &xml) const
 
 void DeviceMemory::readParameters(QXmlStreamReader &xml)
 {
+    Device::readParameters(xml);
     xml.readNextStartElement();
     Q_ASSERT(xml.name() == xml_size);
     size = xml.readElementText();

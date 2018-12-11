@@ -37,7 +37,7 @@ public:
     virtual QString getDeviceTypeName() const { return "Device"; }
     virtual QWidget *getEditorForm() { return NULL; }
     virtual bool isDeviceValid() { return true; }
-    virtual bool isRemovable() { return false; }
+    virtual bool isRemovable() { return isCanRemove; }
 
     virtual BusType providesBus() const { return BusType::None; }
     virtual BusType needsBus() const { return BusType::None; }
@@ -45,9 +45,10 @@ public:
     const QString &getId() const { return id; }
 protected:
     void setId(const QString &s) { id = s; }
+    void setRemovable(bool isRemove) { isCanRemove = isRemove; }
 
-    virtual void saveParameters(QXmlStreamWriter &xml) const {}
-    virtual void readParameters(QXmlStreamReader &xml) {}
+    virtual void saveParameters(QXmlStreamWriter &xml) const;
+    virtual void readParameters(QXmlStreamReader &xml);
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams) { return ""; }
 
 private:
@@ -58,6 +59,7 @@ private:
     // Device id for the command line.
     // Does not need to be saved in the config file.
     QString id;
+    bool isCanRemove;
     Devices devices;
 };
 

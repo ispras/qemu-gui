@@ -16,13 +16,14 @@ static const char xml_removable[] = "Removable";
 REGISTER_DEVICE(DeviceIdeController)
 
 DeviceIdeController::DeviceIdeController()
-    : DeviceStorageController(deviceName, NULL), isCanRemove("true")
+    : DeviceStorageController(deviceName, NULL)
 {
     initDefault();
+    setRemovable(true);
 }
 
 DeviceIdeController::DeviceIdeController(Device *parent)
-    : DeviceStorageController(deviceName, parent), isCanRemove("false")
+    : DeviceStorageController(deviceName, parent)
 {
     initDefault();
 }
@@ -33,20 +34,6 @@ void DeviceIdeController::initDefault()
     new DeviceBusIde(1, this);
     // TODO: allow non-default ide controllers
     setId("ide");
-}
-
-void DeviceIdeController::saveParameters(QXmlStreamWriter &xml) const
-{
-    xml.writeStartElement(xml_removable);
-    xml.writeCharacters(isCanRemove);
-    xml.writeEndElement();
-}
-
-void DeviceIdeController::readParameters(QXmlStreamReader &xml)
-{
-    xml.readNextStartElement();
-    Q_ASSERT(xml.name() == xml_removable);
-    isCanRemove = xml.readElementText();
 }
 
 const char DevicePciController::typeName[] = "DevicePciController";
@@ -82,18 +69,25 @@ DeviceScsiController::DeviceScsiController(Device *parent)
 void DeviceScsiController::initDefault()
 {
     setId("scsi");
+    setRemovable(true);
+}
+
+QString DeviceScsiController::getCommandLineOption(CommandLineParameters &cmdParams)
+{
+    return " -device mptsas1068,id=" + getId();
 }
 
 static const char xml_image[] = "Image";
 
+
 DeviceStorage::DeviceStorage(const QString &n, Device *parent)
     : Device(n, parent)
 {
-
 }
 
 void DeviceStorage::saveParameters(QXmlStreamWriter &xml) const
 {
+    Device::saveParameters(xml);
     xml.writeStartElement(xml_image);
     xml.writeCharacters(getImage());
     xml.writeEndElement();
@@ -101,11 +95,16 @@ void DeviceStorage::saveParameters(QXmlStreamWriter &xml) const
 
 void DeviceStorage::readParameters(QXmlStreamReader &xml)
 {
+    Device::readParameters(xml);
     xml.readNextStartElement();
     Q_ASSERT(xml.name() == xml_image);
     setImage(xml.readElementText());
 }
 
+QWidget *DeviceStorage::getEditorForm()
+{
+    return new DeviceStorageForm(this);
+}
 
 /******************************************************************************
  * IDE HDD                                                                    *
@@ -118,16 +117,13 @@ REGISTER_DEVICE(DeviceIdeHd)
 DeviceIdeHd::DeviceIdeHd()
     : DeviceStorage(deviceName, NULL)
 {
+    setRemovable(true);
 }
 
 DeviceIdeHd::DeviceIdeHd(const QString &img, Device *parent)
-    : DeviceStorage(deviceName, parent), image(img)
+    : DeviceStorage(deviceName, parent)
 {
-}
-
-QWidget *DeviceIdeHd::getEditorForm()
-{
-    return new DeviceIdeHdForm(this);
+    setRemovable(true);
 }
 
 QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
@@ -139,7 +135,7 @@ QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
 
     if (cmdParams.getLaunchMode() == LaunchMode::NORMAL)
     {
-        QString cmdFile = " -drive file=" + image + ",if=none,id="
+        QString cmdFile = " -drive file=" + getImage() + ",if=none,id="
             + getId() + "-file";
         return  cmdFile + " -device ide-hd"
             +",bus=" + ide->getId() + "." + QString::number(bus->getNumber()) 
@@ -148,7 +144,7 @@ QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
     }
     else
     {
-        QString overlay = cmdParams.getOverlayForImage(image);
+        QString overlay = cmdParams.getOverlayForImage(getImage());
         QString cmdFile = "-drive file=" + overlay + ",if=none,id="
              + getId() + "-file";
 
@@ -177,16 +173,13 @@ REGISTER_DEVICE(DeviceIdeCdrom)
 DeviceIdeCdrom::DeviceIdeCdrom()
     : DeviceStorage(deviceName, NULL)
 {
+    setRemovable(true);
 }
 
 DeviceIdeCdrom::DeviceIdeCdrom(const QString &img, Device *parent)
-    : DeviceStorage(deviceName, parent), image(img)
+    : DeviceStorage(deviceName, parent)
 {
-}
-
-QWidget *DeviceIdeCdrom::getEditorForm()
-{
-    return new DeviceIdeCdromForm(this);
+    setRemovable(true);
 }
 
 QString DeviceIdeCdrom::getCommandLineOption(CommandLineParameters &cmdParams)
@@ -198,7 +191,7 @@ QString DeviceIdeCdrom::getCommandLineOption(CommandLineParameters &cmdParams)
 
     if (cmdParams.getLaunchMode() == LaunchMode::NORMAL)
     {
-        QString cmdFile = " -drive file=" + image + ",if=none,id="
+        QString cmdFile = " -drive file=" + getImage() + ",if=none,id="
             + getId() + "-file";
         return  cmdFile + " -device ide-cd"
             + ",bus=" + ide->getId() + "." + QString::number(bus->getNumber())
@@ -207,7 +200,7 @@ QString DeviceIdeCdrom::getCommandLineOption(CommandLineParameters &cmdParams)
     }
     else
     {
-        QString overlay = cmdParams.getOverlayForImage(image);
+        QString overlay = cmdParams.getOverlayForImage(getImage());
         QString cmdFile = "-drive file=" + overlay + ",if=none,id="
             + getId() + "-file";
 
@@ -236,33 +229,28 @@ REGISTER_DEVICE(DeviceScsiHd)
 DeviceScsiHd::DeviceScsiHd()
     : DeviceStorage(deviceName, NULL)
 {
+    setRemovable(true);
 }
 
 DeviceScsiHd::DeviceScsiHd(const QString &img, Device *parent)
-    : DeviceStorage(deviceName, parent), image(img)
+    : DeviceStorage(deviceName, parent)
 {
-}
-
-QWidget *DeviceScsiHd::getEditorForm()
-{
-    return new DeviceScsiHdForm(this);
+    setRemovable(true);
 }
 
 QString DeviceScsiHd::getCommandLineOption(CommandLineParameters &cmdParams)
 {
     if (cmdParams.getLaunchMode() == LaunchMode::NORMAL)
     {
-        QString cmdFile = " -drive file=" + image + ",if=none,id="
+        QString cmdFile = " -drive file=" + getImage() + ",if=none,id="
             + getId() + "-file";
-        return  cmdFile + " -device mptsas1068,id=scsi0" 
-            + " -device scsi-hd,drive=" + getId() + "-file";
+        return  cmdFile + " -device scsi-hd,drive=" + getId() + "-file";
     }
     else
     {
-        QString overlay = cmdParams.getOverlayForImage(image);
+        QString overlay = cmdParams.getOverlayForImage(getImage());
         QString cmdFile = "-drive file=" + overlay + ",if=none,id="
-            + getId() + "-file"
-            + " -device mptsas1068,id=scsi0";
+            + getId() + "-file";
 
         return cmdFile + " -drive driver=blkreplay,if=none,image="
             + getId() + "-file,id=" + getId()
