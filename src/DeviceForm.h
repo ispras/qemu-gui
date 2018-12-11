@@ -4,45 +4,23 @@
 #include <QtWidgets>
 #include "DeviceStorage.h"
 
-
-class DeviceIdeHdForm : public QGroupBox
+class DeviceStorageForm : public QGroupBox
 {
     Q_OBJECT
 
 public:
-    DeviceIdeHdForm(DeviceIdeHd *dev);
+    DeviceStorageForm(DeviceStorage *dev);
 
 private:
-    DeviceIdeHd *device;
+    DeviceStorage *device;
 
-    private slots:
+protected slots:
     void editImage();
 
 signals:
     void newImageSet(QString);
     void newDiskCompleted(QString);
 };
-
-
-class DeviceIdeCdromForm : public QGroupBox
-{
-    Q_OBJECT
-
-public:
-    DeviceIdeCdromForm(DeviceIdeCdrom *dev);
-
-private:
-    DeviceIdeCdrom *device;
-
-    private slots:
-    void editImage();
-
-signals:
-    void newImageSet(QString);
-    void newDiskCompleted(QString);
-};
-
-
 
 
 #endif // DEVICEFORM_H

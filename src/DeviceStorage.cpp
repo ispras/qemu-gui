@@ -11,18 +11,26 @@ DeviceStorageController::DeviceStorageController(const QString &n, Device *paren
 }
 
 const char DeviceIdeController::typeName[] = "DeviceIdeController";
+const char DeviceIdeController::deviceName[] = "IDE";
+static const char xml_removable[] = "Removable";
 REGISTER_DEVICE(DeviceIdeController)
 
+DeviceIdeController::DeviceIdeController()
+    : DeviceStorageController(deviceName, NULL)
+{
+    initDefault();
+}
+
 DeviceIdeController::DeviceIdeController(Device *parent)
-    : DeviceStorageController("IDE", parent)
+    : DeviceStorageController(deviceName, parent)
 {
     initDefault();
 }
 
 void DeviceIdeController::initDefault()
 {
-    new DeviceBusIde(0, this);
-    new DeviceBusIde(1, this);
+    (new DeviceBusIde(0, this))->setRemovable(false);
+    (new DeviceBusIde(1, this))->setRemovable(false);
     // TODO: allow non-default ide controllers
     setId("ide");
 }
@@ -41,10 +49,57 @@ void DevicePciController::initDefault()
     setId("pci");
 }
 
+const char DeviceScsiController::typeName[] = "DeviceScsiController";
+const char DeviceScsiController::deviceName[] = "SCSI";
+REGISTER_DEVICE(DeviceScsiController)
+
+DeviceScsiController::DeviceScsiController()
+    : DeviceStorageController(deviceName, NULL)
+{
+    initDefault();
+}
+
+DeviceScsiController::DeviceScsiController(Device *parent)
+    : DeviceStorageController(deviceName, parent)
+{
+    initDefault();
+}
+
+void DeviceScsiController::initDefault()
+{
+    setId("scsi");
+}
+
+QString DeviceScsiController::getCommandLineOption(CommandLineParameters &cmdParams)
+{
+    return " -device mptsas1068,id=" + getId();
+}
+
+static const char xml_image[] = "Image";
+
+
 DeviceStorage::DeviceStorage(const QString &n, Device *parent)
     : Device(n, parent)
 {
+}
 
+void DeviceStorage::saveParameters(QXmlStreamWriter &xml) const
+{
+    xml.writeStartElement(xml_image);
+    xml.writeCharacters(getImage());
+    xml.writeEndElement();
+}
+
+void DeviceStorage::readParameters(QXmlStreamReader &xml)
+{
+    xml.readNextStartElement();
+    Q_ASSERT(xml.name() == xml_image);
+    setImage(xml.readElementText());
+}
+
+QWidget *DeviceStorage::getEditorForm()
+{
+    return new DeviceStorageForm(this);
 }
 
 /******************************************************************************
@@ -55,35 +110,15 @@ const char DeviceIdeHd::typeName[] = "DeviceIdeHd";
 const char DeviceIdeHd::deviceName[] = "IDE-HD";
 REGISTER_DEVICE(DeviceIdeHd)
 
-static const char xml_image[] = "Image";
-
 DeviceIdeHd::DeviceIdeHd()
     : DeviceStorage(deviceName, NULL)
 {
 }
 
 DeviceIdeHd::DeviceIdeHd(const QString &img, Device *parent)
-    : DeviceStorage(deviceName, parent), image(img)
+    : DeviceStorage(deviceName, parent)
 {
-}
-
-QWidget *DeviceIdeHd::getEditorForm()
-{
-    return new DeviceIdeHdForm(this);
-}
-
-void DeviceIdeHd::saveParameters(QXmlStreamWriter &xml) const
-{
-    xml.writeStartElement(xml_image);
-    xml.writeCharacters(image);
-    xml.writeEndElement();
-}
-
-void DeviceIdeHd::readParameters(QXmlStreamReader &xml)
-{
-    xml.readNextStartElement();
-    Q_ASSERT(xml.name() == xml_image);
-    image = xml.readElementText();
+    setImage(img);
 }
 
 QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
@@ -95,7 +130,7 @@ QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
 
     if (cmdParams.getLaunchMode() == LaunchMode::NORMAL)
     {
-        QString cmdFile = " -drive file=" + image + ",if=none,id="
+        QString cmdFile = " -drive file=" + getImage() + ",if=none,id="
             + getId() + "-file";
         return  cmdFile + " -device ide-hd"
             +",bus=" + ide->getId() + "." + QString::number(bus->getNumber()) 
@@ -104,7 +139,7 @@ QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
     }
     else
     {
-        QString overlay = cmdParams.getOverlayForImage(image);
+        QString overlay = cmdParams.getOverlayForImage(getImage());
         QString cmdFile = "-drive file=" + overlay + ",if=none,id="
              + getId() + "-file";
 
@@ -136,27 +171,9 @@ DeviceIdeCdrom::DeviceIdeCdrom()
 }
 
 DeviceIdeCdrom::DeviceIdeCdrom(const QString &img, Device *parent)
-    : DeviceStorage(deviceName, parent), image(img)
+    : DeviceStorage(deviceName, parent)
 {
-}
-
-QWidget *DeviceIdeCdrom::getEditorForm()
-{
-    return new DeviceIdeCdromForm(this);
-}
-
-void DeviceIdeCdrom::saveParameters(QXmlStreamWriter &xml) const
-{
-    xml.writeStartElement(xml_image);
-    xml.writeCharacters(image);
-    xml.writeEndElement();
-}
-
-void DeviceIdeCdrom::readParameters(QXmlStreamReader &xml)
-{
-    xml.readNextStartElement();
-    Q_ASSERT(xml.name() == xml_image);
-    image = xml.readElementText();
+    setImage(img);
 }
 
 QString DeviceIdeCdrom::getCommandLineOption(CommandLineParameters &cmdParams)
@@ -168,7 +185,7 @@ QString DeviceIdeCdrom::getCommandLineOption(CommandLineParameters &cmdParams)
 
     if (cmdParams.getLaunchMode() == LaunchMode::NORMAL)
     {
-        QString cmdFile = " -drive file=" + image + ",if=none,id="
+        QString cmdFile = " -drive file=" + getImage() + ",if=none,id="
             + getId() + "-file";
         return  cmdFile + " -device ide-cd"
             + ",bus=" + ide->getId() + "." + QString::number(bus->getNumber())
@@ -177,7 +194,7 @@ QString DeviceIdeCdrom::getCommandLineOption(CommandLineParameters &cmdParams)
     }
     else
     {
-        QString overlay = cmdParams.getOverlayForImage(image);
+        QString overlay = cmdParams.getOverlayForImage(getImage());
         QString cmdFile = "-drive file=" + overlay + ",if=none,id="
             + getId() + "-file";
 
@@ -194,4 +211,52 @@ bool DeviceIdeCdrom::isDeviceValid()
     return !getImage().isEmpty();
 }
 
+
+/******************************************************************************
+* SCSI HDD                                                                    *
+******************************************************************************/
+
+const char DeviceScsiHd::typeName[] = "DeviceScsiHd";
+const char DeviceScsiHd::deviceName[] = "SCSI-HD";
+REGISTER_DEVICE(DeviceScsiHd)
+
+DeviceScsiHd::DeviceScsiHd()
+    : DeviceStorage(deviceName, NULL)
+{
+}
+
+DeviceScsiHd::DeviceScsiHd(const QString &img, Device *parent)
+    : DeviceStorage(deviceName, parent)
+{
+    setImage(img);
+}
+
+QString DeviceScsiHd::getCommandLineOption(CommandLineParameters &cmdParams)
+{
+    DeviceScsiController *scsi = dynamic_cast<DeviceScsiController *>(parent());
+    Q_ASSERT(scsi);
+    if (cmdParams.getLaunchMode() == LaunchMode::NORMAL)
+    {
+        QString cmdFile = " -drive file=" + getImage() + ",if=none,id="
+            + getId() + "-file";
+        return  cmdFile + " -device scsi-hd,drive=" + getId() + "-file"
+            + ",bus=" + scsi->getId() + ".0";
+    }
+    else
+    {
+        QString overlay = cmdParams.getOverlayForImage(getImage());
+        QString cmdFile = "-drive file=" + overlay + ",if=none,id="
+            + getId() + "-file";
+
+        return cmdFile + " -drive driver=blkreplay,if=none,image="
+            + getId() + "-file,id=" + getId()
+            + "-driver -device scsi-hd,drive=" + getId() + "-driver"
+            + ",bus=" + scsi->getId() + ".0" + ",id=" + getId();
+    }
+}
+
+bool DeviceScsiHd::isDeviceValid()
+{
+    return !getImage().isEmpty();
+}
 

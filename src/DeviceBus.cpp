@@ -12,6 +12,7 @@ const char DeviceBusIde::typeName[] = "DeviceBusIde";
 DeviceBusIde::DeviceBusIde(int n, DeviceIdeController *parent)
     : DeviceBus(QString("ide.%1").arg(n), parent), num(n)
 {
+
 }
 
 

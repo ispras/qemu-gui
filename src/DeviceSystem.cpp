@@ -13,7 +13,8 @@ static const char xml_size[] = "MemorySize";
 
 DeviceMemory::DeviceMemory(const QString &memSize, Device *parent) :
     Device("Memory", parent), size(memSize)
-{}
+{
+}
 
 
 QWidget *DeviceMemory::getEditorForm()
