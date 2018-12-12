@@ -1,5 +1,9 @@
 #include "DeviceForm.h"
 
+/******************************************************************************
+* Storage Device Form                                                         *
+******************************************************************************/
+
 DeviceStorageForm::DeviceStorageForm(DeviceStorage *dev) : device(dev)
 {
     QGroupBox *ideFormGroup = this;
@@ -40,4 +44,30 @@ void DeviceStorageForm::editImage()
     }
 }
 
+/******************************************************************************
+* SCSI Controller Form                                                        *
+******************************************************************************/
 
+DeviceScsiControllerForm::DeviceScsiControllerForm(DeviceScsiController *dev) :
+    device(dev)
+{
+    QGroupBox *scsiFormGroup = this;
+    QComboBox *controllersCombo = new QComboBox();
+
+    controllersCombo->addItems(device->getControllers());
+    controllersCombo->setCurrentText(device->getCurrentController());
+
+    QVBoxLayout *mainLay = new QVBoxLayout();
+    mainLay->addWidget(controllersCombo);
+    mainLay->addStretch(500);
+
+    scsiFormGroup->setLayout(mainLay);
+
+    connect(controllersCombo, SIGNAL(currentIndexChanged(const QString &)),
+        this, SLOT(setController(const QString &)));
+}
+
+void DeviceScsiControllerForm::setController(const QString &name)
+{
+    device->setController(name);
+}
