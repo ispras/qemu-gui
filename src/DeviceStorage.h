@@ -67,14 +67,22 @@ public:
 
     virtual QString getDeviceTypeName() const { return typeName; }
     virtual BusType needsBus() const { return BusType::PCI; }
+    virtual QWidget *getEditorForm();
+
+    const QStringList &getControllers() const;
+    void setController(const QString &name) { controller = name; }
+    QString getCurrentController() const { return controller; }
 
 protected:
     virtual BusType providesBus() const { return BusType::SCSI; }
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams);
+    virtual void saveParameters(QXmlStreamWriter &xml) const;
+    virtual void readParameters(QXmlStreamReader &xml);
 
 private:
     void initDefault();
     static const char deviceName[];
+    QString controller;
 };
 
 class DeviceStorage : public Device

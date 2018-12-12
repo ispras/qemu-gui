@@ -23,4 +23,19 @@ signals:
 };
 
 
+class DeviceScsiControllerForm : public QGroupBox
+{
+    Q_OBJECT
+
+public:
+    DeviceScsiControllerForm(DeviceScsiController *dev);
+
+private:
+    DeviceScsiController *device;
+
+private slots:
+    void setController(const QString &name);
+
+};
+
 #endif // DEVICEFORM_H

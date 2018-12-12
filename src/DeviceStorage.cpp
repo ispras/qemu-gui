@@ -51,6 +51,8 @@ void DevicePciController::initDefault()
 
 const char DeviceScsiController::typeName[] = "DeviceScsiController";
 const char DeviceScsiController::deviceName[] = "SCSI";
+
+static const char xml_controller[] = "Controller";
 REGISTER_DEVICE(DeviceScsiController)
 
 DeviceScsiController::DeviceScsiController()
@@ -65,18 +67,45 @@ DeviceScsiController::DeviceScsiController(Device *parent)
     initDefault();
 }
 
+QWidget *DeviceScsiController::getEditorForm()
+{
+    return new DeviceScsiControllerForm(this);
+}
+
+const QStringList &DeviceScsiController::getControllers() const
+{
+    static QStringList controllers = {"mptsas1068", "lsi53c810", "lsi53c895a",
+        "megasas", "megasas-gen2", "am53c974", "dc390"};
+    return controllers;    
+}
+
 void DeviceScsiController::initDefault()
 {
     setId("scsi");
+    controller = getControllers().first();
 }
 
 QString DeviceScsiController::getCommandLineOption(CommandLineParameters &cmdParams)
 {
-    return " -device mptsas1068,id=" + getId();
+    return " -device " + controller + ",id=" + getId();
 }
 
-static const char xml_image[] = "Image";
+void DeviceScsiController::saveParameters(QXmlStreamWriter &xml) const
+{
+    xml.writeStartElement(xml_controller);
+    xml.writeCharacters(controller);
+    xml.writeEndElement();
+}
 
+void DeviceScsiController::readParameters(QXmlStreamReader &xml)
+{
+    xml.readNextStartElement();
+    Q_ASSERT(xml.name() == xml_controller);
+    controller = xml.readElementText();
+}
+
+
+static const char xml_image[] = "Image";
 
 DeviceStorage::DeviceStorage(const QString &n, Device *parent)
     : Device(n, parent)
