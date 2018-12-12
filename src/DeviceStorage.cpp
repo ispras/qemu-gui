@@ -72,7 +72,7 @@ QWidget *DeviceScsiController::getEditorForm()
     return new DeviceScsiControllerForm(this);
 }
 
-const QStringList &DeviceScsiController::getControllers()
+const QStringList &DeviceScsiController::getControllers() const
 {
     static QStringList controllers = {"mptsas1068", "lsi53c810", "lsi53c895a",
         "megasas", "megasas-gen2", "am53c974", "dc390"};

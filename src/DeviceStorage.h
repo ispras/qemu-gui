@@ -69,7 +69,7 @@ public:
     virtual BusType needsBus() const { return BusType::PCI; }
     virtual QWidget *getEditorForm();
 
-    const QStringList &getControllers();
+    const QStringList &getControllers() const;
     void setController(const QString &name) { controller = name; }
     QString getCurrentController() const { return controller; }
 
