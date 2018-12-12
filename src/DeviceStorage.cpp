@@ -51,9 +51,7 @@ void DevicePciController::initDefault()
 
 const char DeviceScsiController::typeName[] = "DeviceScsiController";
 const char DeviceScsiController::deviceName[] = "SCSI";
-const QList<QString> DeviceScsiController::controllers = { "mptsas1068", 
-                                                           "lsi53c810", 
-                                                           "lsi53c895a" };
+
 static const char xml_controller[] = "Controller";
 REGISTER_DEVICE(DeviceScsiController)
 
@@ -74,10 +72,17 @@ QWidget *DeviceScsiController::getEditorForm()
     return new DeviceScsiControllerForm(this);
 }
 
+const QStringList &DeviceScsiController::getControllers()
+{
+    static QStringList controllers = {"mptsas1068", "lsi53c810", "lsi53c895a",
+        "megasas", "megasas-gen2", "am53c974", "dc390"};
+    return controllers;    
+}
+
 void DeviceScsiController::initDefault()
 {
     setId("scsi");
-    controller = controllers.first();
+    controller = getControllers().first();
 }
 
 QString DeviceScsiController::getCommandLineOption(CommandLineParameters &cmdParams)

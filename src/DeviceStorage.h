@@ -69,7 +69,7 @@ public:
     virtual BusType needsBus() const { return BusType::PCI; }
     virtual QWidget *getEditorForm();
 
-    QList<QString> getControllers() const { return controllers; }
+    const QStringList &getControllers();
     void setController(const QString &name) { controller = name; }
     QString getCurrentController() const { return controller; }
 
@@ -82,7 +82,6 @@ protected:
 private:
     void initDefault();
     static const char deviceName[];
-    static const QList<QString> controllers;
     QString controller;
 };
 

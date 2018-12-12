@@ -33,7 +33,7 @@ public:
 private:
     DeviceScsiController *device;
 
-public slots:
+private slots:
     void setController(const QString &name);
 
 };
