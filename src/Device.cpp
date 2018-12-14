@@ -19,7 +19,7 @@ Device::Device()
 }
 
 Device::Device(const QString &n, Device *parent)
-    : QObject(NULL), name(n)
+    : QObject(NULL), name(n), additionalCmdOption("")
 {
     init();
     if (parent)
@@ -99,7 +99,8 @@ void Device::read(QXmlStreamReader &xml)
 
 QString Device::getCommandLine(CommandLineParameters &cmdParams)
 {
-    QString res = getCommandLineOption(cmdParams);
+    QString addCmdOpt = !additionalCmdOption.isEmpty() ? "," + additionalCmdOption : "";
+    QString res = getCommandLineOption(cmdParams) + addCmdOpt;
     foreach(Device *dev, devices)
         res += dev->getCommandLine(cmdParams);
     return res;

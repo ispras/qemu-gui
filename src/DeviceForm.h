@@ -38,4 +38,23 @@ private slots:
 
 };
 
+
+class DeviceCommandLineForm : public QGroupBox
+{
+    Q_OBJECT
+
+public:
+    DeviceCommandLineForm(Device *dev);
+
+private:
+    Device *device;
+    QTextEdit *cmdLine;
+    QLabel *optionalLbl;
+    QLineEdit *optionalLine;
+
+private slots:
+    void showCmdLine();
+    void saveUserOptions();
+};
+
 #endif // DEVICEFORM_H

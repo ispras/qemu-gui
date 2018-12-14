@@ -1,4 +1,5 @@
 #include "DeviceForm.h"
+#include "CommandLineParameters.h"
 
 /******************************************************************************
 * Storage Device Form                                                         *
@@ -24,6 +25,7 @@ DeviceStorageForm::DeviceStorageForm(DeviceStorage *dev) : device(dev)
     topLay->addWidget(selectImageBtn);
 
     mainLay->addLayout(topLay);
+    mainLay->addWidget(new DeviceCommandLineForm(device));
     mainLay->addStretch(500);
 
     ideFormGroup->setLayout(mainLay);
@@ -70,4 +72,55 @@ DeviceScsiControllerForm::DeviceScsiControllerForm(DeviceScsiController *dev) :
 void DeviceScsiControllerForm::setController(const QString &name)
 {
     device->setController(name);
+}
+
+DeviceCommandLineForm::DeviceCommandLineForm(Device *dev) :
+    device(dev)
+{
+    QGroupBox *cmdGroup = this;
+    QPushButton *cmdBtn = new QPushButton("Command line options");
+    optionalLbl = new QLabel("Additional options:");
+    optionalLine = new QLineEdit();
+    cmdLine = new QTextEdit();
+
+    cmdLine->setVisible(false);
+    optionalLbl->setVisible(false);
+    optionalLine->setVisible(false);
+
+    cmdBtn->setStyleSheet("background-color: white;");
+
+    CommandLineParameters cmd;
+    cmdLine->setPlainText("Command line: \n" + device->getCommandLine(cmd).trimmed());
+    cmdLine->setReadOnly(true);
+    cmdLine->setStyleSheet("background-color: #F0F0F0;");
+
+    optionalLine->setText(dev->getAddtionalCommandLineOption());
+
+    QVBoxLayout *mainLay = new QVBoxLayout();
+    mainLay->addWidget(cmdBtn);
+    mainLay->addWidget(optionalLbl);
+    mainLay->addWidget(optionalLine);
+    mainLay->addWidget(cmdLine);
+    mainLay->addStretch(500);
+
+    cmdGroup->setLayout(mainLay);
+
+    connect(cmdBtn, &QPushButton::clicked, 
+        this, &DeviceCommandLineForm::showCmdLine);
+
+    connect(optionalLine, &QLineEdit::editingFinished,
+        this, &DeviceCommandLineForm::saveUserOptions);
+}
+
+void DeviceCommandLineForm::showCmdLine()
+{
+    bool isVisible = !cmdLine->isVisible();
+    cmdLine->setVisible(isVisible);
+    optionalLbl->setVisible(isVisible);
+    optionalLine->setVisible(isVisible);
+}
+
+void DeviceCommandLineForm::saveUserOptions()
+{
+    device->setAdditionalCommandLineOption(optionalLine->text().trimmed());
 }

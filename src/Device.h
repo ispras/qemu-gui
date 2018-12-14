@@ -30,6 +30,8 @@ public:
     const Devices &getDevices() const { return devices; }
     QString getDescription() const;
     QString getCommandLine(CommandLineParameters &cmdParams);
+    void setAdditionalCommandLineOption(const QString &cmd) { additionalCmdOption = cmd; }
+    QString getAddtionalCommandLineOption() const { return additionalCmdOption; }
 
     void save(QXmlStreamWriter &xml) const;
     void read(QXmlStreamReader &xml);
@@ -57,6 +59,7 @@ private:
 
 private:
     QString name;
+    QString additionalCmdOption;
     // Device id for the command line.
     // Does not need to be saved in the config file.
     QString id;
