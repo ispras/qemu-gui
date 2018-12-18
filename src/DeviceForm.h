@@ -3,29 +3,8 @@
 
 #include <QtWidgets>
 #include "DeviceStorage.h"
-#include "DeviceSystem.h"
 
-class DeviceCommandLineForm;
-
-class DeviceForm : public QGroupBox
-{
-    Q_OBJECT
-
-public:
-    DeviceForm(Device *dev);
-
-protected:
-    void devFormAddWidget(QWidget *widget);
-    void devFormAddLayout(QLayout *layout);
-
-private:
-    Device *device;
-    QVBoxLayout *mainLay;
-    DeviceCommandLineForm *cmdWidget;
-};
-
-
-class DeviceStorageForm : public DeviceForm
+class DeviceStorageForm : public QGroupBox
 {
     Q_OBJECT
 
@@ -44,7 +23,7 @@ signals:
 };
 
 
-class DeviceScsiControllerForm : public DeviceForm
+class DeviceScsiControllerForm : public QGroupBox
 {
     Q_OBJECT
 
@@ -76,21 +55,6 @@ private:
 private slots:
     void showCmdLine();
     void saveUserOptions();
-};
-
-
-class DeviceMemoryForm : public DeviceForm
-{
-    Q_OBJECT
-
-public:
-    DeviceMemoryForm(DeviceMemory *dev);
-
-private:
-    DeviceMemory *device;
-
-    private slots:
-    void sizeChanged(int val);
 };
 
 #endif // DEVICEFORM_H

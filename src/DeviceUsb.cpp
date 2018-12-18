@@ -37,6 +37,14 @@ QWidget *DeviceUsbEhci::getEditorForm()
     return NULL;
 }
 
+void DeviceUsbEhci::saveParameters(QXmlStreamWriter &xml) const
+{
+}
+
+void DeviceUsbEhci::readParameters(QXmlStreamReader &xml)
+{
+}
+
 QString DeviceUsbEhci::getCommandLineOption()
 {
     return "-usb -device usb-ehci -device usb-host,vendorid=0x046d,productid=0x0829";
@@ -54,6 +62,14 @@ DeviceUsbXhci::DeviceUsbXhci(Device *parent) :
 QWidget *DeviceUsbXhci::getEditorForm()
 {
     return NULL;
+}
+
+void DeviceUsbXhci::saveParameters(QXmlStreamWriter &xml) const
+{
+}
+
+void DeviceUsbXhci::readParameters(QXmlStreamReader &xml)
+{
 }
 
 QString DeviceUsbXhci::getCommandLineOption()

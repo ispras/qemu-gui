@@ -49,6 +49,8 @@ public:
 
 
 protected:
+    virtual void saveParameters(QXmlStreamWriter &xml) const;
+    virtual void readParameters(QXmlStreamReader &xml);
     virtual QString getCommandLineOption();
 };
 
@@ -65,6 +67,8 @@ public:
 
 
 protected:
+    virtual void saveParameters(QXmlStreamWriter &xml) const;
+    virtual void readParameters(QXmlStreamReader &xml);
     virtual QString getCommandLineOption();
 };
 

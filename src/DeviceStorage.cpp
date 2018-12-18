@@ -120,6 +120,10 @@ void DeviceStorage::saveParameters(QXmlStreamWriter &xml) const
     xml.writeStartElement(xml_image);
     xml.writeCharacters(getImage());
     xml.writeEndElement();
+
+    xml.writeStartElement(xml_cmdLine);
+    xml.writeCharacters(getAddtionalCommandLineOption());
+    xml.writeEndElement();
 }
 
 void DeviceStorage::readParameters(QXmlStreamReader &xml)
@@ -127,6 +131,10 @@ void DeviceStorage::readParameters(QXmlStreamReader &xml)
     xml.readNextStartElement();
     Q_ASSERT(xml.name() == xml_image);
     setImage(xml.readElementText());
+
+    xml.readNextStartElement();
+    Q_ASSERT(xml.name() == xml_cmdLine);
+    setAdditionalCommandLineOption(xml.readElementText());
 }
 
 QWidget *DeviceStorage::getEditorForm()
