@@ -29,11 +29,6 @@ public:
     virtual QString getDeviceTypeName() const { return typeName; }
     virtual BusType needsBus() const { return BusType::PCI; }
 
-protected:
-    //virtual bool isRemovable() { return !isCanRemove.compare("true") ? true : false; }
-    //virtual void saveParameters(QXmlStreamWriter &xml) const;
-    //virtual void readParameters(QXmlStreamReader &xml);
-
 private:
     void initDefault();
     static const char deviceName[];

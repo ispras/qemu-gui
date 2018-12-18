@@ -31,19 +31,7 @@ private:
 };
 
 
-class DeviceMemoryForm : public QGroupBox
-{
-Q_OBJECT
 
-public:
-    DeviceMemoryForm(DeviceMemory *dev);
-
-private:
-    DeviceMemory *device;
-
-    private slots:
-    void sizeChanged(int val);
-};
 
 
 #endif // DEVICESYSTEM_H

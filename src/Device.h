@@ -30,6 +30,8 @@ public:
     const Devices &getDevices() const { return devices; }
     QString getDescription() const;
     QString getCommandLine(CommandLineParameters &cmdParams);
+    void setAdditionalCommandLineOption(const QString &cmd) { additionalCmdOption = cmd; }
+    QString getAddtionalCommandLineOption() const { return additionalCmdOption; }
 
     void save(QXmlStreamWriter &xml) const;
     void read(QXmlStreamReader &xml);
@@ -50,6 +52,13 @@ protected:
 
     virtual void saveParameters(QXmlStreamWriter &xml) const {};
     virtual void readParameters(QXmlStreamReader &xml) {};
+    /**
+    *getCommandLineOption*
+    function returns command line for each device in which it is implemented.
+    order of options sequence  is important. for example, if you make command
+    line for storage device, option '-device' must be in the end of string,
+    because we have opportunity to add additional options in the right. 
+    **/
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams) { return ""; }
 
 private:
@@ -57,6 +66,7 @@ private:
 
 private:
     QString name;
+    QString additionalCmdOption;
     // Device id for the command line.
     // Does not need to be saved in the config file.
     QString id;

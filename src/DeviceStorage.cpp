@@ -35,6 +35,7 @@ void DeviceIdeController::initDefault()
     setId("ide");
 }
 
+
 const char DevicePciController::typeName[] = "DevicePciController";
 REGISTER_DEVICE(DevicePciController)
 
@@ -48,6 +49,7 @@ void DevicePciController::initDefault()
 {
     setId("pci");
 }
+
 
 const char DeviceScsiController::typeName[] = "DeviceScsiController";
 const char DeviceScsiController::deviceName[] = "SCSI";
@@ -106,6 +108,7 @@ void DeviceScsiController::readParameters(QXmlStreamReader &xml)
 
 
 static const char xml_image[] = "Image";
+static const char xml_cmdLine[] = "CmdLineOption";
 
 DeviceStorage::DeviceStorage(const QString &n, Device *parent)
     : Device(n, parent)
