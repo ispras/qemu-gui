@@ -12,6 +12,7 @@ Device properties:
 
 static const char xml_name[] = "Name";
 static const char xml_removable[] = "removable";
+static const char xml_cmdLine[] = "CmdLineOption";
 
 Device::Device()
 {
@@ -62,6 +63,13 @@ void Device::save(QXmlStreamWriter &xml) const
     xml.writeCharacters(name);
     xml.writeEndElement();
 
+    if (isCanRemove)
+    {
+        xml.writeStartElement(xml_cmdLine);
+        xml.writeCharacters(getAddtionalCommandLineOption());
+        xml.writeEndElement();
+    }
+
     saveParameters(xml);
 
     foreach(Device *dev, devices)
@@ -79,6 +87,13 @@ void Device::read(QXmlStreamReader &xml)
     if (xml.attributes().empty())
         isCanRemove = false;
     name = xml.readElementText();
+
+    if (isCanRemove)
+    {
+        xml.readNextStartElement();
+        Q_ASSERT(xml.name() == xml_cmdLine);
+        setAdditionalCommandLineOption(xml.readElementText());
+    }
 
     readParameters(xml);
 
@@ -99,7 +114,7 @@ void Device::read(QXmlStreamReader &xml)
 
 QString Device::getCommandLine(CommandLineParameters &cmdParams)
 {
-    QString addCmdOpt = !additionalCmdOption.isEmpty() ? "," + additionalCmdOption : "";
+    QString addCmdOpt = additionalCmdOption.isEmpty() ? "" : "," + additionalCmdOption;
     QString res = getCommandLineOption(cmdParams) + addCmdOpt;
     foreach(Device *dev, devices)
         res += dev->getCommandLine(cmdParams);
