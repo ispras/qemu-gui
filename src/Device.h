@@ -52,6 +52,13 @@ protected:
 
     virtual void saveParameters(QXmlStreamWriter &xml) const {};
     virtual void readParameters(QXmlStreamReader &xml) {};
+    /**
+    *getCommandLineOption*
+    function returns command line for each device in which it is implemented.
+    order of options sequence  is important. for example, if you make command
+    line for storage device, option '-device' must be in the end of string,
+    because we have opportunity to add additional options in the right. 
+    **/
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams) { return ""; }
 
 private:
