@@ -22,7 +22,9 @@ public:
     void createVMFolder(const QString &path) const;
     void set_name(const QString &name_vm_);
     void addDefaultBus(const QString &image);
-    void addMemorySize(const QString &size);
+    void addDeviceMemory(const QString &size);
+    void addDeviceMachine(const QString &name);
+    void addDeviceCpu(const QString &name);
     void addUsbDevice();
     QString get_vm_info();
 

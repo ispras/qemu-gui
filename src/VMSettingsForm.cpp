@@ -24,8 +24,20 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
 
     foreach(Device *dev, vm->getSystemDevice()->getDevices())
     {
+        //DeviceTreeItem *it = new DeviceTreeItem(dev);
+        //deviceTree->invisibleRootItem()->addChild(it);
+        //if (it->text(0) == "Machine" || it->text(0) == "CPU")
+        //    it->setHidden(true);
+
         DeviceTreeItem *it = new DeviceTreeItem(dev);
-        deviceTree->invisibleRootItem()->addChild(it);
+        if (it->text(0) == "Machine" || it->text(0) == "CPU")
+        {
+            delete it;
+        }
+        else
+        {
+            deviceTree->invisibleRootItem()->addChild(it);
+        }
     }
 
     connect_signals();

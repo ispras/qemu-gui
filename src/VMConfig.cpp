@@ -60,8 +60,6 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
     else
     {
         /* Default config */
-        (new Device("CPU", &system))->setRemovable(false);
-        (new Device("Machine", &system))->setRemovable(false);
     }
 }
 
@@ -131,9 +129,19 @@ void VMConfig::addDefaultBus(const QString &image)
     }
 }
 
-void VMConfig::addMemorySize(const QString &size)
+void VMConfig::addDeviceMemory(const QString &size)
 {
     (new DeviceMemory(size, &system))->setRemovable(false);
+}
+
+void VMConfig::addDeviceMachine(const QString &name)
+{
+    (new DeviceMachine(name, &system))->setRemovable(false);
+}
+
+void VMConfig::addDeviceCpu(const QString &name)
+{
+    (new DeviceCpu(name, &system))->setRemovable(false);
 }
 
 void VMConfig::addUsbDevice()
