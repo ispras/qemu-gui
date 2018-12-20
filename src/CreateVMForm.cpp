@@ -7,7 +7,7 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
 {
     if (CreateVMForm::objectName().isEmpty())
         CreateVMForm::setObjectName(QStringLiteral("CreateVMForm"));
-    resize(400, 400);
+    resize(400, 460);
     setWindowTitle(QApplication::translate("CreateVMForm", "Create Virtual Machine", Q_NULLPTR));
     setWindowIcon(QIcon(":Resources/qemu.png"));
     setWindowModality(Qt::ApplicationModal);
@@ -16,8 +16,10 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     default_path = home_dir;
     this->qemu_dir = qemu_dir;
 
-    QStringList format = { "qcow2", "qcow", "cow", "raw"}; // "vmdk", "cloop", "VPC(VHD)?"};
+    QStringList format = { "qcow2", "qcow", "cow", "raw" }; // "vmdk", "cloop", "VPC(VHD)?"};
     QStringList os_type = { "Windows", "Linux", "Ubuntu", "MacOS", "Other" };
+    QStringList machines = { "pc-i440fx-2.13", "pc-1.3", "pc-q35-2.9" };
+    QStringList cpus = { "486", "qemu32", "qemu64" };
 
     name_edit = new QLineEdit(this);
     pathtovm_edit = new QLineEdit(this);
@@ -34,6 +36,9 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     imageplace_lbl = new QLabel("Image path");
     format_lbl = new QLabel("Format");
     hddsize_lbl = new QLabel("Size (Mb)");
+
+    machineCombo = new QComboBox(this);
+    cpuCombo = new QComboBox(this);
 
     hdd_no_rb = new QRadioButton("No disk");
     hdd_exist_rb = new QRadioButton("Select exist disk");
@@ -64,6 +69,11 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     typeOS_combo->setFixedWidth(330);
     verOS_combo->setFixedWidth(330);
     typeOS_combo->addItems(os_type);
+
+    machineCombo->setFixedWidth(330);
+    machineCombo->addItems(machines);
+    cpuCombo->setFixedWidth(330);
+    cpuCombo->addItems(cpus);
 
     ram_spin->setMinimum(MIN_RAM_VALUE);
     ram_spin->setMaximum(MAX_RAM_VALUE);
@@ -115,6 +125,21 @@ void CreateVMForm::widget_placement()
 
     common_gr->setLayout(common_lay);
 
+    QGroupBox *systemGr = new QGroupBox("System information");
+    systemGr->setMinimumWidth(width());
+
+    QVBoxLayout *systemLay = new QVBoxLayout();
+    QHBoxLayout *machineLay = new QHBoxLayout();
+    machineLay->addWidget(new QLabel("Machine"));
+    machineLay->addWidget(machineCombo);
+    QHBoxLayout *cpuLay = new QHBoxLayout();
+    cpuLay->addWidget(new QLabel("CPU"));
+    cpuLay->addWidget(cpuCombo);
+    systemLay->addLayout(machineLay);
+    systemLay->addLayout(cpuLay);
+
+    systemGr->setLayout(systemLay);
+
     QGroupBox *memory_gr = new QGroupBox("Memory size");
     memory_gr->setMinimumWidth(this->width());
 
@@ -162,6 +187,7 @@ void CreateVMForm::widget_placement()
     
     QVBoxLayout *main_lay = new QVBoxLayout(this);
     main_lay->addWidget(common_gr);
+    main_lay->addWidget(systemGr);
     main_lay->addWidget(memory_gr);
     main_lay->addWidget(hdd_gr);
     main_lay->addStretch(10);
@@ -367,7 +393,9 @@ void CreateVMForm::create_vm()
     configVM = new VMConfig(nullptr, pathtovm_edit->text());
 
     configVM->set_name(name_edit->text());
-    configVM->addMemorySize(QString::number(ram_spin->value()));
+    configVM->addDeviceCpu(cpuCombo->currentText());
+    configVM->addDeviceMachine(machineCombo->currentText());
+    configVM->addDeviceMemory(QString::number(ram_spin->value()));
 
     if (!hdd_new_rb->isChecked())
     {

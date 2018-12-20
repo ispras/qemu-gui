@@ -25,7 +25,14 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
     foreach(Device *dev, vm->getSystemDevice()->getDevices())
     {
         DeviceTreeItem *it = new DeviceTreeItem(dev);
-        deviceTree->invisibleRootItem()->addChild(it);
+        if (dev->isDeviceInvisible())
+        {
+            delete it;
+        }
+        else
+        {
+            deviceTree->invisibleRootItem()->addChild(it);
+        }
     }
 
     connect_signals();

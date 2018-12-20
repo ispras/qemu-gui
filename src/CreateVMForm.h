@@ -37,6 +37,8 @@ private:
     QRadioButton *hdd_new_rb;
     QDialogButtonBox *okcancel_btn;
     QLabel *error_lbl;
+    QComboBox *machineCombo;
+    QComboBox *cpuCombo;
 
     QString default_path;
     QString qemu_dir;

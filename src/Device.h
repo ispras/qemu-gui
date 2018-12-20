@@ -41,6 +41,7 @@ public:
     virtual bool isDeviceValid() { return true; }
     virtual bool isRemovable() { return isCanRemove; }
     void setRemovable(bool isRemove) { isCanRemove = isRemove; }
+    virtual bool isDeviceInvisible() { return false; }
 
     virtual BusType providesBus() const { return BusType::None; }
     virtual BusType needsBus() const { return BusType::None; }
@@ -52,6 +53,7 @@ protected:
 
     virtual void saveParameters(QXmlStreamWriter &xml) const {};
     virtual void readParameters(QXmlStreamReader &xml) {};
+
     /**
     *getCommandLineOption*
     function returns command line for each device in which it is implemented.
