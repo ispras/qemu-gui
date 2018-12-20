@@ -38,6 +38,7 @@ public:
     DeviceSystem(const QString &n, Device *parent);
 
     virtual QString getDeviceTypeName() const = 0;
+    virtual bool isDeviceInvisible() { return true; }
 
 protected:
     virtual void saveParameters(QXmlStreamWriter &xml) const;
