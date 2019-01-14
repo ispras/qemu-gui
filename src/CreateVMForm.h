@@ -39,13 +39,17 @@ private:
     QLabel *error_lbl;
     QComboBox *machineCombo;
     QComboBox *cpuCombo;
+    QComboBox *platformCombo;
 
     QString default_path;
     QString qemu_dir;
     QString path_to_vm;
+    QString platformName;
 
     VMConfig *configVM;
     QProgressDialog *imgCreationDlg;
+    
+    QString qemuExe;
 
 
 private:
@@ -65,7 +69,10 @@ private:
     void change_path(const QString &name);
     QString set_path_to_vm(const QString &home_path);
     bool input_verification(const QString &path, const QString &name);
+    void makePlatformXml();
 
+private slots:
+    void changePlatform(const QString &text);
 
 public slots:
     void finish_qemu_img(int exitCode);

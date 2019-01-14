@@ -1,9 +1,12 @@
 #include "QemuGUICommon.h"
 #include "CreateVMForm.h"
 
+const QString xml_machine = "Machine";
+const QString xml_cpu = "Cpu";
+const QString xml_qemu_exe = "QemuExe";
 
 CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
-    : QWidget()
+    : QWidget(), default_path(home_dir), qemu_dir(qemu_dir)
 {
     if (CreateVMForm::objectName().isEmpty())
         CreateVMForm::setObjectName(QStringLiteral("CreateVMForm"));
@@ -12,14 +15,9 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     setWindowIcon(QIcon(":Resources/qemu.png"));
     setWindowModality(Qt::ApplicationModal);
     setWindowFlags(Qt::MSWindowsFixedSizeDialogHint);
-
-    default_path = home_dir;
-    this->qemu_dir = qemu_dir;
-
+    
     QStringList format = { "qcow2", "qcow", "cow", "raw" }; // "vmdk", "cloop", "VPC(VHD)?"};
     QStringList os_type = { "Windows", "Linux", "Ubuntu", "MacOS", "Other" };
-    QStringList machines = { "pc-i440fx-2.13", "pc-1.3", "pc-q35-2.9" };
-    QStringList cpus = { "486", "qemu32", "qemu64" };
 
     name_edit = new QLineEdit(this);
     pathtovm_edit = new QLineEdit(this);
@@ -39,6 +37,7 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
 
     machineCombo = new QComboBox(this);
     cpuCombo = new QComboBox(this);
+    platformCombo = new QComboBox(this);
 
     hdd_no_rb = new QRadioButton("No disk");
     hdd_exist_rb = new QRadioButton("Select exist disk");
@@ -68,12 +67,12 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     name_edit->setFixedWidth(330);
     typeOS_combo->setFixedWidth(330);
     verOS_combo->setFixedWidth(330);
+    platformCombo->setFixedWidth(330);
     typeOS_combo->addItems(os_type);
+    platformCombo->addItems(QStringList({ "i386", "arm" }));
 
     machineCombo->setFixedWidth(330);
-    machineCombo->addItems(machines);
     cpuCombo->setFixedWidth(330);
-    cpuCombo->addItems(cpus);
 
     ram_spin->setMinimum(MIN_RAM_VALUE);
     ram_spin->setMaximum(MAX_RAM_VALUE);
@@ -94,6 +93,9 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     format_combo->setVisible(false);
     hddsize_spin->setVisible(false);
     hddsize_slider->setVisible(false);
+
+    makePlatformXml();
+    changePlatform(platformCombo->itemText(0));
 
     widget_placement();
     connect_signals();
@@ -129,12 +131,16 @@ void CreateVMForm::widget_placement()
     systemGr->setMinimumWidth(width());
 
     QVBoxLayout *systemLay = new QVBoxLayout();
+    QHBoxLayout *platformLay = new QHBoxLayout();
+    platformLay->addWidget(new QLabel("Platform"));
+    platformLay->addWidget(platformCombo);
     QHBoxLayout *machineLay = new QHBoxLayout();
     machineLay->addWidget(new QLabel("Machine"));
     machineLay->addWidget(machineCombo);
     QHBoxLayout *cpuLay = new QHBoxLayout();
     cpuLay->addWidget(new QLabel("CPU"));
     cpuLay->addWidget(cpuCombo);
+    systemLay->addLayout(platformLay);
     systemLay->addLayout(machineLay);
     systemLay->addLayout(cpuLay);
 
@@ -195,6 +201,81 @@ void CreateVMForm::widget_placement()
     main_lay->addWidget(okcancel_btn);
 }
 
+void CreateVMForm::makePlatformXml()
+{
+    QStringList machines[] = { { "pc-i440fx-2.13", "pc-1.3", "pc-q35-2.9" },
+    { "virt", "none", "midway" } };
+    QStringList cpus[] = { { "486", "qemu32", "qemu64" },
+    { "arm1026", "cortex-a15", "max" } };
+
+    for (int i = 0; i < platformCombo->count(); i++)
+    {
+        QFile file(default_path + "/" + platformCombo->itemText(i) + ".xml");
+        if (!file.exists())
+        {
+            if (file.open(QIODevice::WriteOnly))
+            {
+                QXmlStreamWriter xmlWriter(&file);
+                xmlWriter.setAutoFormatting(true);
+                xmlWriter.writeStartDocument();
+                xmlWriter.writeStartElement(platformCombo->itemText(i));
+
+                foreach(QString machine, machines[i])
+                {
+                    xmlWriter.writeStartElement(xml_machine);
+                    xmlWriter.writeCharacters(machine);
+                    xmlWriter.writeEndElement();
+                }
+                foreach(QString cpu, cpus[i])
+                {
+                    xmlWriter.writeStartElement(xml_cpu);
+                    xmlWriter.writeCharacters(cpu);
+                    xmlWriter.writeEndElement();
+                }
+
+                xmlWriter.writeStartElement(xml_qemu_exe);
+                xmlWriter.writeCharacters("qemu-system-" + platformCombo->itemText(i));
+                xmlWriter.writeEndElement();
+
+                xmlWriter.writeEndElement();
+                xmlWriter.writeEndDocument();
+                file.close();
+            }
+        }
+    }
+}
+
+void CreateVMForm::changePlatform(const QString &text)
+{
+    machineCombo->clear();
+    cpuCombo->clear();
+
+    QFile file(default_path + "/" + text + ".xml");
+    if (file.open(QIODevice::ReadOnly))
+    {
+        QXmlStreamReader xmlReader(&file);
+
+        xmlReader.readNextStartElement();
+        Q_ASSERT(xmlReader.name() == text);
+
+        while (xmlReader.readNextStartElement())
+        {
+            if (xmlReader.name() == xml_machine)
+            {
+                machineCombo->addItem(xmlReader.readElementText());
+            }
+            else if (xmlReader.name() == xml_cpu)
+            {
+                cpuCombo->addItem(xmlReader.readElementText());
+            }
+            else if (xmlReader.name() == xml_qemu_exe)
+            {
+                qemuExe = xmlReader.readElementText();
+            }
+        }
+    }
+}
+
 void CreateVMForm::connect_signals()
 {
     connect(pathtovm_btn, SIGNAL(clicked()), this, SLOT(select_dir()));
@@ -217,6 +298,9 @@ void CreateVMForm::connect_signals()
     connect(okcancel_btn, &QDialogButtonBox::rejected, this, &QWidget::close);
 
     connect(imageplace_btn, SIGNAL(clicked()), this, SLOT(place_disk()));
+
+    connect(platformCombo, SIGNAL(currentTextChanged(const QString &)),
+        this, SLOT(changePlatform(const QString &)));
 }
 
 void CreateVMForm::select_dir()
@@ -396,6 +480,7 @@ void CreateVMForm::create_vm()
     configVM->addDeviceCpu(cpuCombo->currentText());
     configVM->addDeviceMachine(machineCombo->currentText());
     configVM->addDeviceMemory(QString::number(ram_spin->value()));
+    configVM->setQemuExe(qemuExe);
 
     if (!hdd_new_rb->isChecked())
     {
