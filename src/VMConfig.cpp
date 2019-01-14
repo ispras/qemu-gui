@@ -8,7 +8,6 @@ const QString xml_parameters = "VMParameters";
 const QString xml_field_name = "Name";
 const QString xml_field_dir = "Directory_path";
 const QString xml_field_img = "Image_path";
-const QString xml_qemu_exe = "Qemu_exe";
 
 static bool remove_directory(QDir dir);
 
@@ -16,7 +15,6 @@ static bool remove_directory(QDir dir);
 VMConfig::VMConfig(QObject *parent, const QString &path_vm)
     : QObject(parent), system("System")
 {
-    list_of_vm_file = NULL;
     system.setRemovable(false);
     QString path = path_vm;
     QString xml_name;
@@ -52,10 +50,6 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
             else if (xmlReader.name() == xml_field_img)
             {
                 //image_path = xmlReader.readElementText();
-            }
-            else if (xmlReader.name() == xml_qemu_exe)
-            {
-                qemuExe = xmlReader.readElementText();
             }
             else /* Device */
             {
@@ -101,10 +95,6 @@ bool VMConfig::save_vm_config(const QString &path) const
 
         xmlWriter.writeStartElement(xml_field_name);
         xmlWriter.writeCharacters(name_vm);
-        xmlWriter.writeEndElement();
-
-        xmlWriter.writeStartElement(xml_qemu_exe);
-        xmlWriter.writeCharacters(qemuExe);
         xmlWriter.writeEndElement();
 
         system.save(xmlWriter);
@@ -165,16 +155,6 @@ QString VMConfig::get_vm_info()
     QString info = "Name: " + name_vm + "\n" + "Directory: " + dir_path + "\n";
     // TODO: output hw config
     return info;
-}
-
-void VMConfig::setQemuExe(const QString & qemu)
-{
-    qemuExe = qemu;
-}
-
-QString VMConfig::getQemuExe()
-{
-    return qemuExe;
 }
 
 QString VMConfig::get_name()

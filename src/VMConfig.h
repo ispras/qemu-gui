@@ -27,8 +27,6 @@ public:
     void addDeviceCpu(const QString &name);
     void addUsbDevice();
     QString get_vm_info();
-    void setQemuExe(const QString &qemu);
-    QString getQemuExe();
 
     QString get_name();
     QString get_dir_path();
@@ -42,11 +40,10 @@ public:
     void remove_directory_vm(const QString &dir);
 
 private:
-    QFile *list_of_vm_file;
+    QFile *list_of_vm_file = NULL;
 
     QString name_vm;
     QString dir_path;
-    QString qemuExe;
 
     Device system;
     QStringList replayList;
