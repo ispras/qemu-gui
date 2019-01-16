@@ -8,8 +8,6 @@
 #include "QemuGUICommon.h"
 
 
-
-
 class CreateVMForm : public QWidget
 {
     Q_OBJECT
@@ -39,10 +37,12 @@ private:
     QLabel *error_lbl;
     QComboBox *machineCombo;
     QComboBox *cpuCombo;
+    QComboBox *platformCombo;
 
     QString default_path;
     QString qemu_dir;
     QString path_to_vm;
+    QString platformName;
 
     VMConfig *configVM;
     QProgressDialog *imgCreationDlg;
@@ -66,6 +66,8 @@ private:
     QString set_path_to_vm(const QString &home_path);
     bool input_verification(const QString &path, const QString &name);
 
+private slots:
+    void changePlatform(const QString &text);
 
 public slots:
     void finish_qemu_img(int exitCode);

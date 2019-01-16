@@ -27,6 +27,8 @@ public:
     void addDeviceCpu(const QString &name);
     void addUsbDevice();
     QString get_vm_info();
+    void setPlatform(const QString &platformVM);
+    QString getPlatform();
 
     QString get_name();
     QString get_dir_path();
@@ -40,10 +42,11 @@ public:
     void remove_directory_vm(const QString &dir);
 
 private:
-    QFile *list_of_vm_file = NULL;
+    QFile *list_of_vm_file;
 
     QString name_vm;
     QString dir_path;
+    QString platform;
 
     Device system;
     QStringList replayList;

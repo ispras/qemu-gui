@@ -34,7 +34,9 @@ QemuGUI::QemuGUI(QWidget *parent)
     QMenu *service_menu = new QMenu("Service", this);
     menuBar->addMenu(service_menu);
     
-    settings_menu->addAction("Set Qemu", this, SLOT(set_qemu_install_dir()));
+    settings_menu->addAction("Set QEMU", this, SLOT(set_qemu_install_dir()));
+    settings_menu->addAction("Connection settings", this, SLOT(launch_settings()));
+
     service_menu->addAction("Terminal Settings", this, SLOT(set_terminal_settings()));
 
     // tool menu
@@ -60,7 +62,7 @@ QemuGUI::QemuGUI(QWidget *parent)
 
     mainToolBar->addWidget(qemu_install_dir_combo);
     mainToolBar->addSeparator();
-    mainToolBar->addAction("Launch settings", this, SLOT(launch_settings()));
+    //mainToolBar->addAction("Launch settings", this, SLOT(launch_settings()));
     mainToolBar->addAction("Create machine", this, SLOT(create_machine()));
     mainToolBar->addAction("Add existing machine", this, SLOT(add_machine()));
     
@@ -362,7 +364,7 @@ void QemuGUI::create_machine()
     if (qemu_install_dir_combo->count() > 1 &&
         qemu_install_dir_combo->currentIndex() != qemu_install_dir_combo->count() - 1)
     {
-        createVMWindow = new CreateVMForm(global_config->get_home_dir(), 
+        createVMWindow = new CreateVMForm(global_config->get_home_dir(),
             qemu_install_dir_combo->currentText());
     }
     else

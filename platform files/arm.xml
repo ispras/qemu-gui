@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<arm>
+    <Machine>virt</Machine>
+    <Machine>none</Machine>
+    <Machine>midway</Machine>
+    <Cpu>arm1026</Cpu>
+    <Cpu>cortex-a15</Cpu>
+    <Cpu>max</Cpu>
+</arm>

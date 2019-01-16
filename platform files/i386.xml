@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i386>
+    <Machine>pc-i440fx-2.13</Machine>
+    <Machine>pc-1.3</Machine>
+    <Machine>pc-q35-2.9</Machine>
+    <Cpu>486</Cpu>
+    <Cpu>qemu32</Cpu>
+    <Cpu>qemu64</Cpu>
+</i386>

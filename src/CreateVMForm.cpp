@@ -1,9 +1,11 @@
 #include "QemuGUICommon.h"
 #include "CreateVMForm.h"
 
+const QString xml_machine = "Machine";
+const QString xml_cpu = "Cpu";
 
 CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
-    : QWidget()
+    : QWidget(), default_path(home_dir), qemu_dir(qemu_dir)
 {
     if (CreateVMForm::objectName().isEmpty())
         CreateVMForm::setObjectName(QStringLiteral("CreateVMForm"));
@@ -12,14 +14,9 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     setWindowIcon(QIcon(":Resources/qemu.png"));
     setWindowModality(Qt::ApplicationModal);
     setWindowFlags(Qt::MSWindowsFixedSizeDialogHint);
-
-    default_path = home_dir;
-    this->qemu_dir = qemu_dir;
-
+    
     QStringList format = { "qcow2", "qcow", "cow", "raw" }; // "vmdk", "cloop", "VPC(VHD)?"};
     QStringList os_type = { "Windows", "Linux", "Ubuntu", "MacOS", "Other" };
-    QStringList machines = { "pc-i440fx-2.13", "pc-1.3", "pc-q35-2.9" };
-    QStringList cpus = { "486", "qemu32", "qemu64" };
 
     name_edit = new QLineEdit(this);
     pathtovm_edit = new QLineEdit(this);
@@ -39,6 +36,7 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
 
     machineCombo = new QComboBox(this);
     cpuCombo = new QComboBox(this);
+    platformCombo = new QComboBox(this);
 
     hdd_no_rb = new QRadioButton("No disk");
     hdd_exist_rb = new QRadioButton("Select exist disk");
@@ -68,12 +66,12 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     name_edit->setFixedWidth(330);
     typeOS_combo->setFixedWidth(330);
     verOS_combo->setFixedWidth(330);
+    platformCombo->setFixedWidth(330);
     typeOS_combo->addItems(os_type);
+    platformCombo->addItems(QStringList({ "i386", "arm" }));
 
     machineCombo->setFixedWidth(330);
-    machineCombo->addItems(machines);
     cpuCombo->setFixedWidth(330);
-    cpuCombo->addItems(cpus);
 
     ram_spin->setMinimum(MIN_RAM_VALUE);
     ram_spin->setMaximum(MAX_RAM_VALUE);
@@ -98,6 +96,8 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     widget_placement();
     connect_signals();
     show();
+
+    changePlatform(platformCombo->itemText(0));
 }
 
 CreateVMForm::~CreateVMForm()
@@ -129,12 +129,16 @@ void CreateVMForm::widget_placement()
     systemGr->setMinimumWidth(width());
 
     QVBoxLayout *systemLay = new QVBoxLayout();
+    QHBoxLayout *platformLay = new QHBoxLayout();
+    platformLay->addWidget(new QLabel("Platform"));
+    platformLay->addWidget(platformCombo);
     QHBoxLayout *machineLay = new QHBoxLayout();
     machineLay->addWidget(new QLabel("Machine"));
     machineLay->addWidget(machineCombo);
     QHBoxLayout *cpuLay = new QHBoxLayout();
     cpuLay->addWidget(new QLabel("CPU"));
     cpuLay->addWidget(cpuCombo);
+    systemLay->addLayout(platformLay);
     systemLay->addLayout(machineLay);
     systemLay->addLayout(cpuLay);
 
@@ -195,6 +199,37 @@ void CreateVMForm::widget_placement()
     main_lay->addWidget(okcancel_btn);
 }
 
+void CreateVMForm::changePlatform(const QString &text)
+{
+    machineCombo->clear();
+    cpuCombo->clear();
+
+    QFile file(default_path + "/" + text + ".xml");
+    if (file.open(QIODevice::ReadOnly))
+    {
+        QXmlStreamReader xmlReader(&file);
+
+        xmlReader.readNextStartElement();
+        Q_ASSERT(xmlReader.name() == text);
+
+        while (xmlReader.readNextStartElement())
+        {
+            if (xmlReader.name() == xml_machine)
+            {
+                machineCombo->addItem(xmlReader.readElementText());
+            }
+            else if (xmlReader.name() == xml_cpu)
+            {
+                cpuCombo->addItem(xmlReader.readElementText());
+            }
+        }
+    }
+    else
+    {
+        QMessageBox::information(this, "Error", "No found platform file");
+    }
+}
+
 void CreateVMForm::connect_signals()
 {
     connect(pathtovm_btn, SIGNAL(clicked()), this, SLOT(select_dir()));
@@ -217,6 +252,9 @@ void CreateVMForm::connect_signals()
     connect(okcancel_btn, &QDialogButtonBox::rejected, this, &QWidget::close);
 
     connect(imageplace_btn, SIGNAL(clicked()), this, SLOT(place_disk()));
+
+    connect(platformCombo, SIGNAL(currentTextChanged(const QString &)),
+        this, SLOT(changePlatform(const QString &)));
 }
 
 void CreateVMForm::select_dir()
@@ -309,6 +347,13 @@ bool CreateVMForm::input_verification(const QString &path, const QString &name)
         show_error_message("Field 'Image path' must be filled");
         return false;
     }
+
+    if (!machineCombo->count() || !cpuCombo->count())
+    {
+        show_error_message("Must be selected 'Machine' and 'CPU' fields");
+        return false;
+    }
+
     return true;
 }
 
@@ -396,6 +441,7 @@ void CreateVMForm::create_vm()
     configVM->addDeviceCpu(cpuCombo->currentText());
     configVM->addDeviceMachine(machineCombo->currentText());
     configVM->addDeviceMemory(QString::number(ram_spin->value()));
+    configVM->setPlatform(platformCombo->currentText());
 
     if (!hdd_new_rb->isChecked())
     {
