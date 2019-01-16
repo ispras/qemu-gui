@@ -27,8 +27,8 @@ public:
     void addDeviceCpu(const QString &name);
     void addUsbDevice();
     QString get_vm_info();
-    void setQemuExe(const QString &qemu);
-    QString getQemuExe();
+    void setPlatform(const QString &platformVM);
+    QString getPlatform();
 
     QString get_name();
     QString get_dir_path();
@@ -46,7 +46,7 @@ private:
 
     QString name_vm;
     QString dir_path;
-    QString qemuExe;
+    QString platform;
 
     Device system;
     QStringList replayList;

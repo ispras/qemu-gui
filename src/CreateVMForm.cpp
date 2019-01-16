@@ -3,7 +3,6 @@
 
 const QString xml_machine = "Machine";
 const QString xml_cpu = "Cpu";
-const QString xml_qemu_exe = "QemuExe";
 
 CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     : QWidget(), default_path(home_dir), qemu_dir(qemu_dir)
@@ -94,12 +93,11 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     hddsize_spin->setVisible(false);
     hddsize_slider->setVisible(false);
 
-    makePlatformXml();
-    changePlatform(platformCombo->itemText(0));
-
     widget_placement();
     connect_signals();
     show();
+
+    changePlatform(platformCombo->itemText(0));
 }
 
 CreateVMForm::~CreateVMForm()
@@ -201,50 +199,6 @@ void CreateVMForm::widget_placement()
     main_lay->addWidget(okcancel_btn);
 }
 
-void CreateVMForm::makePlatformXml()
-{
-    QStringList machines[] = { { "pc-i440fx-2.13", "pc-1.3", "pc-q35-2.9" },
-    { "virt", "none", "midway" } };
-    QStringList cpus[] = { { "486", "qemu32", "qemu64" },
-    { "arm1026", "cortex-a15", "max" } };
-
-    for (int i = 0; i < platformCombo->count(); i++)
-    {
-        QFile file(default_path + "/" + platformCombo->itemText(i) + ".xml");
-        if (!file.exists())
-        {
-            if (file.open(QIODevice::WriteOnly))
-            {
-                QXmlStreamWriter xmlWriter(&file);
-                xmlWriter.setAutoFormatting(true);
-                xmlWriter.writeStartDocument();
-                xmlWriter.writeStartElement(platformCombo->itemText(i));
-
-                foreach(QString machine, machines[i])
-                {
-                    xmlWriter.writeStartElement(xml_machine);
-                    xmlWriter.writeCharacters(machine);
-                    xmlWriter.writeEndElement();
-                }
-                foreach(QString cpu, cpus[i])
-                {
-                    xmlWriter.writeStartElement(xml_cpu);
-                    xmlWriter.writeCharacters(cpu);
-                    xmlWriter.writeEndElement();
-                }
-
-                xmlWriter.writeStartElement(xml_qemu_exe);
-                xmlWriter.writeCharacters("qemu-system-" + platformCombo->itemText(i));
-                xmlWriter.writeEndElement();
-
-                xmlWriter.writeEndElement();
-                xmlWriter.writeEndDocument();
-                file.close();
-            }
-        }
-    }
-}
-
 void CreateVMForm::changePlatform(const QString &text)
 {
     machineCombo->clear();
@@ -268,11 +222,11 @@ void CreateVMForm::changePlatform(const QString &text)
             {
                 cpuCombo->addItem(xmlReader.readElementText());
             }
-            else if (xmlReader.name() == xml_qemu_exe)
-            {
-                qemuExe = xmlReader.readElementText();
-            }
         }
+    }
+    else
+    {
+        QMessageBox::information(this, "Error", "No found platform file");
     }
 }
 
@@ -393,6 +347,13 @@ bool CreateVMForm::input_verification(const QString &path, const QString &name)
         show_error_message("Field 'Image path' must be filled");
         return false;
     }
+
+    if (!machineCombo->count() || !cpuCombo->count())
+    {
+        show_error_message("Must be selected 'Machine' and 'CPU' fields");
+        return false;
+    }
+
     return true;
 }
 
@@ -480,7 +441,7 @@ void CreateVMForm::create_vm()
     configVM->addDeviceCpu(cpuCombo->currentText());
     configVM->addDeviceMachine(machineCombo->currentText());
     configVM->addDeviceMemory(QString::number(ram_spin->value()));
-    configVM->setQemuExe(qemuExe);
+    configVM->setPlatform(platformCombo->currentText());
 
     if (!hdd_new_rb->isChecked())
     {

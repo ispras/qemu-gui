@@ -8,7 +8,7 @@ const QString xml_parameters = "VMParameters";
 const QString xml_field_name = "Name";
 const QString xml_field_dir = "Directory_path";
 const QString xml_field_img = "Image_path";
-const QString xml_qemu_exe = "Qemu_exe";
+const QString xml_platform = "Platform";
 
 static bool remove_directory(QDir dir);
 
@@ -53,9 +53,9 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
             {
                 //image_path = xmlReader.readElementText();
             }
-            else if (xmlReader.name() == xml_qemu_exe)
+            else if (xmlReader.name() == xml_platform)
             {
-                qemuExe = xmlReader.readElementText();
+                platform = xmlReader.readElementText();
             }
             else /* Device */
             {
@@ -103,8 +103,8 @@ bool VMConfig::save_vm_config(const QString &path) const
         xmlWriter.writeCharacters(name_vm);
         xmlWriter.writeEndElement();
 
-        xmlWriter.writeStartElement(xml_qemu_exe);
-        xmlWriter.writeCharacters(qemuExe);
+        xmlWriter.writeStartElement(xml_platform);
+        xmlWriter.writeCharacters(platform);
         xmlWriter.writeEndElement();
 
         system.save(xmlWriter);
@@ -167,14 +167,14 @@ QString VMConfig::get_vm_info()
     return info;
 }
 
-void VMConfig::setQemuExe(const QString & qemu)
+void VMConfig::setPlatform(const QString & platformVM)
 {
-    qemuExe = qemu;
+    platform = platformVM;
 }
 
-QString VMConfig::getQemuExe()
+QString VMConfig::getPlatform()
 {
-    return qemuExe;
+    return platform;
 }
 
 QString VMConfig::get_name()
