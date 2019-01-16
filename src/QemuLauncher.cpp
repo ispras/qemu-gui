@@ -12,7 +12,7 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
 #ifdef Q_OS_WIN
         + "/" + "qemu-system-" + virtual_machine->getPlatform() + ".exe";
 #else
-        + "/" + "qemu-system-" + virtual_machine->getQemuExe();
+        + "/" + "qemu-system-" + virtual_machine->getPlatform();
 #endif
     qemu = NULL;
 }
