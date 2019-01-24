@@ -154,6 +154,11 @@ void TerminalTab::read_terminal()
 }
 
 
+void TerminalTab::terminalTab_abort()
+{
+    monitor_socket.abort();
+}
+
 void TerminalTab::save_terminal_interface_changes(QTextEdit *test_text)
 {
     QString style = test_text->styleSheet();

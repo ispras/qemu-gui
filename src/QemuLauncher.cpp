@@ -85,7 +85,7 @@ void QemuLauncher::launchQemu()
 void QemuLauncher::finish_qemu(int exitCode, QProcess::ExitStatus ExitStatus)
 {
     qDebug() << "exit code" << exitCode << "exit status" << ExitStatus;
-    emit qemu_laucher_finished();
+    emit qemu_laucher_finished(exitCode);
 }
 
 void QemuLauncher::finishCreatingOverlay(int exitCode)

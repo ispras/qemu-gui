@@ -42,6 +42,7 @@ private slots:
 
 public slots:
     void terminalTab_connect(int port);
+    void terminalTab_abort();
     void save_terminal_interface_changes(QTextEdit *test_text);
 
 };
