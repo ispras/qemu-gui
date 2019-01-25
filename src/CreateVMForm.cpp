@@ -199,57 +199,65 @@ void CreateVMForm::widget_placement()
     main_lay->addWidget(okcancel_btn);
 }
 
-void CreateVMForm::getInformationFromQemu(const QString &cmd)
+QStringList CreateVMForm::getInformationFromQemu(const QString &cmd)
 {
+    QStringList output;
     QProcess qemuProcess;
     qemuProcess.start("\"" + qemu_dir + "/qemu-system-"
-        + platformCombo->currentText() + "\" -machine " + cmd);
+        + platformCombo->currentText() + "\" -machine " + cmd + " help");
     qemuProcess.waitForFinished(-1);
     
     qemuProcess.readLine();
     while (!qemuProcess.atEnd())
     {
-        // if machine
-        if (!cmd.contains("cpu"))
-        {
-            machineCombo->addItem(qemuProcess.readLine().split(' ').at(0));
-        }
-        // if cpu
-        else
-        {
-            if (platformCombo->currentText() == "arm")
-            {
-                cpuCombo->addItem(qemuProcess.readLine().trimmed());
-            }
-            else
-            {
-                QString str = qemuProcess.readLine().trimmed();
-                QStringList strLst = str.split(' ');
-                strLst.removeDuplicates();
-                strLst.removeOne("");
-
-                if ((platformCombo->currentText() == "i386" || platformCombo->currentText() == "x86_64")
-                    && !strLst.contains("x86"))
-                    break;
-                cpuCombo->addItem(strLst.at(1));
-            }
-        }
+        output.append(qemuProcess.readLine());
     }
     if (qemuProcess.exitCode() != 0)
     {
-        qDebug() << "Cannot get information" << qemuProcess.exitCode();
+        qDebug() << "Cannot get information. Exit code = " << qemuProcess.exitCode();
     }
+    return output;
 }
 
 void CreateVMForm::changePlatform(const QString &text)
 {
+    QStringList output;
     machineCombo->clear();
     cpuCombo->clear();
 
     if (!qemu_dir.isEmpty())
     {
-        getInformationFromQemu("help");
-        getInformationFromQemu(machineCombo->itemText(0) + " -cpu help");
+        output = getInformationFromQemu("");
+        foreach(QString line, output)
+        {
+            machineCombo->addItem(line.split(' ').at(0));
+        }
+
+        output.clear();
+        output = getInformationFromQemu(machineCombo->itemText(0) + " -cpu");
+        if (platformCombo->currentText() == "arm")
+        {
+            foreach(QString line, output)
+            {
+                cpuCombo->addItem(line.trimmed());
+            }
+        }
+        else
+        {
+            foreach(QString line, output)
+            {
+                line = line.trimmed();
+                QStringList strLst = line.split(' ');
+                strLst.removeDuplicates();
+                strLst.removeOne("");
+
+                if ((platformCombo->currentText() == "i386"
+                    || platformCombo->currentText() == "x86_64")
+                    && !strLst.contains("x86"))
+                    break;
+                cpuCombo->addItem(strLst.at(1));
+            }
+        }
     }
 }
 
