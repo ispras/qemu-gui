@@ -52,7 +52,7 @@ public slots:
     void finish_qemu(int exitCode, QProcess::ExitStatus ExitStatus);
 
 signals:
-    void qemu_laucher_finished();
+    void qemu_laucher_finished(int exitCode);
     void creatingOverlayFailed();
 
 };

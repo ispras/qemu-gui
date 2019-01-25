@@ -65,6 +65,7 @@ private:
     void change_path(const QString &name);
     QString set_path_to_vm(const QString &home_path);
     bool input_verification(const QString &path, const QString &name);
+    QStringList getInformationFromQemu(const QString &cmd);
 
 private slots:
     void changePlatform(const QString &text);

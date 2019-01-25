@@ -95,7 +95,7 @@ private slots:
     void exclude_vm_ctxmenu();
     void play_machine();
     void play_machine(LaunchMode mode);
-    void finish_qemu();
+    void finish_qemu(int exitCode);
     void pause_machine();
     void stop_machine();
     void create_machine();
@@ -115,6 +115,7 @@ signals:
     void qmp_stop_qemu();
     void qmp_shutdown_qemu();
     void monitor_connect(int);
+    void monitor_abort();
     void recordReplayEnableBtns(bool);
     void deleteRecord();
 

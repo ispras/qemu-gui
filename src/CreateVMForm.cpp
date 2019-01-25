@@ -68,7 +68,7 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     verOS_combo->setFixedWidth(330);
     platformCombo->setFixedWidth(330);
     typeOS_combo->addItems(os_type);
-    platformCombo->addItems(QStringList({ "i386", "arm" }));
+    platformCombo->addItems(QStringList({ "i386", "arm", "mips", "ppc" }));
 
     machineCombo->setFixedWidth(330);
     cpuCombo->setFixedWidth(330);
@@ -199,34 +199,65 @@ void CreateVMForm::widget_placement()
     main_lay->addWidget(okcancel_btn);
 }
 
+QStringList CreateVMForm::getInformationFromQemu(const QString &cmd)
+{
+    QStringList output;
+    QProcess qemuProcess;
+    qemuProcess.start("\"" + qemu_dir + "/qemu-system-"
+        + platformCombo->currentText() + "\" -machine " + cmd + " help");
+    qemuProcess.waitForFinished(-1);
+    
+    qemuProcess.readLine();
+    while (!qemuProcess.atEnd())
+    {
+        output.append(qemuProcess.readLine());
+    }
+    if (qemuProcess.exitCode() != 0)
+    {
+        qDebug() << "Cannot get information. Exit code = " << qemuProcess.exitCode();
+    }
+    return output;
+}
+
 void CreateVMForm::changePlatform(const QString &text)
 {
+    QStringList output;
     machineCombo->clear();
     cpuCombo->clear();
 
-    QFile file(default_path + "/" + text + ".xml");
-    if (file.open(QIODevice::ReadOnly))
+    if (!qemu_dir.isEmpty())
     {
-        QXmlStreamReader xmlReader(&file);
-
-        xmlReader.readNextStartElement();
-        Q_ASSERT(xmlReader.name() == text);
-
-        while (xmlReader.readNextStartElement())
+        output = getInformationFromQemu("");
+        foreach(QString line, output)
         {
-            if (xmlReader.name() == xml_machine)
+            machineCombo->addItem(line.split(' ').at(0));
+        }
+
+        output.clear();
+        output = getInformationFromQemu(machineCombo->itemText(0) + " -cpu");
+        if (platformCombo->currentText() == "arm")
+        {
+            foreach(QString line, output)
             {
-                machineCombo->addItem(xmlReader.readElementText());
-            }
-            else if (xmlReader.name() == xml_cpu)
-            {
-                cpuCombo->addItem(xmlReader.readElementText());
+                cpuCombo->addItem(line.trimmed());
             }
         }
-    }
-    else
-    {
-        QMessageBox::information(this, "Error", "No found platform file");
+        else
+        {
+            foreach(QString line, output)
+            {
+                line = line.trimmed();
+                QStringList strLst = line.split(' ');
+                strLst.removeDuplicates();
+                strLst.removeOne("");
+
+                if ((platformCombo->currentText() == "i386"
+                    || platformCombo->currentText() == "x86_64")
+                    && !strLst.contains("x86"))
+                    break;
+                cpuCombo->addItem(strLst.at(1));
+            }
+        }
     }
 }
 

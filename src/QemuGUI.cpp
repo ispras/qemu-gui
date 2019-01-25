@@ -242,6 +242,8 @@ void QemuGUI::connect_signals()
 
     connect(this, SIGNAL(monitor_connect(int)), 
         terminal_tab, SLOT(terminalTab_connect(int)));
+    connect(this, SIGNAL(monitor_abort()),
+        terminal_tab, SLOT(terminalTab_abort()));
 
     connect(rec_replay_tab, SIGNAL(startRR(LaunchMode)), 
         this, SLOT(play_machine(LaunchMode)));
@@ -307,7 +309,8 @@ void QemuGUI::play_machine()
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getCurrentDirRR() : "");
             launch_qemu->moveToThread(thread);
             connect(thread, SIGNAL(started()), launch_qemu, SLOT(start_qemu()));
-            connect(launch_qemu, SIGNAL(qemu_laucher_finished()), this, SLOT(finish_qemu()));
+            connect(launch_qemu, SIGNAL(qemu_laucher_finished(int)), 
+                this, SLOT(finish_qemu(int)));
             thread->start();
 
             qmp = new QMPInteraction(nullptr, qmp_port.toInt());
@@ -336,8 +339,10 @@ void QemuGUI::play_machine(LaunchMode mode)
     play_machine();
 }
 
-void QemuGUI::finish_qemu()
+void QemuGUI::finish_qemu(int exitCode)
 {
+    if (exitCode != 0)
+        emit monitor_abort();
     vm_state = VMState::None;
     qemu_play->setEnabled(true);
     qemu_stop->setEnabled(false);
