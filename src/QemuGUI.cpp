@@ -316,7 +316,7 @@ void QemuGUI::play_machine()
             qmp = new QMPInteraction(nullptr, qmp_port.toInt());
             connect(this, SIGNAL(qmp_resume_qemu()), qmp, SLOT(command_resume_qemu()));
             connect(this, SIGNAL(qmp_stop_qemu()), qmp, SLOT(command_stop_qemu()));
-            connect(this, SIGNAL(qmp_shutdown_qemu()), qmp, SLOT(command_shutdown_qemu()));
+            connect(this, SIGNAL(qmp_shutdown_qemu()), qmp, SLOT(commandShutdownQemu()));
             connect(qmp, SIGNAL(qemu_resumed()), this, SLOT(resume_qemu_btn_state()));
             connect(qmp, SIGNAL(qemu_stopped()), this, SLOT(stop_qemu_btn_state()));
 
@@ -461,7 +461,16 @@ void QemuGUI::add_qemu_install_dir_btn()
         global_config->add_qemu_installation_dir(qemu_install_dir);
         global_config->set_current_qemu_dir(qemu_install_dir);
         fill_qemu_install_dir_from_config();
+        
+        platformInfo = new class PlatformInformation(qemu_install_dir,
+            global_config->get_home_dir());
+        connect(platformInfo, SIGNAL(workFinish()), this, SLOT(platformInfoReady()));
     }
+}
+
+void QemuGUI::platformInfoReady()
+{
+    delete platformInfo;
 }
 
 void QemuGUI::del_qemu_install_dir_btn()
