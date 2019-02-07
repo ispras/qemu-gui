@@ -47,6 +47,8 @@ private:
     VMConfig *configVM;
     QProgressDialog *imgCreationDlg;
 
+    QString platformDirPath;
+
 
 private:
     void connect_signals();
@@ -75,6 +77,8 @@ public slots:
 
 signals:
     void createVM_new_vm_is_complete(VMConfig *);
+    void qmpRequestMachineInfo();
+    void qmpRequestCpuInfo();
 
 };
 

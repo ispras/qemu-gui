@@ -14,7 +14,28 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
 #else
         + "/" + "qemu-system-" + virtual_machine->getPlatform();
 #endif
+
     qemu = NULL;
+    mon = " -monitor \"tcp:127.0.0.1:" + port_monitor + ",server,nowait\"";
+    qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,nowait\"";
+}
+
+QemuLauncher::QemuLauncher(const QString &qemuPath, const QString &platform,
+    const QString &machine, const QString &port_qmp)
+    : port_qmp(port_qmp), mode(LaunchMode::NORMAL)
+{
+    qemuExePath = qemuPath
+#ifdef Q_OS_WIN
+        + "/" + "qemu-system-" + platform + ".exe";
+#else
+        + "/" + "qemu-system-" + platform;
+#endif
+
+    cmd = "-machine " + machine + " ";
+    qemu = NULL;
+    virtual_machine = NULL;
+    mon = "";
+    qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,nowait\"";
 }
 
 QemuLauncher::~QemuLauncher()
@@ -28,8 +49,6 @@ void QemuLauncher::start_qemu()
     qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
     connect(qemu, SIGNAL(finished(int, QProcess::ExitStatus)),
         this, SLOT(finish_qemu(int, QProcess::ExitStatus)));
-    mon = " -monitor \"tcp:127.0.0.1:" + port_monitor + ",server,nowait\"";
-    qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,nowait\"";
     recordReplay = "";
     if (mode != LaunchMode::NORMAL)
     {
@@ -48,7 +67,8 @@ void QemuLauncher::start_qemu()
     }
     if (mode != LaunchMode::RECORD)
     {
-        cmd = virtual_machine->getCommandLine(cmdParams);
+        if (virtual_machine)
+            cmd = virtual_machine->getCommandLine(cmdParams);
         launchQemu();
     }
 }

@@ -1,11 +1,13 @@
 #include "QemuGUICommon.h"
 #include "CreateVMForm.h"
+#include "QMPInteraction.h"
 
 const QString xml_machine = "Machine";
 const QString xml_cpu = "Cpu";
 
 CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
-    : QWidget(), default_path(home_dir), qemu_dir(qemu_dir)
+    : QWidget(), default_path(home_dir), qemu_dir(qemu_dir),
+    platformDirPath(home_dir + "/platforms")
 {
     if (CreateVMForm::objectName().isEmpty())
         CreateVMForm::setObjectName(QStringLiteral("CreateVMForm"));
@@ -68,7 +70,18 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     verOS_combo->setFixedWidth(330);
     platformCombo->setFixedWidth(330);
     typeOS_combo->addItems(os_type);
-    platformCombo->addItems(QStringList({ "i386", "arm", "mips", "ppc" }));
+    
+    QDir platformDir(platformDirPath);
+    if (platformDir.exists())
+    {
+        QStringList platforms = platformDir.entryList(QDir::AllEntries
+            | QDir::Filter::NoDotAndDotDot);
+        foreach(QString item, platforms)
+        {
+            item.chop(4);
+            platformCombo->addItem(item);
+        }
+    }
 
     machineCombo->setFixedWidth(330);
     cpuCombo->setFixedWidth(330);
@@ -221,41 +234,25 @@ QStringList CreateVMForm::getInformationFromQemu(const QString &cmd)
 
 void CreateVMForm::changePlatform(const QString &text)
 {
-    QStringList output;
     machineCombo->clear();
     cpuCombo->clear();
 
-    if (!qemu_dir.isEmpty())
+    QFile file(platformDirPath + "/" + text + ".xml");
+    if (file.open(QIODevice::ReadOnly))
     {
-        output = getInformationFromQemu("");
-        foreach(QString line, output)
-        {
-            machineCombo->addItem(line.split(' ').at(0));
-        }
+        QXmlStreamReader xmlReader(&file);
+        xmlReader.readNextStartElement();
+        Q_ASSERT(xmlReader.name() == text);
 
-        output.clear();
-        output = getInformationFromQemu(machineCombo->itemText(0) + " -cpu");
-        if (platformCombo->currentText() == "arm")
+        while (xmlReader.readNextStartElement())
         {
-            foreach(QString line, output)
+            if (xmlReader.name() == "Machine")
             {
-                cpuCombo->addItem(line.trimmed());
+                machineCombo->addItem(xmlReader.readElementText());
             }
-        }
-        else
-        {
-            foreach(QString line, output)
+            else if (xmlReader.name() == "Cpu")
             {
-                line = line.trimmed();
-                QStringList strLst = line.split(' ');
-                strLst.removeDuplicates();
-                strLst.removeOne("");
-
-                if ((platformCombo->currentText() == "i386"
-                    || platformCombo->currentText() == "x86_64")
-                    && !strLst.contains("x86"))
-                    break;
-                cpuCombo->addItem(strLst.at(1));
+                cpuCombo->addItem(xmlReader.readElementText());
             }
         }
     }

@@ -14,6 +14,7 @@
 #include "TerminalSettingsForm.h"
 #include "TerminalTab.h"
 #include "ConnectionSettingsForm.h"
+#include "PlatformInformation.h"
 
 enum VMState {None, Running, Stopped};
 
@@ -70,6 +71,8 @@ private:
 
     LaunchMode launchMode = LaunchMode::NORMAL;
 
+    class PlatformInformation *platformInfo;
+
 
 private:
     QIcon set_button_icon_for_state(const QString &normal_icon, const QString &disable_icon);
@@ -83,6 +86,8 @@ public slots:
     void stop_qemu_btn_state();
     void resume_qemu_btn_state();
     void set_connection_settings(const QString &qmp, const QString &monitor);
+
+    void platformInfoReady();
 
 private slots:
 
@@ -108,7 +113,6 @@ private slots:
     void set_terminal_settings();
     void launch_settings();
     void overlayFailed();
-
 
 signals:
     void qmp_resume_qemu();

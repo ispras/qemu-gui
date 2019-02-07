@@ -14,7 +14,7 @@ find_package(Qt5Network)
 add_executable(qemu-gui src/main.cpp src/CreateVMForm.cpp src/QemuGUI.cpp
     src/RecordReplayTab.cpp src/VMSettingsForm.cpp src/QemuGUI.qrc
     src/GlobalConfig.cpp src/VMConfig.cpp src/QemuLauncher.cpp
-    src/QMPInteraction.cpp src/TerminalSettingsForm.cpp
+    src/QMPInteraction.cpp src/TerminalSettingsForm.cpp src/PlatformInformation.cpp
     src/TerminalTab.cpp src/ConnectionSettingsForm.cpp src/QemuSocket.cpp
     src/Device.cpp src/DeviceBus.cpp src/DeviceStorage.cpp
     src/DeviceFactory.cpp src/AddDeviceForm.cpp src/DeviceSystem.cpp
