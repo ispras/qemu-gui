@@ -111,6 +111,7 @@ QemuGUI::QemuGUI(QWidget *parent)
 QemuGUI::~QemuGUI()
 {
     global_config->set_current_qemu_dir(qemu_install_dir_combo->currentText());
+    delete qemu_install_dir_settings;
 }
 
 
@@ -297,32 +298,40 @@ void QemuGUI::play_machine()
         if (vm_state == VMState::None && 
             qemu_install_dir_combo->currentIndex() != qemu_install_dir_combo->count() - 1)
         {
-            vm_state = VMState::Running;
-            qemu_play->setDisabled(true);
-            qemu_stop->setEnabled(true);
-            qemu_pause->setEnabled(launchMode == LaunchMode::NORMAL ? true : false);
-
-            QThread *thread = new QThread();
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
                 global_config->get_vm_by_name(listVM->currentItem()->text()), 
                 qmp_port, monitor_port, launchMode, 
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getCurrentDirRR() : "");
-            launch_qemu->moveToThread(thread);
-            connect(thread, SIGNAL(started()), launch_qemu, SLOT(start_qemu()));
-            connect(launch_qemu, SIGNAL(qemu_laucher_finished(int)), 
-                this, SLOT(finish_qemu(int)));
-            thread->start();
+            if (launch_qemu->isQemuExist())
+            {
+                vm_state = VMState::Running;
+                qemu_play->setDisabled(true);
+                qemu_stop->setEnabled(true);
+                qemu_pause->setEnabled(launchMode == LaunchMode::NORMAL ? true : false);
 
-            qmp = new QMPInteraction(nullptr, qmp_port.toInt());
-            connect(this, SIGNAL(qmp_resume_qemu()), qmp, SLOT(command_resume_qemu()));
-            connect(this, SIGNAL(qmp_stop_qemu()), qmp, SLOT(command_stop_qemu()));
-            connect(this, SIGNAL(qmp_shutdown_qemu()), qmp, SLOT(commandShutdownQemu()));
-            connect(qmp, SIGNAL(qemu_resumed()), this, SLOT(resume_qemu_btn_state()));
-            connect(qmp, SIGNAL(qemu_stopped()), this, SLOT(stop_qemu_btn_state()));
+                QThread *thread = new QThread();
+                launch_qemu->moveToThread(thread);
+                connect(thread, SIGNAL(started()), launch_qemu, SLOT(start_qemu()));
+                connect(launch_qemu, SIGNAL(qemu_laucher_finished(int)),
+                    this, SLOT(finish_qemu(int)));
+                thread->start();
 
-            connect(launch_qemu, SIGNAL(creatingOverlayFailed()), this, SLOT(overlayFailed()));
-            
-            emit monitor_connect(monitor_port.toInt());
+                qmp = new QMPInteraction(nullptr, qmp_port.toInt());
+                connect(this, SIGNAL(qmp_resume_qemu()), qmp, SLOT(command_resume_qemu()));
+                connect(this, SIGNAL(qmp_stop_qemu()), qmp, SLOT(command_stop_qemu()));
+                connect(this, SIGNAL(qmp_shutdown_qemu()), qmp, SLOT(commandShutdownQemu()));
+                connect(qmp, SIGNAL(qemu_resumed()), this, SLOT(resume_qemu_btn_state()));
+                connect(qmp, SIGNAL(qemu_stopped()), this, SLOT(stop_qemu_btn_state()));
+
+                connect(launch_qemu, SIGNAL(creatingOverlayFailed()), this, SLOT(overlayFailed()));
+
+                emit monitor_connect(monitor_port.toInt());
+            }
+            else
+            {
+                delete launch_qemu;
+                QMessageBox::critical(this, "Error", "QEMU for selected platform doesn't exist");
+            }
         }
         else if (vm_state == VMState::Stopped)
         {
@@ -462,7 +471,7 @@ void QemuGUI::add_qemu_install_dir_btn()
         global_config->set_current_qemu_dir(qemu_install_dir);
         fill_qemu_install_dir_from_config();
         
-        platformInfo = new class PlatformInformation(qemu_install_dir,
+        platformInfo = new PlatformInformationReader(qemu_install_dir,
             global_config->get_home_dir());
         connect(platformInfo, SIGNAL(workFinish()), this, SLOT(platformInfoReady()));
     }
@@ -471,6 +480,7 @@ void QemuGUI::add_qemu_install_dir_btn()
 void QemuGUI::platformInfoReady()
 {
     delete platformInfo;
+    qemu_install_dir_settings->close();
 }
 
 void QemuGUI::del_qemu_install_dir_btn()
@@ -481,6 +491,9 @@ void QemuGUI::del_qemu_install_dir_btn()
             QMessageBox::Yes, QMessageBox::No);
         if (answer == QMessageBox::Yes)
         {
+            uint hash = qHash(qemu_install_dir_list->currentItem()->text());
+            VMConfig::remove_directory_vm(global_config->get_home_dir()
+                + "/platforms/qemu_" + QString::number(hash).setNum(hash, 16));
             global_config->del_qemu_installation_dir(qemu_install_dir_list->currentItem()->text());
             delete qemu_install_dir_list->currentItem();
             fill_qemu_install_dir_from_config();
