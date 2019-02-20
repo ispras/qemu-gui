@@ -12,7 +12,7 @@ class PlatformInformationReader : public QObject
 public:
     PlatformInformationReader(const QString &qemuPath, const QString &homeDir);
     ~PlatformInformationReader();
-    static QString getHash(const QString &name);
+    static QString getQemuProfilePath(const QString &name);
 
 private:
     QThread *thread;

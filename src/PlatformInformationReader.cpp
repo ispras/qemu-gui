@@ -22,7 +22,7 @@ PlatformInformationReader::PlatformInformationReader(const QString &qemuPath,
     {
         platformDir.mkdir(platformDirPath);
     }
-    currentPlatformDirPath = platformDirPath + "/qemu_" + getHash(qemuDirPath);
+    currentPlatformDirPath = homeDir + getQemuProfilePath(qemuDirPath);
     QDir currentQemuPlatformDir(currentPlatformDirPath);
     if (!currentQemuPlatformDir.exists())
     {
@@ -36,10 +36,10 @@ PlatformInformationReader::~PlatformInformationReader()
 {
 }
 
-QString PlatformInformationReader::getHash(const QString & name)
+QString PlatformInformationReader::getQemuProfilePath(const QString &name)
 {
     uint hash = qHash(name);
-    return QString::number(hash).setNum(hash, 16);
+    return "/platforms/qemu_" + QString::number(hash).setNum(hash, 16);
 }
 
 
