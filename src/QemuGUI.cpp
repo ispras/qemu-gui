@@ -1,4 +1,5 @@
 #include "QemuGUI.h"
+#include "PlatformInformationReader.h"
 
 
 QemuGUI::QemuGUI(QWidget *parent)
@@ -491,9 +492,8 @@ void QemuGUI::del_qemu_install_dir_btn()
             QMessageBox::Yes, QMessageBox::No);
         if (answer == QMessageBox::Yes)
         {
-            uint hash = qHash(qemu_install_dir_list->currentItem()->text());
-            VMConfig::remove_directory_vm(global_config->get_home_dir()
-                + "/platforms/qemu_" + QString::number(hash).setNum(hash, 16));
+            VMConfig::remove_directory_vm(global_config->get_home_dir() + "/platforms/qemu_"
+                + PlatformInformationReader::getHash(qemu_install_dir_list->currentItem()->text()));
             global_config->del_qemu_installation_dir(qemu_install_dir_list->currentItem()->text());
             delete qemu_install_dir_list->currentItem();
             fill_qemu_install_dir_from_config();

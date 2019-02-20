@@ -22,9 +22,7 @@ PlatformInformationReader::PlatformInformationReader(const QString &qemuPath,
     {
         platformDir.mkdir(platformDirPath);
     }
-    uint hash = qHash(qemuDirPath);
-    currentPlatformDirPath = platformDirPath + "/qemu_"
-        + QString::number(hash).setNum(hash, 16);
+    currentPlatformDirPath = platformDirPath + "/qemu_" + getHash(qemuDirPath);
     QDir currentQemuPlatformDir(currentPlatformDirPath);
     if (!currentQemuPlatformDir.exists())
     {
@@ -36,6 +34,12 @@ PlatformInformationReader::PlatformInformationReader(const QString &qemuPath,
 
 PlatformInformationReader::~PlatformInformationReader()
 {
+}
+
+QString PlatformInformationReader::getHash(const QString & name)
+{
+    uint hash = qHash(name);
+    return QString::number(hash).setNum(hash, 16);
 }
 
 
@@ -68,8 +72,8 @@ void PlatformInformationReader::launchQemu()
         timer->start(10000);
         connect(timer, SIGNAL(timeout()), this, SLOT(timeIsOut()));
 
-        thread->start();
         platforms.removeFirst();
+        thread->start();
     }
     else
     {
@@ -119,11 +123,11 @@ void PlatformInformationReader::nextRequest(const QStringList &list)
 
 void PlatformInformationReader::finishQemu(int exitCode)
 {
-    if (timer) delete timer;
+    delete timer;
     timer = NULL;
-    if (qemu) delete qemu;
+    delete qemu;
     qemu = NULL;
-    if (qmp) delete qmp;
+    delete qmp;
     qmp = NULL;
     if (!platforms.isEmpty())
     {
