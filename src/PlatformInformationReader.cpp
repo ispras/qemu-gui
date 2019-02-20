@@ -13,6 +13,7 @@ PlatformInformationReader::PlatformInformationReader(const QString &qemuPath,
 
     qmp = NULL;
     qemu = NULL;
+    timer = NULL;
     qmpPort = "2323";
     allInfoReady = false;
 
@@ -74,6 +75,7 @@ void PlatformInformationReader::launchQemu()
     {
         qDebug() << "QEMU for platform " << platforms.first().first() << " doesn't exist";
         platforms.removeFirst();
+        progress->setValue(progress->maximum() - platforms.count());
         finishQemu(QProcess::CrashExit);
     }
 }
