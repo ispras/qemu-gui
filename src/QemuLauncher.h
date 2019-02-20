@@ -21,6 +21,7 @@ public:
     QemuLauncher(const QString &qemuPath, const QString &platform,
         const QString &machine, const QString &port_qmp);
     ~QemuLauncher();
+    bool isQemuExist();
 
 private:
     QString qemuDirPath;
@@ -43,6 +44,7 @@ private:
     QStringList overlays;
 
 private:
+    void createQemuPath(const QString &qemuPath, const QString &platform);
     void createOverlays();
     void launchQemu();
 
@@ -52,6 +54,7 @@ private slots:
 public slots:
     void start_qemu();
     void finish_qemu(int exitCode, QProcess::ExitStatus ExitStatus);
+    void terminateQemu();
 
 signals:
     void qemu_laucher_finished(int exitCode);

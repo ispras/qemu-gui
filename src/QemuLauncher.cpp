@@ -8,12 +8,7 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
     : QObject(parent), virtual_machine(vm), port_monitor(port_monitor),
     port_qmp(port_qmp), mode(mode), dirRR(dirRR), qemuDirPath(qemu_install_dir_path)
 {
-    qemuExePath = qemu_install_dir_path
-#ifdef Q_OS_WIN
-        + "/" + "qemu-system-" + virtual_machine->getPlatform() + ".exe";
-#else
-        + "/" + "qemu-system-" + virtual_machine->getPlatform();
-#endif
+    createQemuPath(qemu_install_dir_path, virtual_machine->getPlatform());
 
     qemu = NULL;
     mon = " -monitor \"tcp:127.0.0.1:" + port_monitor + ",server,nowait\"";
@@ -24,13 +19,7 @@ QemuLauncher::QemuLauncher(const QString &qemuPath, const QString &platform,
     const QString &machine, const QString &port_qmp)
     : port_qmp(port_qmp), mode(LaunchMode::NORMAL)
 {
-    qemuExePath = qemuPath
-#ifdef Q_OS_WIN
-        + "/" + "qemu-system-" + platform + ".exe";
-#else
-        + "/" + "qemu-system-" + platform;
-#endif
-
+    createQemuPath(qemuPath, platform);
     cmd = "-machine " + machine + " ";
     qemu = NULL;
     virtual_machine = NULL;
@@ -40,6 +29,23 @@ QemuLauncher::QemuLauncher(const QString &qemuPath, const QString &platform,
 
 QemuLauncher::~QemuLauncher()
 {
+}
+
+bool QemuLauncher::isQemuExist()
+{
+    QFile qemuFile(qemuExePath);
+    return qemuFile.exists();
+}
+
+
+void QemuLauncher::createQemuPath(const QString &qemuPath, const QString &platform)
+{
+    qemuExePath = qemuPath
+#ifdef Q_OS_WIN
+        + "/" + "qemu-system-" + platform + ".exe";
+#else
+        + "/" + "qemu-system-" + platform;
+#endif
 }
 
 void QemuLauncher::start_qemu()
@@ -99,13 +105,29 @@ void QemuLauncher::launchQemu()
 {
     qDebug() << qemuExePath + " " + recordReplay + cmd + mon + qmp;
     qemu->start("\"" + qemuExePath + "\" " + recordReplay + cmd + mon + qmp);
-    qemu->waitForFinished(-1);
+    if (virtual_machine)
+    {
+        qemu->waitForFinished(-1);
+    }
+    else
+    {
+        qemu->waitForFinished(10000);
+    }
 }
 
 void QemuLauncher::finish_qemu(int exitCode, QProcess::ExitStatus ExitStatus)
 {
     qDebug() << "exit code" << exitCode << "exit status" << ExitStatus;
     emit qemu_laucher_finished(exitCode);
+}
+
+void QemuLauncher::terminateQemu()
+{
+    if (qemu->state() == QProcess::Running)
+    {
+        qDebug() << "Qemu work too long. Terminated. Receiving information is not guaranteed";
+        qemu->terminate();
+    }
 }
 
 void QemuLauncher::finishCreatingOverlay(int exitCode)

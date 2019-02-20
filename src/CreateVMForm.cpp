@@ -1,13 +1,12 @@
 #include "QemuGUICommon.h"
 #include "CreateVMForm.h"
-#include "QMPInteraction.h"
+#include "PlatformInformationReader.h"
 
 const QString xml_machine = "Machine";
 const QString xml_cpu = "Cpu";
 
 CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
-    : QWidget(), default_path(home_dir), qemu_dir(qemu_dir),
-    platformDirPath(home_dir + "/platforms")
+    : QWidget(), default_path(home_dir), qemu_dir(qemu_dir)
 {
     if (CreateVMForm::objectName().isEmpty())
         CreateVMForm::setObjectName(QStringLiteral("CreateVMForm"));
@@ -19,6 +18,8 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     
     QStringList format = { "qcow2", "qcow", "cow", "raw" }; // "vmdk", "cloop", "VPC(VHD)?"};
     QStringList os_type = { "Windows", "Linux", "Ubuntu", "MacOS", "Other" };
+
+    platformDirPath = home_dir + PlatformInformationReader::getQemuProfilePath(qemu_dir);
 
     name_edit = new QLineEdit(this);
     pathtovm_edit = new QLineEdit(this);

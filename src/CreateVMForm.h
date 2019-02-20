@@ -77,8 +77,6 @@ public slots:
 
 signals:
     void createVM_new_vm_is_complete(VMConfig *);
-    void qmpRequestMachineInfo();
-    void qmpRequestCpuInfo();
 
 };
 

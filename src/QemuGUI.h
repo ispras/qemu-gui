@@ -14,7 +14,7 @@
 #include "TerminalSettingsForm.h"
 #include "TerminalTab.h"
 #include "ConnectionSettingsForm.h"
-#include "PlatformInformation.h"
+#include "PlatformInformationReader.h"
 
 enum VMState {None, Running, Stopped};
 
@@ -71,7 +71,7 @@ private:
 
     LaunchMode launchMode = LaunchMode::NORMAL;
 
-    class PlatformInformation *platformInfo;
+    PlatformInformationReader *platformInfo;
 
 
 private:
