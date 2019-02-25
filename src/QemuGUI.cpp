@@ -309,6 +309,7 @@ void QemuGUI::play_machine()
                 qemu_play->setDisabled(true);
                 qemu_stop->setEnabled(true);
                 qemu_pause->setEnabled(launchMode == LaunchMode::NORMAL ? true : false);
+                emit recordReplayEnableBtns(false);
 
                 QThread *thread = new QThread();
                 launch_qemu->moveToThread(thread);
@@ -345,7 +346,6 @@ void QemuGUI::play_machine()
 void QemuGUI::play_machine(LaunchMode mode)
 {
     launchMode = mode;
-    emit recordReplayEnableBtns(false);
     play_machine();
 }
 

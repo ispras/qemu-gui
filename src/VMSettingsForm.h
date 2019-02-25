@@ -24,6 +24,7 @@ private:
     QTreeWidget *deviceTree;
     QDialogButtonBox *savecancel_btn;
 
+    QLineEdit *addCmdLineParamsEdit;
     QSplitter *splitter;
     QMenu menu;
 

@@ -9,6 +9,7 @@ const QString xml_field_name = "Name";
 const QString xml_field_dir = "Directory_path";
 const QString xml_field_img = "Image_path";
 const QString xml_platform = "Platform";
+const QString xml_cmdLine = "AdditionCommandLine";
 
 static bool remove_directory(QDir dir);
 
@@ -56,6 +57,10 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
             else if (xmlReader.name() == xml_platform)
             {
                 platform = xmlReader.readElementText();
+            }
+            else if (xmlReader.name() == xml_cmdLine)
+            {
+                addCmdLine = xmlReader.readElementText();
             }
             else /* Device */
             {
@@ -107,6 +112,10 @@ bool VMConfig::save_vm_config(const QString &path) const
         xmlWriter.writeCharacters(platform);
         xmlWriter.writeEndElement();
 
+        xmlWriter.writeStartElement(xml_cmdLine);
+        xmlWriter.writeCharacters(addCmdLine);
+        xmlWriter.writeEndElement();
+
         system.save(xmlWriter);
 
         xmlWriter.writeEndElement();
@@ -125,6 +134,11 @@ void VMConfig::save_vm_config() const
 void VMConfig::set_name(const QString &name_vm_)
 {
     name_vm = name_vm_;
+}
+
+void VMConfig::setCmdLine(const QString &cmdLine)
+{
+    addCmdLine = cmdLine;
 }
 
 void VMConfig::addDefaultBus(const QString &image)
@@ -182,6 +196,11 @@ QString VMConfig::get_name()
     return name_vm;
 }
 
+QString VMConfig::getCmdLine()
+{
+    return addCmdLine;
+}
+
 QString VMConfig::get_dir_path()
 {
     return dir_path;
@@ -189,7 +208,7 @@ QString VMConfig::get_dir_path()
 
 QString VMConfig::getCommandLine(CommandLineParameters &cmdParams)
 {
-    return system.getCommandLine(cmdParams);
+    return system.getCommandLine(cmdParams) + " " + addCmdLine;
 }
 
 QString VMConfig::getPathRRDir()

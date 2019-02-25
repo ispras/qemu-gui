@@ -21,6 +21,7 @@ public:
     void save_vm_config() const;
     void createVMFolder(const QString &path) const;
     void set_name(const QString &name_vm_);
+    void setCmdLine(const QString &cmdLine);
     void addDefaultBus(const QString &image);
     void addDeviceMemory(const QString &size);
     void addDeviceMachine(const QString &name);
@@ -31,6 +32,7 @@ public:
     QString getPlatform();
 
     QString get_name();
+    QString getCmdLine();
     QString get_dir_path();
     QString getCommandLine(CommandLineParameters &cmdParams);
     Device *getSystemDevice() { return &system; }
@@ -47,6 +49,7 @@ private:
     QString name_vm;
     QString dir_path;
     QString platform;
+    QString addCmdLine;
 
     Device system;
     QStringList replayList;

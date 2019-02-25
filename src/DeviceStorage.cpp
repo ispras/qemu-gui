@@ -172,7 +172,7 @@ QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
     else
     {
         QString overlay = cmdParams.getOverlayForImage(getImage());
-        QString cmdFile = "-drive file=" + overlay + ",if=none,id="
+        QString cmdFile = " -drive file=" + overlay + ",if=none,id="
              + getId() + "-file";
 
         return cmdFile + " -drive driver=blkreplay,if=none,image="
