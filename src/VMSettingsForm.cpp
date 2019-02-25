@@ -13,6 +13,9 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
     deviceTree = new QTreeWidget();
     savecancel_btn = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
 
+    addCmdLineParamsEdit = new QLineEdit();
+    addCmdLineParamsEdit->setText(vm->getCmdLine());
+
     savecancel_btn->button(QDialogButtonBox::Save)->setDefault(true);
     savecancel_btn->button(QDialogButtonBox::Cancel)->setAutoDefault(true);
 
@@ -97,8 +100,15 @@ void VMSettingsForm::widget_placement()
 
     splitter->setSizes(QList<int>{150, 250});
 
+    QGroupBox *addCmdLineParamsGrpoup = new QGroupBox("Additional command line parameters");
+    QVBoxLayout *addCmdLay = new QVBoxLayout();
+    addCmdLay->addWidget(addCmdLineParamsEdit);
+    addCmdLineParamsGrpoup->setLayout(addCmdLay);
+
+
     QVBoxLayout *main = new QVBoxLayout(this);
     main->addWidget(splitter);
+    main->addWidget(addCmdLineParamsGrpoup);
     main->addWidget(savecancel_btn);
 }
 
@@ -112,6 +122,7 @@ void VMSettingsForm::save_settings()
             QMessageBox::Yes, QMessageBox::No);
         if (answer == QMessageBox::Yes)
         {
+            vm->setCmdLine(addCmdLineParamsEdit->text());
             vm->save_vm_config();
             vm->remove_directory_vm(vm->getPathRRDir());
             emit settingsDeleteRecords();
