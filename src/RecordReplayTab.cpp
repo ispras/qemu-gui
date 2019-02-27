@@ -77,8 +77,6 @@ void RecordReplayTab::connect_signals()
         this, SLOT(executionListItemSelectionChanged()));
     connect(execution_list, SIGNAL(itemActivated(QListWidgetItem *)),
         this, SLOT(executionListItemActivated(QListWidgetItem *)));
-    //connect(execution_list, SIGNAL(itemClicked(QListWidgetItem *)),
-    //    this, SLOT(executionListItemActivated(QListWidgetItem *)));
 
     connect(rename_act, SIGNAL(triggered()), this, SLOT(rename_ctxmenu()));
     connect(delete_act, SIGNAL(triggered()), this, SLOT(delete_ctxmenu()));
