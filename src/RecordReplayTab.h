@@ -4,32 +4,31 @@
 #include <QtWidgets>
 #include "VMConfig.h"
 #include "QemuLauncher.h"
+#include "GlobalConfig.h"
 
 class RecordReplayTab : public QWidget
 {
     Q_OBJECT
 
 public:
-    RecordReplayTab(QWidget *parent = 0);
+    RecordReplayTab(GlobalConfig *globalConfig, QWidget *parent = 0);
     ~RecordReplayTab();
 
     void setRecordReplayList(VMConfig *vm);
     QString getCurrentDirRR();
+    QString getICountValue();
 
 private:
     VMConfig *vm;
+    GlobalConfig *globalConfig;
 
 private:
     void connect_signals();
     void widget_placement();
+    void createXml(const QString &path, const QString &name);
+    void readXml(const QString &name);
+    void setCurrentDir(const QString &name);
 
-    private slots:
-    void record_execution();
-    void replay_execution();
-    void execution_listItemSelectionChanged();
-    void rename_ctxmenu();
-    void delete_ctxmenu();
-    
 private:
     QListWidget *execution_list;
     QPushButton *rec_btn;
@@ -39,18 +38,29 @@ private:
 
     QDialog *nameDirDialog;
     QLineEdit *nameEdit;
+    QSpinBox *icountSpin;
     QString commonDirRR;
     QString currentDirRR;
-    QString oldRRName = "";
+    QString oldRRName;
+    QString nameReplay;
+    QString icountValue;
+    QString qemuHash;
+    bool isNotRunning;
 
 private slots:
+    void record_execution();
+    void replay_execution();
+    void rename_ctxmenu();
+    void delete_ctxmenu();
     void setRRNameDir();
     void renameRRRecord();
+    void executionListItemActivated(QListWidgetItem *item);
 
 public slots:
     void enableBtns(bool state);
     void recordDeleteRecords();
     void deleteRecordFolder();
+    void executionListItemSelectionChanged();
 
 signals:
     void startRR(LaunchMode mode);

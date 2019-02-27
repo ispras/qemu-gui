@@ -38,8 +38,13 @@ PlatformInformationReader::~PlatformInformationReader()
 
 QString PlatformInformationReader::getQemuProfilePath(const QString &name)
 {
+    return "/platforms/qemu_" + getQemuHash(name);
+}
+
+QString PlatformInformationReader::getQemuHash(const QString & name)
+{
     uint hash = qHash(name);
-    return "/platforms/qemu_" + QString::number(hash).setNum(hash, 16);
+    return QString::number(hash).setNum(hash, 16);
 }
 
 
