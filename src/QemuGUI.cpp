@@ -72,7 +72,7 @@ QemuGUI::QemuGUI(QWidget *parent)
     tab->setMinimumWidth(400);
     tab_info = new QWidget(centralWidget);
     tab->addTab(tab_info, "Information about VM");
-    rec_replay_tab = new RecordReplayTab(this);
+    rec_replay_tab = new RecordReplayTab(global_config, this);
     tab->addTab(rec_replay_tab, "Record/Replay");
     terminal_tab = new TerminalTab(global_config, this);
 
@@ -251,6 +251,8 @@ void QemuGUI::connect_signals()
         this, SLOT(play_machine(LaunchMode)));
     connect(this, SIGNAL(recordReplayEnableBtns(bool)), 
         rec_replay_tab, SLOT(enableBtns(bool)));
+    connect(this, SIGNAL(currentQemuChanged()), 
+        rec_replay_tab, SLOT(executionListItemSelectionChanged()));
 }
 
 QString QemuGUI::delete_exclude_vm(bool delete_vm)
@@ -300,16 +302,20 @@ void QemuGUI::play_machine()
             qemu_install_dir_combo->currentIndex() != qemu_install_dir_combo->count() - 1)
         {
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
-                global_config->get_vm_by_name(listVM->currentItem()->text()), 
-                qmp_port, monitor_port, launchMode, 
-                launchMode != LaunchMode::NORMAL ? rec_replay_tab->getCurrentDirRR() : "");
+                global_config->get_vm_by_name(listVM->currentItem()->text()),
+                qmp_port, monitor_port, launchMode,
+                launchMode != LaunchMode::NORMAL ? rec_replay_tab->getCurrentDirRR() : "",
+                launchMode != LaunchMode::NORMAL ? rec_replay_tab->getICountValue() : "" );
             if (launch_qemu->isQemuExist())
             {
                 vm_state = VMState::Running;
                 qemu_play->setDisabled(true);
                 qemu_stop->setEnabled(true);
                 qemu_pause->setEnabled(launchMode == LaunchMode::NORMAL ? true : false);
-                emit recordReplayEnableBtns(false);
+                if (launchMode != LaunchMode::NORMAL)
+                {
+                    emit recordReplayEnableBtns(false);
+                }
 
                 QThread *thread = new QThread();
                 launch_qemu->moveToThread(thread);
@@ -519,6 +525,11 @@ void QemuGUI::qemu_install_dir_combo_activated(int index)
     if (index == qemu_install_dir_combo->count() - 1)
     {
         qemu_install_dir_settings->show();
+    }
+    else
+    {
+        global_config->set_current_qemu_dir(qemu_install_dir_combo->itemText(index));
+        emit currentQemuChanged();
     }
 }
 

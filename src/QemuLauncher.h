@@ -17,7 +17,7 @@ class QemuLauncher : public QObject
 public:
     QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm, 
         const QString &port_qmp, const QString &port_monitor, LaunchMode mode,
-        const QString &dirRR, QObject *parent = 0);
+        const QString &dirRR, const QString &icount = "7", QObject *parent = 0);
     QemuLauncher(const QString &qemuPath, const QString &platform,
         const QString &machine, const QString &port_qmp);
     ~QemuLauncher();
@@ -42,6 +42,8 @@ private:
 
     QStringList images;
     QStringList overlays;
+
+    QString icount;
 
 private:
     void createQemuPath(const QString &qemuPath, const QString &platform);

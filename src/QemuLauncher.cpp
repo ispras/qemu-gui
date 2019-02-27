@@ -4,9 +4,10 @@
 
 QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
     const QString &port_qmp, const QString &port_monitor, LaunchMode mode,
-    const QString &dirRR, QObject *parent)
+    const QString &dirRR, const QString &icount, QObject *parent)
     : QObject(parent), virtual_machine(vm), port_monitor(port_monitor),
-    port_qmp(port_qmp), mode(mode), dirRR(dirRR), qemuDirPath(qemu_install_dir_path)
+    port_qmp(port_qmp), mode(mode), dirRR(dirRR), qemuDirPath(qemu_install_dir_path),
+    icount(icount)
 {
     createQemuPath(qemu_install_dir_path, virtual_machine->getPlatform());
 
@@ -60,7 +61,7 @@ void QemuLauncher::start_qemu()
     {
         cmdParams.setOverlayDir(dirRR);
         QString rr = mode == LaunchMode::RECORD ? "record" : "replay";
-        recordReplay += "-icount shift=7,rr=" + rr + ",rrfile=" +
+        recordReplay += "-icount shift=" + icount + ",rr=" + rr + ",rrfile=" +
             "\"" + dirRR + "/replay.bin\"," + "rrsnapshot=init ";
         if (mode == LaunchMode::RECORD)
         {
@@ -68,7 +69,6 @@ void QemuLauncher::start_qemu()
             images = cmdParams.getImages();
             overlays = cmdParams.getOverlays();
             createOverlays();
-            qDebug() << "\n\n" << cmd << "\n\n";
         }
     }
     if (mode != LaunchMode::RECORD)
