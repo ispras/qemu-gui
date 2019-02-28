@@ -27,3 +27,6 @@ add_executable(qemu-gui src/main.cpp src/CreateVMForm.cpp src/QemuGUI.cpp
 # Use the Widgets module from Qt 5.
 target_link_libraries(qemu-gui Qt5::Widgets)
 target_link_libraries(qemu-gui Qt5::Network)
+
+install(TARGETS qemu-gui
+        RUNTIME DESTINATION bin)
