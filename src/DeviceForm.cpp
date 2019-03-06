@@ -63,8 +63,7 @@ DeviceCommandLineForm::DeviceCommandLineForm(Device *dev)
 
     cmdBtn->setStyleSheet("background-color: white;");
 
-    CommandLineParameters cmd;
-    cmdLine->setPlainText("Command line: \n" + device->getCommandLine(cmd).trimmed());
+    updateCmd();
     cmdLine->setReadOnly(true);
     cmdLine->setStyleSheet("background-color: #F0F0F0;");
 
@@ -93,6 +92,12 @@ void DeviceCommandLineForm::showCmdLine()
     cmdLine->setVisible(isVisible);
     optionalLbl->setVisible(isVisible);
     optionalLine->setVisible(isVisible);
+}
+
+void DeviceCommandLineForm::updateCmd()
+{
+    CommandLineParameters cmd;
+    cmdLine->setPlainText("Command line: \n" + device->getCommandLine(cmd).trimmed());
 }
 
 void DeviceCommandLineForm::saveUserOptions()
@@ -138,6 +143,7 @@ void DeviceStorageForm::editImage()
         emit newImageSet(newImage);
         emit newDiskCompleted("");
         device->setImage(newImage);
+        getCmdWidget()->updateCmd();
     }
 }
 
@@ -163,6 +169,7 @@ DeviceScsiControllerForm::DeviceScsiControllerForm(DeviceScsiController *dev)
 void DeviceScsiControllerForm::setController(const QString &name)
 {
     device->setController(name);
+    getCmdWidget()->updateCmd();
 }
 
 
@@ -204,3 +211,39 @@ void DeviceMemoryForm::sizeChanged(int val)
     device->setSize(QString::number(val));
 }
 
+/******************************************************************************
+* Device Network Adapter                                                      *
+******************************************************************************/
+
+
+DeviceNetworkForm::DeviceNetworkForm(DeviceNetworkController *dev)
+    : DeviceForm(dev), device(dev)
+{
+    QComboBox *controllersCombo = new QComboBox();
+    QComboBox *netdevCombo = new QComboBox();
+
+    controllersCombo->addItems(device->getControllers());
+    controllersCombo->setCurrentText(device->getCurrentController());
+    netdevCombo->addItems(device->getNetdevBackend());
+    netdevCombo->setCurrentText(device->getCurrentNetdev());
+
+    devFormAddWidget(controllersCombo);
+    devFormAddWidget(netdevCombo);
+
+    connect(controllersCombo, SIGNAL(currentIndexChanged(const QString &)),
+        this, SLOT(setController(const QString &)));
+    connect(netdevCombo, SIGNAL(currentIndexChanged(const QString &)),
+        this, SLOT(setNetdev(const QString &)));
+}
+
+void DeviceNetworkForm::setController(const QString &name)
+{
+    device->setController(name);
+    getCmdWidget()->updateCmd();
+}
+
+void DeviceNetworkForm::setNetdev(const QString &name)
+{
+    device->setNetdev(name);
+    getCmdWidget()->updateCmd();
+}

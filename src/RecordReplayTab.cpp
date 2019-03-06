@@ -73,10 +73,10 @@ void RecordReplayTab::connect_signals()
     connect(rec_btn, SIGNAL(clicked()), this, SLOT(record_execution()));
     connect(rpl_btn, SIGNAL(clicked()), this, SLOT(replay_execution()));
 
-    connect(execution_list, SIGNAL(itemSelectionChanged()), 
-        this, SLOT(executionListItemSelectionChanged()));
-    connect(execution_list, SIGNAL(itemActivated(QListWidgetItem *)),
-        this, SLOT(executionListItemActivated(QListWidgetItem *)));
+    connect(execution_list, SIGNAL(currentRowChanged(int)),
+        this, SLOT(executionListItemRowChanged(int)));
+    connect(execution_list, SIGNAL(itemClicked(QListWidgetItem *)),
+        this, SLOT(executionListItemClicked(QListWidgetItem *)));
 
     connect(rename_act, SIGNAL(triggered()), this, SLOT(rename_ctxmenu()));
     connect(delete_act, SIGNAL(triggered()), this, SLOT(delete_ctxmenu()));
@@ -220,9 +220,23 @@ void RecordReplayTab::executionListItemSelectionChanged()
     }
     else
     {
+        rpl_btn->setEnabled(false);
         rename_act->setDisabled(true);
         delete_act->setDisabled(true);
     }
+}
+
+void RecordReplayTab::executionListItemRowChanged(int currentRow)
+{
+    if (execution_list->count() > 1)
+    {
+        executionListItemSelectionChanged();
+    }
+}
+
+void RecordReplayTab::replayCurrentQemuChanged()
+{
+    executionListItemSelectionChanged();
 }
 
 void RecordReplayTab::rename_ctxmenu()
@@ -247,12 +261,10 @@ void RecordReplayTab::delete_ctxmenu()
             QMessageBox::Yes, QMessageBox::No);
         if (answer == QMessageBox::Yes)
         {
-            QString name = execution_list->currentItem()->text();
             vm->remove_directory_vm(currentDirRR);
-            delete execution_list->currentItem();
-            execution_list->clearSelection();
-            rename_act->setDisabled(true);
-            delete_act->setDisabled(true);
+            QListWidgetItem *it = execution_list->takeItem(execution_list->currentRow());
+            delete it;
+            executionListItemSelectionChanged();
         }
     }
 }
@@ -278,7 +290,7 @@ void RecordReplayTab::renameRRRecord()
     }
 }
 
-void RecordReplayTab::executionListItemActivated(QListWidgetItem *item)
+void RecordReplayTab::executionListItemClicked(QListWidgetItem *item)
 {
     executionListItemSelectionChanged();
 }
@@ -329,6 +341,7 @@ void RecordReplayTab::setRRNameDir()
         QListWidgetItem *it = new QListWidgetItem();
         it->setText(name);
         execution_list->addItem(it);
+        execution_list->setCurrentItem(it);
         QDir rrDir(currentDirRR);
         if (!rrDir.exists())
         {

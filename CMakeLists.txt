@@ -19,7 +19,7 @@ add_executable(qemu-gui src/main.cpp src/CreateVMForm.cpp src/QemuGUI.cpp
     src/TerminalTab.cpp src/ConnectionSettingsForm.cpp src/QemuSocket.cpp
     src/Device.cpp src/DeviceBus.cpp src/DeviceStorage.cpp
     src/DeviceFactory.cpp src/AddDeviceForm.cpp src/DeviceSystem.cpp
-    src/DeviceUsb.cpp
+    src/DeviceUsb.cpp src/DeviceNetwork.cpp
     src/QemuImgLauncher.cpp
     src/CommandLineParameters.cpp
     src/DeviceForm.cpp)

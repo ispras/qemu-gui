@@ -4,6 +4,7 @@
 #include <QtWidgets>
 #include "DeviceStorage.h"
 #include "DeviceSystem.h"
+#include "DeviceNetwork.h"
 
 class DeviceCommandLineForm;
 
@@ -13,6 +14,7 @@ class DeviceForm : public QGroupBox
 
 public:
     DeviceForm(Device *dev);
+    DeviceCommandLineForm *getCmdWidget() { return cmdWidget; }
 
 protected:
     void devFormAddWidget(QWidget *widget);
@@ -66,6 +68,7 @@ class DeviceCommandLineForm : public QGroupBox
 
 public:
     DeviceCommandLineForm(Device *dev);
+    void updateCmd();
 
 private:
     Device *device;
@@ -93,4 +96,20 @@ private:
     void sizeChanged(int val);
 };
 
+
+class DeviceNetworkForm : public DeviceForm
+{
+    Q_OBJECT
+
+public:
+    DeviceNetworkForm(DeviceNetworkController *dev);
+
+private:
+    DeviceNetworkController *device;
+
+private slots:
+    void setController(const QString &name);
+    void setNetdev(const QString &name);
+
+};
 #endif // DEVICEFORM_H

@@ -39,6 +39,7 @@ public:
 
     virtual QString getDeviceTypeName() const = 0;
     virtual bool isDeviceInvisible() { return true; }
+    virtual BusType needsBus() const { return BusType::System; }
 
 protected:
     virtual void saveParameters(QXmlStreamWriter &xml) const;

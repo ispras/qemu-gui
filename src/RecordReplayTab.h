@@ -54,13 +54,15 @@ private slots:
     void delete_ctxmenu();
     void setRRNameDir();
     void renameRRRecord();
-    void executionListItemActivated(QListWidgetItem *item);
+    void executionListItemClicked(QListWidgetItem *item);
 
 public slots:
     void enableBtns(bool state);
     void recordDeleteRecords();
     void deleteRecordFolder();
     void executionListItemSelectionChanged();
+    void executionListItemRowChanged(int currentRow);
+    void replayCurrentQemuChanged();
 
 signals:
     void startRR(LaunchMode mode);
