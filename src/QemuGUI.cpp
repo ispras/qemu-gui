@@ -252,7 +252,7 @@ void QemuGUI::connect_signals()
     connect(this, SIGNAL(recordReplayEnableBtns(bool)), 
         rec_replay_tab, SLOT(enableBtns(bool)));
     connect(this, SIGNAL(currentQemuChanged()), 
-        rec_replay_tab, SLOT(executionListItemSelectionChanged()));
+        rec_replay_tab, SLOT(replayCurrentQemuChanged()));
 }
 
 QString QemuGUI::delete_exclude_vm(bool delete_vm)

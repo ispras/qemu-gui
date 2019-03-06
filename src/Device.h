@@ -46,8 +46,10 @@ public:
     virtual BusType providesBus() const { return BusType::None; }
     virtual BusType needsBus() const { return BusType::None; }
 
-    const QString &getId() const { return id; }
+    virtual int getMaxCountDevices() const { return std::numeric_limits<int>::max(); }
 
+    const QString &getId() const { return id; }
+    
 protected:
     void setId(const QString &s) { id = s; }
 

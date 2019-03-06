@@ -29,6 +29,8 @@ public:
     virtual QString getDeviceTypeName() const { return typeName; }
     virtual BusType needsBus() const { return BusType::PCI; }
 
+    virtual int getMaxCountDevices() const { return 2; }
+
 private:
     void initDefault();
     static const char deviceName[];

@@ -13,6 +13,7 @@ public:
     DeviceBus(const QString &n, Device *parent);
 
     virtual QString getDeviceTypeName() const = 0;
+    virtual int getMaxCountDevices() const { return 1; }
 };
 
 class DeviceBusIde : public DeviceBus

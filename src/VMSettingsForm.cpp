@@ -6,7 +6,7 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
 {
     if (VMSettingsForm::objectName().isEmpty())
         VMSettingsForm::setObjectName(QStringLiteral("VMSettingsForm"));
-    resize(400, 300);
+    resize(420, 340);
     setWindowTitle(QApplication::translate("VMSettingsForm", "VM Settings", Q_NULLPTR));
     setWindowModality(Qt::WindowModality::ApplicationModal);
 
@@ -109,6 +109,7 @@ void VMSettingsForm::widget_placement()
     QVBoxLayout *main = new QVBoxLayout(this);
     main->addWidget(splitter);
     main->addWidget(addCmdLineParamsGrpoup);
+    main->addStretch(100);
     main->addWidget(savecancel_btn);
 }
 
@@ -226,7 +227,7 @@ void VMSettingsForm::addNewDevice(Device *newDevice)
     DeviceTreeItem *devItem = dynamic_cast<DeviceTreeItem*>(deviceTree->currentItem());
     Q_ASSERT(devItem);
     Device *dev = devItem->getDevice();
-    if (devItem->childCount() < 2) /* temp */
+    if (devItem->childCount() < dev->getMaxCountDevices())
     {
         dev->addDevice(newDevice);
         DeviceTreeItem *it = new DeviceTreeItem(newDevice);
