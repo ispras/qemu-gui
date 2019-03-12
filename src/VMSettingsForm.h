@@ -35,6 +35,7 @@ private:
     QWidget *emptyForm();
     Device *isDevicesValid(Device *device);
     void closeEvent(QCloseEvent *event);
+    void removingDevFromDevices(Device *dev);
 
 private slots:
     void applySettings();

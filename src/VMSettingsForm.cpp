@@ -85,6 +85,13 @@ void VMSettingsForm::closeEvent(QCloseEvent *event)
     closeForm();
 }
 
+void VMSettingsForm::removingDevFromDevices(Device * dev)
+{
+    Device *devParent = dynamic_cast<Device *>(dev->parent());
+    Q_ASSERT(devParent);
+    devParent->removeDevice(dev);
+}
+
 Device * VMSettingsForm::isDevicesValid(Device *device)
 {
     Device *retDevice = NULL;
@@ -278,9 +285,7 @@ void VMSettingsForm::removeDevice()
         QMessageBox::Yes, QMessageBox::No);
     if (answer == QMessageBox::Yes)
     {
-        Device *devParent = dynamic_cast<Device *>(dev->parent());
-        Q_ASSERT(devParent);
-        devParent->removeDevice(dev);
+        removingDevFromDevices(dev);
         deviceTree->setCurrentItem(devItem->parent());
         onDeviceTreeItemClicked(devItem->parent(), 0);
         delete devItem;        
@@ -300,9 +305,7 @@ void VMSettingsForm::closeForm()
 {
     foreach(Device *dev, addedDevices)
     {
-        Device *devParent = dynamic_cast<Device *>(dev->parent());
-        Q_ASSERT(devParent);
-        devParent->removeDevice(dev);
+        removingDevFromDevices(dev);
     }
     addedDevices.clear();
     vm->readVMConfig();
