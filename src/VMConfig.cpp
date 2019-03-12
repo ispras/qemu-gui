@@ -19,7 +19,7 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
 {
     list_of_vm_file = NULL;
     system.setRemovable(false);
-    QString path = path_vm;
+    path = path_vm;
     QString xml_name;
     if (path_vm.section('/', -1) != const_xml_name)
     {
@@ -32,6 +32,25 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
         dir_path.chop(const_xml_name.size());
     }
 
+    readVMConfig();
+}
+
+VMConfig::~VMConfig()
+{
+
+}
+
+void VMConfig::createVMFolder(const QString &path) const
+{
+    QDir vm_dir(path);
+    if (!vm_dir.exists())
+    {
+        QDir().mkdir(path);
+    }
+}
+
+void VMConfig::readVMConfig()
+{
     QFile file(path);
     if (file.open(QIODevice::ReadOnly))
     {
@@ -71,20 +90,6 @@ VMConfig::VMConfig(QObject *parent, const QString &path_vm)
     else
     {
         /* Default config */
-    }
-}
-
-VMConfig::~VMConfig()
-{
-
-}
-
-void VMConfig::createVMFolder(const QString &path) const
-{
-    QDir vm_dir(path);
-    if (!vm_dir.exists())
-    {
-        QDir().mkdir(path);
     }
 }
 

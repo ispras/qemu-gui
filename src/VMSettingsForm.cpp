@@ -11,19 +11,22 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
     setWindowModality(Qt::WindowModality::ApplicationModal);
 
     deviceTree = new QTreeWidget();
-    savecancel_btn = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
+    savecancel_btn = new QDialogButtonBox(QDialogButtonBox::Apply
+        | QDialogButtonBox::Save | QDialogButtonBox::Cancel);
 
     addCmdLineParamsEdit = new QLineEdit();
     addCmdLineParamsEdit->setText(vm->getCmdLine());
 
     savecancel_btn->button(QDialogButtonBox::Save)->setDefault(true);
     savecancel_btn->button(QDialogButtonBox::Cancel)->setAutoDefault(true);
+    savecancel_btn->button(QDialogButtonBox::Apply)->setAutoDefault(true);
 
     deviceTree->setContextMenuPolicy(Qt::CustomContextMenu);
     deviceTree->setHeaderHidden(1);
     deviceTree->setColumnCount(1);
 
     addDev = NULL;
+    addedDevices.clear();
 
     foreach(Device *dev, vm->getSystemDevice()->getDevices())
     {
@@ -55,7 +58,9 @@ void VMSettingsForm::connect_signals()
     connect(savecancel_btn, &QDialogButtonBox::accepted,
         this, &VMSettingsForm::save_settings);
     connect(savecancel_btn, &QDialogButtonBox::rejected,
-        this, &QWidget::close);
+        this, &VMSettingsForm::closeForm);
+    connect(savecancel_btn->button(QDialogButtonBox::Apply), &QPushButton::clicked,
+        this, &VMSettingsForm::applySettings);
 
     connect(deviceTree, &QTreeWidget::customContextMenuRequested,
         this, &VMSettingsForm::showContextMenu);
@@ -73,6 +78,11 @@ QWidget* VMSettingsForm::emptyForm()
     infoLay->addStretch(50);
     deviceInfoGroup->setLayout(infoLay);
     return deviceInfoGroup;
+}
+
+void VMSettingsForm::closeEvent(QCloseEvent *event)
+{
+    closeForm();
 }
 
 Device * VMSettingsForm::isDevicesValid(Device *device)
@@ -113,22 +123,27 @@ void VMSettingsForm::widget_placement()
     main->addWidget(savecancel_btn);
 }
 
+void VMSettingsForm::applySettings()
+{
+    int answer = QMessageBox::question(this, "Saving",
+        "All recorded executions will be removed. Are you sure?",
+        QMessageBox::Yes, QMessageBox::No);
+    if (answer == QMessageBox::Yes)
+    {
+        vm->setCmdLine(addCmdLineParamsEdit->text());
+        vm->save_vm_config();
+        vm->remove_directory_vm(vm->getPathRRDir());
+        emit settingsDeleteRecords();
+    }
+}
+
 void VMSettingsForm::save_settings()
 {
     Device *dev = isDevicesValid(vm->getSystemDevice());
     if (!dev)
     {
-        int answer = QMessageBox::question(this, "Saving",
-            "All recorded executions will be removed. Are you sure?",
-            QMessageBox::Yes, QMessageBox::No);
-        if (answer == QMessageBox::Yes)
-        {
-            vm->setCmdLine(addCmdLineParamsEdit->text());
-            vm->save_vm_config();
-            vm->remove_directory_vm(vm->getPathRRDir());
-            emit settingsDeleteRecords();
-            close();
-        }
+        applySettings();
+        close();
     }
     else
     {
@@ -229,6 +244,7 @@ void VMSettingsForm::addNewDevice(Device *newDevice)
     Device *dev = devItem->getDevice();
     if (devItem->childCount() < dev->getMaxCountDevices())
     {
+        addedDevices.append(newDevice);
         dev->addDevice(newDevice);
         DeviceTreeItem *it = new DeviceTreeItem(newDevice);
         deviceTree->currentItem()->addChild(it);
@@ -278,6 +294,19 @@ void VMSettingsForm::menuClose()
         delete addDev;
     }
     menu.clear();
+}
+
+void VMSettingsForm::closeForm()
+{
+    foreach(Device *dev, addedDevices)
+    {
+        Device *devParent = dynamic_cast<Device *>(dev->parent());
+        Q_ASSERT(devParent);
+        devParent->removeDevice(dev);
+    }
+    addedDevices.clear();
+    vm->readVMConfig();
+    close();
 }
 
 /***************************************************************************
