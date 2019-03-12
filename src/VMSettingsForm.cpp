@@ -141,6 +141,7 @@ void VMSettingsForm::applySettings()
         vm->save_vm_config();
         vm->remove_directory_vm(vm->getPathRRDir());
         emit settingsDeleteRecords();
+        emit updateVMInfo();
     }
 }
 

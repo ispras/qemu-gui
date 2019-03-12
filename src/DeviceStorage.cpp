@@ -27,6 +27,11 @@ DeviceIdeController::DeviceIdeController(Device *parent)
     initDefault();
 }
 
+QString DeviceIdeController::getDeviceInfo()
+{
+    return "IDE devices: \n";
+}
+
 void DeviceIdeController::initDefault()
 {
     (new DeviceBusIde(0, this))->setRemovable(false);
@@ -104,6 +109,11 @@ void DeviceScsiController::readParameters(QXmlStreamReader &xml)
     xml.readNextStartElement();
     Q_ASSERT(xml.name() == xml_controller);
     controller = xml.readElementText();
+}
+
+QString DeviceScsiController::getDeviceInfo()
+{
+    return "SCSI controller: " + controller + "\n";
 }
 
 
@@ -188,6 +198,14 @@ bool DeviceIdeHd::isDeviceValid()
     return !getImage().isEmpty();
 }
 
+QString DeviceIdeHd::getDeviceInfo()
+{
+    DeviceBusIde *bus = dynamic_cast<DeviceBusIde*>(parent());
+    Q_ASSERT(bus);
+    return "\tHard Disk:\n\t\tImage: " + getImage() + "\n"
+        + "\t\tBus: " + "ide." + QString::number(bus->getNumber()) + "\n";
+}
+
 
 /******************************************************************************
 * CDROM                                                                       *
@@ -243,6 +261,14 @@ bool DeviceIdeCdrom::isDeviceValid()
     return !getImage().isEmpty();
 }
 
+QString DeviceIdeCdrom::getDeviceInfo()
+{
+    DeviceBusIde *bus = dynamic_cast<DeviceBusIde*>(parent());
+    Q_ASSERT(bus);
+    return "\tCD-ROM:\n\t\tImage: " + getImage() + "\n"
+        + "\t\tBus: " + "ide." + QString::number(bus->getNumber()) + "\n";
+}
+
 
 /******************************************************************************
 * SCSI HDD                                                                    *
@@ -265,6 +291,7 @@ DeviceScsiHd::DeviceScsiHd(const QString &img, Device *parent)
 
 QString DeviceScsiHd::getCommandLineOption(CommandLineParameters &cmdParams)
 {
+    // TODO: bus?
     DeviceScsiController *scsi = dynamic_cast<DeviceScsiController *>(parent());
     Q_ASSERT(scsi);
     if (cmdParams.getLaunchMode() == LaunchMode::NORMAL)
@@ -290,5 +317,13 @@ QString DeviceScsiHd::getCommandLineOption(CommandLineParameters &cmdParams)
 bool DeviceScsiHd::isDeviceValid()
 {
     return !getImage().isEmpty();
+}
+
+QString DeviceScsiHd::getDeviceInfo()
+{
+    DeviceScsiController *scsi = dynamic_cast<DeviceScsiController *>(parent());
+    Q_ASSERT(scsi);
+    return "\tImage: " + getImage() + "\n"
+        + "\tBus: " + scsi->getId() + ".0" + "\n";
 }
 

@@ -29,6 +29,7 @@ public:
     void addDeviceCpu(const QString &name);
     void addUsbDevice();
     QString get_vm_info();
+
     void setPlatform(const QString &platformVM);
     QString getPlatform();
 

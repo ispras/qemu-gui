@@ -51,6 +51,16 @@ QString Device::getDescription() const
     return name;
 }
 
+QString Device::getCommonDeviceInfo()
+{
+    QString res = getDeviceInfo();
+    foreach(Device *dev, devices)
+    {
+        res += dev->getCommonDeviceInfo();
+    }
+    return res;
+}
+
 void Device::save(QXmlStreamWriter &xml) const
 {
     xml.writeStartElement(getDeviceTypeName());

@@ -413,6 +413,8 @@ void QemuGUI::edit_settings()
     settingsWindow->setAttribute(Qt::WA_DeleteOnClose);
     connect(settingsWindow, SIGNAL(settingsDeleteRecords()),
         rec_replay_tab, SLOT(recordDeleteRecords()));
+    connect(settingsWindow, SIGNAL(updateVMInfo()),
+        this, SLOT(listVM_item_selection_changed()));
 }
 
 void QemuGUI::listVM_item_selection_changed()

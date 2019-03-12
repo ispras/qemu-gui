@@ -50,6 +50,7 @@ private slots:
 
 signals:
     void settingsDeleteRecords();
+    void updateVMInfo();
 
 };
 

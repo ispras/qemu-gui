@@ -31,6 +31,9 @@ public:
 
     virtual int getMaxCountDevices() const { return 2; }
 
+protected:
+    virtual QString getDeviceInfo();
+
 private:
     void initDefault();
     static const char deviceName[];
@@ -75,6 +78,7 @@ protected:
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams);
     virtual void saveParameters(QXmlStreamWriter &xml) const;
     virtual void readParameters(QXmlStreamReader &xml);
+    virtual QString getDeviceInfo();
 
 private:
     void initDefault();
@@ -116,6 +120,7 @@ public:
 protected:
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams);
     virtual bool isDeviceValid();
+    virtual QString getDeviceInfo();
 
 private:
     static const char deviceName[];
@@ -137,6 +142,7 @@ public:
 protected:
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams);
     virtual bool isDeviceValid();
+    virtual QString getDeviceInfo();
 
 private:
     static const char deviceName[];
@@ -158,6 +164,7 @@ public:
 protected:
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams);
     virtual bool isDeviceValid();
+    virtual QString getDeviceInfo();
 
 private:
     static const char deviceName[];

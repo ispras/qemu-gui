@@ -94,4 +94,10 @@ void DeviceNetworkController::readParameters(QXmlStreamReader &xml)
     netdev = xml.readElementText();
 }
 
+QString DeviceNetworkController::getDeviceInfo()
+{
+    return "Network:\n\tController: " + controller + "\n"
+        + "\tBackend type: " + netdev + "\n";
+}
+
 

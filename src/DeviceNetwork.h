@@ -28,6 +28,7 @@ protected:
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams);
     virtual void saveParameters(QXmlStreamWriter &xml) const;
     virtual void readParameters(QXmlStreamReader &xml);
+    virtual QString getDeviceInfo();
 
 private:
     void initDefault();
