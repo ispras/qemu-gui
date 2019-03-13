@@ -20,6 +20,7 @@ public slots:
 private:
     VMConfig *vm;
     AddDeviceForm *addDev;
+    QList<Device *> addedDevices;
 
     QTreeWidget *deviceTree;
     QDialogButtonBox *savecancel_btn;
@@ -33,8 +34,11 @@ private:
     void widget_placement();
     QWidget *emptyForm();
     Device *isDevicesValid(Device *device);
+    void closeEvent(QCloseEvent *event);
+    void removingDevFromDevices(Device *dev);
 
 private slots:
+    void applySettings();
     void save_settings();
     void onDeviceTreeItemClicked(QTreeWidgetItem *item, int column);
     void showContextMenu(const QPoint &pos);
@@ -42,9 +46,11 @@ private slots:
     void addNewSystemDevice(const QString &devName);
     void removeDevice();
     void menuClose();
+    void closeForm();
 
 signals:
     void settingsDeleteRecords();
+    void updateVMInfo();
 
 };
 

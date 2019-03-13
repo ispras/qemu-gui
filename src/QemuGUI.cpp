@@ -83,6 +83,8 @@ QemuGUI::QemuGUI(QWidget *parent)
     edit_btn = new QPushButton("Edit VM", tab_info);
     info_lbl = new QLabel("", propBox);
 
+    info_lbl->setStyleSheet("background-color: white; color: darkblue; border: 1px; height: 14px;");
+
     propBox->setMinimumWidth(300);
     propBox->setVisible(false);
     edit_btn->setVisible(false);
@@ -413,6 +415,8 @@ void QemuGUI::edit_settings()
     settingsWindow->setAttribute(Qt::WA_DeleteOnClose);
     connect(settingsWindow, SIGNAL(settingsDeleteRecords()),
         rec_replay_tab, SLOT(recordDeleteRecords()));
+    connect(settingsWindow, SIGNAL(updateVMInfo()),
+        this, SLOT(listVM_item_selection_changed()));
 }
 
 void QemuGUI::listVM_item_selection_changed()

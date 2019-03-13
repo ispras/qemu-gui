@@ -36,14 +36,16 @@ TerminalTab::~TerminalTab()
 }
 
 
-void TerminalTab::set_terminal_interface(QColor bckgrnd_color, QColor text_color, const QString &font_family, int font_size)
+void TerminalTab::set_terminal_interface(QColor bckgrnd_color, QColor text_color,
+    const QString &font_family, int font_size)
 {
     QString color = text_color.name();
 
     terminal_text->setReadOnly(true);
     terminal_text->setFontPointSize(font_size);
     terminal_text->setFontFamily(font_family);
-    terminal_text->setStyleSheet("background-color: " + bckgrnd_color.name() + "; border: 1px");
+    terminal_text->setStyleSheet("background-color: " + bckgrnd_color.name()
+        + "; border: 1px");
     terminal_text->setTextColor(text_color);
 
 
@@ -51,9 +53,13 @@ void TerminalTab::set_terminal_interface(QColor bckgrnd_color, QColor text_color
     cmd_font.setPointSize(font_size);
     cmd_font.setFamily(font_family);
     terminal_cmd->setFont(cmd_font);
-    terminal_cmd->setStyleSheet("background-color: " + bckgrnd_color.name() + "; border: 1px; color: " + color + "; height: " + QString::number(font_size * 2) + "px;");
+    terminal_cmd->setStyleSheet("background-color: " + bckgrnd_color.name()
+        + "; border: 1px; color: " + color + "; height: "
+        + QString::number(font_size * 2) + "px;");
 
-    welcome_lbl->setStyleSheet("background-color: " + bckgrnd_color.name() + "; color: " + color + "; border: 1px; height: " + QString::number(font_size * 2) + "px; font: bold;");
+    welcome_lbl->setStyleSheet("background-color: " + bckgrnd_color.name()
+        + "; color: " + color + "; border: 1px; height: "
+        + QString::number(font_size * 2) + "px; font: bold;");
     welcome_lbl->setFont(cmd_font);
 
     QString text = terminal_text->toPlainText();
@@ -149,7 +155,6 @@ void TerminalTab::read_terminal()
             terminal_text->insertPlainText(line);
         }
     }
-    //terminal_text->insertPlainText(monitor_socket.readAll());
     terminal_text->ensureCursorVisible();
 }
 
@@ -163,14 +168,10 @@ void TerminalTab::save_terminal_interface_changes(QTextEdit *test_text)
 {
     QString style = test_text->styleSheet();
     QStringList style_list = style.split(QRegExp("\\W+"), QString::SkipEmptyParts);
-    //foreach(QString str, style_list)
-    //{
-    //    qDebug() << str;
-    //}
     int index = style_list.indexOf("background");
 
     set_terminal_interface(QColor("#" + style_list.at(index + 2)), test_text->textColor(), 
         test_text->fontFamily(), test_text->fontPointSize());
-    global_config->set_terminal_parameters(QColor("#" + style_list.at(index + 2)), test_text->textColor(), 
-        test_text->fontFamily(), test_text->fontPointSize());
+    global_config->set_terminal_parameters(QColor("#" + style_list.at(index + 2)),
+        test_text->textColor(), test_text->fontFamily(), test_text->fontPointSize());
 }

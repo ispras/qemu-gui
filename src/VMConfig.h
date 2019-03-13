@@ -17,6 +17,7 @@ public:
     ~VMConfig();
 
 public:
+    void readVMConfig();
     bool save_vm_config(const QString &path) const;
     void save_vm_config() const;
     void createVMFolder(const QString &path) const;
@@ -28,6 +29,7 @@ public:
     void addDeviceCpu(const QString &name);
     void addUsbDevice();
     QString get_vm_info();
+
     void setPlatform(const QString &platformVM);
     QString getPlatform();
 
@@ -46,6 +48,7 @@ public:
 private:
     QFile *list_of_vm_file;
 
+    QString path;
     QString name_vm;
     QString dir_path;
     QString platform;

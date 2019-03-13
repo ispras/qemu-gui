@@ -32,6 +32,7 @@ public:
     QString getCommandLine(CommandLineParameters &cmdParams);
     void setAdditionalCommandLineOption(const QString &cmd) { additionalCmdOption = cmd; }
     QString getAddtionalCommandLineOption() const { return additionalCmdOption; }
+    QString getCommonDeviceInfo();
 
     void save(QXmlStreamWriter &xml) const;
     void read(QXmlStreamReader &xml);
@@ -64,6 +65,7 @@ protected:
     because we have opportunity to add additional options in the right. 
     **/
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams) { return ""; }
+    virtual QString getDeviceInfo() { return ""; }
 
 private:
     void init();

@@ -40,6 +40,11 @@ QString DeviceMemory::getCommandLineOption(CommandLineParameters &cmdParams)
     return " -m " + size + "M";
 }
 
+QString DeviceMemory::getDeviceInfo()
+{
+    return "Memory: " + size + " Mb\n";
+}
+
 
 /******************************************************************************
 * System unchanged devices                                                    *
@@ -84,6 +89,11 @@ QString DeviceMachine::getCommandLineOption(CommandLineParameters &cmdParams)
     return " -machine " + getName();
 }
 
+QString DeviceMachine::getDeviceInfo()
+{
+    return "Machine: " + getName() + "\n";
+}
+
 /******************************************************************************
 * CPU                                                                         *
 ******************************************************************************/
@@ -100,6 +110,11 @@ DeviceCpu::DeviceCpu(const QString &cpuName, Device *parent) :
 QString DeviceCpu::getCommandLineOption(CommandLineParameters &cmdParams)
 {
     return " -cpu " + getName();
+}
+
+QString DeviceCpu::getDeviceInfo()
+{
+    return "CPU: " + getName() + "\n";
 }
 
 
