@@ -83,6 +83,8 @@ QemuGUI::QemuGUI(QWidget *parent)
     edit_btn = new QPushButton("Edit VM", tab_info);
     info_lbl = new QLabel("", propBox);
 
+    info_lbl->setStyleSheet("background-color: white; color: darkblue; border: 1px; height: 14px;");
+
     propBox->setMinimumWidth(300);
     propBox->setVisible(false);
     edit_btn->setVisible(false);

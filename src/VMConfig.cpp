@@ -182,7 +182,6 @@ void VMConfig::addUsbDevice()
 QString VMConfig::get_vm_info()
 {
     QString info = "Name: " + name_vm + "\n" + "Directory: " + dir_path + "\n";
-    // TODO: output hw config
     info += system.getCommonDeviceInfo();
     return info;
 }
