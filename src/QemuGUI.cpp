@@ -307,7 +307,8 @@ void QemuGUI::play_machine()
                 global_config->get_vm_by_name(listVM->currentItem()->text()),
                 qmp_port, monitor_port, launchMode,
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getCurrentDirRR() : "",
-                launchMode != LaunchMode::NORMAL ? rec_replay_tab->getICountValue() : "" );
+                launchMode != LaunchMode::NORMAL ? rec_replay_tab->getICountValue() : "",
+                launchMode != LaunchMode::NORMAL ? rec_replay_tab->getSnapshotPeriod() : "");
             if (launch_qemu->isQemuExist())
             {
                 vm_state = VMState::Running;

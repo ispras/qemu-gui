@@ -14,9 +14,10 @@ public:
     RecordReplayTab(GlobalConfig *globalConfig, QWidget *parent = 0);
     ~RecordReplayTab();
 
-    void setRecordReplayList(VMConfig *vm);
+    void setRecordReplayList(VMConfig *virtualMachine);
     QString getCurrentDirRR();
     QString getICountValue();
+    QString getSnapshotPeriod();
 
 private:
     VMConfig *vm;
@@ -39,12 +40,15 @@ private:
     QDialog *nameDirDialog;
     QLineEdit *nameEdit;
     QSpinBox *icountSpin;
+    QCheckBox *periodCheckBox;
+    QLineEdit *periodLineEdit;
     QString commonDirRR;
     QString currentDirRR;
     QString oldRRName;
     QString nameReplay;
     QString icountValue;
     QString qemuHash;
+    QString periodAutoSnap;
     bool isNotRunning;
 
 private slots:
@@ -55,6 +59,7 @@ private slots:
     void setRRNameDir();
     void renameRRRecord();
     void executionListItemClicked(QListWidgetItem *item);
+    void autoSnapshotEnabled(int state);
 
 public slots:
     void enableBtns(bool state);

@@ -5,6 +5,7 @@ static const char regExpForName[] = "[A-Za-z0-9_-][A-Za-z0-9_-\\s]+";
 const QString constXmlName = "replay.xml";
 const QString xml_hash = "QemuHash";
 const QString xml_icount = "icount";
+const QString xml_period = "period";
 const QString xml_start = "replay_";
 
 RecordReplayTab::RecordReplayTab(GlobalConfig *globalConfig, QWidget *parent)
@@ -39,6 +40,7 @@ RecordReplayTab::RecordReplayTab(GlobalConfig *globalConfig, QWidget *parent)
 
     isNotRunning = true;
     oldRRName = "";
+    periodAutoSnap = "";
 }
 
 RecordReplayTab::~RecordReplayTab()
@@ -46,16 +48,27 @@ RecordReplayTab::~RecordReplayTab()
 
 }
 
-void RecordReplayTab::setRecordReplayList(VMConfig *vm)
+void RecordReplayTab::setRecordReplayList(VMConfig *virtualMachine)
 {
-    this->vm = vm;
+    disconnect(execution_list, 0, 0, 0);
+
+    vm = virtualMachine;
     execution_list->clear();
+
+    connect(execution_list, SIGNAL(currentRowChanged(int)),
+        this, SLOT(executionListItemRowChanged(int)));
+    connect(execution_list, SIGNAL(itemClicked(QListWidgetItem *)),
+        this, SLOT(executionListItemClicked(QListWidgetItem *)));
+
     execution_list->addItems(vm->getReplayList());
-    if (execution_list->count())
+    if (vm->getReplayList().count())
     {
         execution_list->setCurrentRow(0);
     }
-    rpl_btn->setEnabled(false);
+    else
+    {
+        rpl_btn->setEnabled(false);
+    }
 }
 
 QString RecordReplayTab::getCurrentDirRR()
@@ -68,15 +81,15 @@ QString RecordReplayTab::getICountValue()
     return icountValue;
 }
 
+QString RecordReplayTab::getSnapshotPeriod()
+{
+    return periodAutoSnap;
+}
+
 void RecordReplayTab::connect_signals()
 {
     connect(rec_btn, SIGNAL(clicked()), this, SLOT(record_execution()));
     connect(rpl_btn, SIGNAL(clicked()), this, SLOT(replay_execution()));
-
-    connect(execution_list, SIGNAL(currentRowChanged(int)),
-        this, SLOT(executionListItemRowChanged(int)));
-    connect(execution_list, SIGNAL(itemClicked(QListWidgetItem *)),
-        this, SLOT(executionListItemClicked(QListWidgetItem *)));
 
     connect(rename_act, SIGNAL(triggered()), this, SLOT(rename_ctxmenu()));
     connect(delete_act, SIGNAL(triggered()), this, SLOT(delete_ctxmenu()));
@@ -114,6 +127,10 @@ void RecordReplayTab::createXml(const QString &path, const QString &name)
         xmlWriter.writeCharacters(icountValue);
         xmlWriter.writeEndElement();
 
+        xmlWriter.writeStartElement(xml_period);
+        xmlWriter.writeCharacters(periodAutoSnap);
+        xmlWriter.writeEndElement();
+
         xmlWriter.writeEndElement();
         xmlWriter.writeEndDocument();
         file.close();
@@ -138,6 +155,10 @@ void RecordReplayTab::readXml(const QString &name)
             else if (xmlReader.name() == xml_icount)
             {
                 icountValue = xmlReader.readElementText();
+            }
+            else if (xmlReader.name() == xml_period)
+            {
+                periodAutoSnap = xmlReader.readElementText();
             }
         }
     }
@@ -166,21 +187,34 @@ void RecordReplayTab::record_execution()
     icountSpin->setMinimum(1);
     icountSpin->setMaximum(12);
     icountSpin->setValue(5);
-    
+    periodCheckBox = new QCheckBox();
+    periodLineEdit = new QLineEdit();
+    periodCheckBox->setChecked(false);
+    periodLineEdit->setEnabled(false);
+    periodLineEdit->setFixedWidth(nameEdit->width() / 2);
+    periodLineEdit->setValidator(new QRegExpValidator(QRegExp("[1-9][0-9]+"), this));
+
     QDialogButtonBox *okCancelBtn = new QDialogButtonBox(QDialogButtonBox::Ok
         | QDialogButtonBox::Cancel);
 
     QHBoxLayout *topLay = new QHBoxLayout();
-    topLay->addWidget(new QLabel("Execution name:"));
+    topLay->addWidget(new QLabel("Execution name"));
     topLay->addWidget(nameEdit);
 
     QHBoxLayout *bottomLay = new QHBoxLayout();
-    bottomLay->addWidget(new QLabel("icount value:"));
+    bottomLay->addWidget(new QLabel("Icount value"));
     bottomLay->addWidget(icountSpin);
+
+    QHBoxLayout *periodLay = new QHBoxLayout();
+    periodLay->addWidget(new QLabel("Auto snapshot"));
+    periodLay->addWidget(periodCheckBox);
+    periodLay->addWidget(new QLabel("Period (sec)"));
+    periodLay->addWidget(periodLineEdit);
 
     QVBoxLayout *mainLay = new QVBoxLayout();
     mainLay->addLayout(topLay);
     mainLay->addLayout(bottomLay);
+    mainLay->addLayout(periodLay);
     mainLay->addWidget(okCancelBtn);
 
     nameDirDialog->setLayout(mainLay);
@@ -190,6 +224,8 @@ void RecordReplayTab::record_execution()
         this, &RecordReplayTab::setRRNameDir);
     connect(okCancelBtn, &QDialogButtonBox::rejected,
         nameDirDialog, &QDialog::close);
+    connect(periodCheckBox, SIGNAL(stateChanged(int)), 
+        this, SLOT(autoSnapshotEnabled(int)));
 }
 
 void RecordReplayTab::replay_execution()
@@ -228,7 +264,7 @@ void RecordReplayTab::executionListItemSelectionChanged()
 
 void RecordReplayTab::executionListItemRowChanged(int currentRow)
 {
-    if (execution_list->count() > 1)
+    if (execution_list->count())
     {
         executionListItemSelectionChanged();
     }
@@ -295,6 +331,11 @@ void RecordReplayTab::executionListItemClicked(QListWidgetItem *item)
     executionListItemSelectionChanged();
 }
 
+void RecordReplayTab::autoSnapshotEnabled(int state)
+{
+    periodLineEdit->setEnabled(state);
+}
+
 void RecordReplayTab::recordDeleteRecords()
 {
     execution_list->clear();
@@ -336,6 +377,7 @@ void RecordReplayTab::setRRNameDir()
 
         nameReplay = nameEdit->text();
         icountValue = QString::number(icountSpin->value());
+        periodAutoSnap = (periodCheckBox->isChecked()) ? periodLineEdit->text() : "";
 
         setCurrentDir(name);
         QListWidgetItem *it = new QListWidgetItem();
