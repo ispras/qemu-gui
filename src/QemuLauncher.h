@@ -17,8 +17,8 @@ class QemuLauncher : public QObject
 public:
     QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm, 
         const QString &port_qmp, const QString &port_monitor, LaunchMode mode,
-        const QString &dirRR, const QString &icount, const QString &periodSnap,
-        QObject *parent = 0);
+        bool isDebugEnable, const QString &dirRR, const QString &icount,
+        const QString &periodSnap, QObject *parent = 0);
     QemuLauncher(const QString &qemuPath, const QString &platform,
         const QString &machine, const QString &port_qmp);
     ~QemuLauncher();
@@ -40,12 +40,14 @@ private:
     QString qmp;
     QString recordReplay;
     QString cmd;
+    QString debugCmd;
 
     QStringList images;
     QStringList overlays;
 
     QString icount;
     QString period;
+    bool isDebug;
 
 private:
     void createQemuPath(const QString &qemuPath, const QString &platform);

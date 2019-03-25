@@ -41,8 +41,10 @@ private:
     
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
+    QToolBar *vmToolBar;
     QWidget *centralWidget;
     QStatusBar *statusBar;
+    QCheckBox *debugCheckBox;
 
     QAction *qemu_play;
     QAction *qemu_pause;
