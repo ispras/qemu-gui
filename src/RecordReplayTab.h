@@ -29,6 +29,7 @@ private:
     void createXml(const QString &path, const QString &name);
     void readXml(const QString &name);
     void setCurrentDir(const QString &name);
+    bool checkReplayForm();
 
 private:
     QListWidget *execution_list;

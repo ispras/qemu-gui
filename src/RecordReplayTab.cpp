@@ -169,6 +169,21 @@ void RecordReplayTab::setCurrentDir(const QString & name)
     currentDirRR = vm->getPathRRDir() + "/" + name;
 }
 
+bool RecordReplayTab::checkReplayForm()
+{
+    if (nameEdit->text().isEmpty())
+    {
+        QMessageBox::warning(this, "Error", "Field 'Execution name' must be filled");
+        return false;
+    }
+    if (periodCheckBox->isChecked() && periodLineEdit->text().isEmpty())
+    {
+        QMessageBox::warning(this, "Error", "Field 'Period' must be filled");
+        return false;
+    }
+    return true;
+}
+
 void RecordReplayTab::record_execution()
 {
     QDir rrDir(vm->getPathRRDir());
@@ -360,7 +375,7 @@ void RecordReplayTab::enableBtns(bool state)
 
 void RecordReplayTab::setRRNameDir()
 {
-    if (!nameEdit->text().isEmpty())
+    if (checkReplayForm())
     {
         QString name = nameEdit->text().trimmed();
         QList <QListWidgetItem*> items = execution_list->findItems(name,
