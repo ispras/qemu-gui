@@ -6,6 +6,7 @@ PlatformInformationReader::PlatformInformationReader(const QString &qemuPath,
     : qemuDirPath(qemuPath), platformDirPath(homeDir + "/platforms")
 {
     platforms = { QStringList({ "i386", "pc" }),
+        QStringList({ "x86_64", "pc" }),
         QStringList({ "arm", "virt" }),
         /*QStringList({ "mips", "none" }),*/
         QStringList({ "ppc", "none" })

@@ -4,21 +4,23 @@
 
 QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
     const QString &port_qmp, const QString &port_monitor, LaunchMode mode,
-    const QString &dirRR, const QString &icount, QObject *parent)
+    bool isDebugEnable, const QString &dirRR, const QString &icount, 
+    const QString &periodSnap, QObject *parent)
     : QObject(parent), virtual_machine(vm), port_monitor(port_monitor),
     port_qmp(port_qmp), mode(mode), dirRR(dirRR), qemuDirPath(qemu_install_dir_path),
-    icount(icount)
+    icount(icount), period(periodSnap), isDebug(isDebugEnable)
 {
     createQemuPath(qemu_install_dir_path, virtual_machine->getPlatform());
 
     qemu = NULL;
     mon = " -monitor \"tcp:127.0.0.1:" + port_monitor + ",server,nowait\"";
     qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,nowait\"";
+    debugCmd = (isDebug && mode != LaunchMode::RECORD) ? " -s -S" : "";
 }
 
 QemuLauncher::QemuLauncher(const QString &qemuPath, const QString &platform,
     const QString &machine, const QString &port_qmp)
-    : port_qmp(port_qmp), mode(LaunchMode::NORMAL)
+    : port_qmp(port_qmp), mode(LaunchMode::NORMAL), isDebug(false)
 {
     createQemuPath(qemuPath, platform);
     cmd = "-machine " + machine + " ";
@@ -26,6 +28,7 @@ QemuLauncher::QemuLauncher(const QString &qemuPath, const QString &platform,
     virtual_machine = NULL;
     mon = "";
     qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,nowait\"";
+    debugCmd = "";
 }
 
 QemuLauncher::~QemuLauncher()
@@ -62,13 +65,17 @@ void QemuLauncher::start_qemu()
         cmdParams.setOverlayDir(dirRR);
         QString rr = mode == LaunchMode::RECORD ? "record" : "replay";
         recordReplay += "-icount shift=" + icount + ",rr=" + rr + ",rrfile=" +
-            "\"" + dirRR + "/replay.bin\"," + "rrsnapshot=init ";
+            "\"" + dirRR + "/replay.bin\"," + "rrsnapshot=init";
         if (mode == LaunchMode::RECORD)
         {
             cmd = virtual_machine->getCommandLine(cmdParams);
             images = cmdParams.getImages();
             overlays = cmdParams.getOverlays();
             createOverlays();
+        }
+        if (!period.isEmpty())
+        {
+            recordReplay += ",rrperiod=" + period;
         }
     }
     if (mode != LaunchMode::RECORD)
@@ -103,8 +110,10 @@ void QemuLauncher::createOverlays()
 
 void QemuLauncher::launchQemu()
 {
-    qDebug() << qemuExePath + " " + recordReplay + cmd + mon + qmp;
-    qemu->start("\"" + qemuExePath + "\" " + recordReplay + cmd + mon + qmp);
+    QString cmdLine = "\"" + qemuExePath + "\" " + recordReplay + cmd
+        + mon + qmp + debugCmd;
+    qDebug() << cmdLine;
+    qemu->start(cmdLine);
     if (virtual_machine)
     {
         qemu->waitForFinished(-1);

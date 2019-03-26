@@ -15,6 +15,11 @@ QemuGUI::QemuGUI(QWidget *parent)
     mainToolBar = new QToolBar(this);
     mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
     addToolBar(mainToolBar);
+    vmToolBar = new QToolBar(this);
+    
+    this->addToolBarBreak();
+    addToolBar(Qt::ToolBarArea::TopToolBarArea, vmToolBar);
+
     centralWidget = new QWidget(this);
     centralWidget->setObjectName(QStringLiteral("centralWidget"));
     setCentralWidget(centralWidget);
@@ -61,11 +66,13 @@ QemuGUI::QemuGUI(QWidget *parent)
     connect(qemu_stop, SIGNAL(triggered()), this, SLOT(stop_machine()));
     qemu_stop->setEnabled(false);
 
+    debugCheckBox = new QCheckBox("Debug enable");
+    mainToolBar->addWidget(debugCheckBox);
+
     mainToolBar->addWidget(qemu_install_dir_combo);
-    mainToolBar->addSeparator();
-    //mainToolBar->addAction("Launch settings", this, SLOT(launch_settings()));
-    mainToolBar->addAction("Create machine", this, SLOT(create_machine()));
-    mainToolBar->addAction("Add existing machine", this, SLOT(add_machine()));
+    //mainToolBar->addSeparator();
+    vmToolBar->addAction("Create machine", this, SLOT(create_machine()));
+    vmToolBar->addAction("Add existing machine", this, SLOT(add_machine()));
     
     // tab widget	
     tab = new QTabWidget(centralWidget);
@@ -305,9 +312,10 @@ void QemuGUI::play_machine()
         {
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
                 global_config->get_vm_by_name(listVM->currentItem()->text()),
-                qmp_port, monitor_port, launchMode,
+                qmp_port, monitor_port, launchMode, debugCheckBox->isChecked(),
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getCurrentDirRR() : "",
-                launchMode != LaunchMode::NORMAL ? rec_replay_tab->getICountValue() : "" );
+                launchMode != LaunchMode::NORMAL ? rec_replay_tab->getICountValue() : "",
+                launchMode != LaunchMode::NORMAL ? rec_replay_tab->getSnapshotPeriod() : "");
             if (launch_qemu->isQemuExist())
             {
                 vm_state = VMState::Running;

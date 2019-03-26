@@ -14,9 +14,10 @@ public:
     RecordReplayTab(GlobalConfig *globalConfig, QWidget *parent = 0);
     ~RecordReplayTab();
 
-    void setRecordReplayList(VMConfig *vm);
+    void setRecordReplayList(VMConfig *virtualMachine);
     QString getCurrentDirRR();
     QString getICountValue();
+    QString getSnapshotPeriod();
 
 private:
     VMConfig *vm;
@@ -28,23 +29,28 @@ private:
     void createXml(const QString &path, const QString &name);
     void readXml(const QString &name);
     void setCurrentDir(const QString &name);
+    bool checkReplayForm();
 
 private:
-    QListWidget *execution_list;
+    QListWidget *executionList;
     QPushButton *rec_btn;
     QPushButton *rpl_btn;
-    QAction *rename_act;
-    QAction *delete_act;
+    QAction *renameAct;
+    QAction *deleteAct;
+    QAction *setPeriodAct;
 
-    QDialog *nameDirDialog;
+    QDialog *replayDialog;
     QLineEdit *nameEdit;
     QSpinBox *icountSpin;
+    QCheckBox *periodCheckBox;
+    QLineEdit *periodLineEdit;
     QString commonDirRR;
     QString currentDirRR;
     QString oldRRName;
     QString nameReplay;
     QString icountValue;
     QString qemuHash;
+    QString periodAutoSnap;
     bool isNotRunning;
 
 private slots:
@@ -52,9 +58,12 @@ private slots:
     void replay_execution();
     void rename_ctxmenu();
     void delete_ctxmenu();
+    void setPeriodCtxmenu();
     void setRRNameDir();
+    void setPeriodSnapReplay();
     void renameRRRecord();
     void executionListItemClicked(QListWidgetItem *item);
+    void autoSnapshotEnabled(int state);
 
 public slots:
     void enableBtns(bool state);
