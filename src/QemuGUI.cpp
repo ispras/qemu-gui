@@ -319,6 +319,7 @@ void QemuGUI::play_machine()
             if (launch_qemu->isQemuExist())
             {
                 vm_state = VMState::Running;
+                rec_replay_tab->setSnapshotPeriod("");
                 qemu_play->setDisabled(true);
                 qemu_stop->setEnabled(true);
                 qemu_pause->setEnabled(launchMode == LaunchMode::NORMAL ? true : false);
