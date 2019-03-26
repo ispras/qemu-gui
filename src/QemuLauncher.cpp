@@ -73,14 +73,10 @@ void QemuLauncher::start_qemu()
             overlays = cmdParams.getOverlays();
             createOverlays();
         }
-        else
+        if (!period.isEmpty())
         {
-            if (!period.isEmpty())
-            {
-                recordReplay += ",period=" + period;
-            }
+            recordReplay += ",rrperiod=" + period;
         }
-        recordReplay += " ";
     }
     if (mode != LaunchMode::RECORD)
     {

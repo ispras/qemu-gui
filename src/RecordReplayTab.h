@@ -32,13 +32,14 @@ private:
     bool checkReplayForm();
 
 private:
-    QListWidget *execution_list;
+    QListWidget *executionList;
     QPushButton *rec_btn;
     QPushButton *rpl_btn;
-    QAction *rename_act;
-    QAction *delete_act;
+    QAction *renameAct;
+    QAction *deleteAct;
+    QAction *setPeriodAct;
 
-    QDialog *nameDirDialog;
+    QDialog *replayDialog;
     QLineEdit *nameEdit;
     QSpinBox *icountSpin;
     QCheckBox *periodCheckBox;
@@ -57,7 +58,9 @@ private slots:
     void replay_execution();
     void rename_ctxmenu();
     void delete_ctxmenu();
+    void setPeriodCtxmenu();
     void setRRNameDir();
+    void setPeriodSnapReplay();
     void renameRRRecord();
     void executionListItemClicked(QListWidgetItem *item);
     void autoSnapshotEnabled(int state);
