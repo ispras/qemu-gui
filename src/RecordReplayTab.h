@@ -18,6 +18,7 @@ public:
     QString getCurrentDirRR();
     QString getICountValue();
     QString getSnapshotPeriod();
+    void setSnapshotPeriod(QString val);
 
 private:
     VMConfig *vm;
@@ -29,7 +30,10 @@ private:
     void createXml(const QString &path, const QString &name);
     void readXml(const QString &name);
     void setCurrentDir(const QString &name);
+    void createDialog(const QString &caption);
+    bool checkPeriodSet();
     bool checkReplayForm();
+    QHBoxLayout *periodLayout(int width);
 
 private:
     QListWidget *executionList;
@@ -37,7 +41,6 @@ private:
     QPushButton *rpl_btn;
     QAction *renameAct;
     QAction *deleteAct;
-    QAction *setPeriodAct;
 
     QDialog *replayDialog;
     QLineEdit *nameEdit;
@@ -58,7 +61,6 @@ private slots:
     void replay_execution();
     void rename_ctxmenu();
     void delete_ctxmenu();
-    void setPeriodCtxmenu();
     void setRRNameDir();
     void setPeriodSnapReplay();
     void renameRRRecord();
