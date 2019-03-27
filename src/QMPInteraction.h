@@ -11,7 +11,7 @@ class QMPInteraction : public QObject
     Q_OBJECT
 
 public:
-    QMPInteraction(QObject *parent) {};
+    QMPInteraction(QObject *parent);
     QMPInteraction(QObject *parent, int port);
     ~QMPInteraction();
 

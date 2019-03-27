@@ -1,6 +1,11 @@
 #include "QMPInteraction.h"
 
 
+QMPInteraction::QMPInteraction(QObject *parent)
+    : QObject(parent), isQmpConnect(false)
+{
+}
+
 QMPInteraction::QMPInteraction(QObject *parent, int port)
     : QObject(parent), isQmpConnect(false)
 {

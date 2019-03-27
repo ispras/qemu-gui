@@ -182,7 +182,7 @@ void QemuGUI::setButtonsState()
 {
     qemu_play->setEnabled(debugCheckBox->isChecked());
     qemu_pause->setEnabled(launchMode == LaunchMode::NORMAL 
-        && !debugCheckBox->isChecked() ? true : false);
+        && !debugCheckBox->isChecked());
     qemu_stop->setEnabled(true);
 }
 
