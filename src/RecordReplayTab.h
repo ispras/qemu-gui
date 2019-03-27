@@ -19,6 +19,7 @@ public:
     QString getICountValue();
     QString getSnapshotPeriod();
     void setSnapshotPeriod(QString val);
+    void clearExecutionList();
 
 private:
     VMConfig *vm;
@@ -69,6 +70,7 @@ private slots:
 
 public slots:
     void enableBtns(bool state);
+    void setState(bool state);
     void recordDeleteRecords();
     void deleteRecordFolder();
     void executionListItemSelectionChanged();

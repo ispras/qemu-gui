@@ -53,6 +53,7 @@ QemuGUI::QemuGUI(QWidget *parent)
         ":Resources/play_disable.png"), "Run VM", this);
     mainToolBar->addAction(qemu_play);
     connect(qemu_play, SIGNAL(triggered()), this, SLOT(play_machine()));
+    qemu_play->setEnabled(false);
 
     qemu_pause = new QAction(set_button_icon_for_state(":Resources/pause.png",
         ":Resources/pause_disable.png"), "Pause VM", this);
@@ -142,6 +143,10 @@ void QemuGUI::fill_listVM_from_config()
     }
     listVM->setCurrentRow(0);
     listVM->setFocus();
+    if (listVM->count())
+    {
+        qemu_play->setEnabled(true);
+    }
 }
 
 void QemuGUI::widget_placement()
@@ -268,6 +273,8 @@ void QemuGUI::connect_signals()
         this, SLOT(play_machine(LaunchMode)));
     connect(this, SIGNAL(recordReplayEnableBtns(bool)), 
         rec_replay_tab, SLOT(enableBtns(bool)));
+    connect(this, SIGNAL(recordReplayStateVM(bool)),
+        rec_replay_tab, SLOT(setState(bool)));
     connect(this, SIGNAL(currentQemuChanged()), 
         rec_replay_tab, SLOT(replayCurrentQemuChanged()));
 }
@@ -277,12 +284,18 @@ QString QemuGUI::delete_exclude_vm(bool delete_vm)
     QString del_vm_name = listVM->currentItem()->text();
     global_config->delete_exclude_vm(del_vm_name, delete_vm);
     // may be return value if all ok, exclude from list
+    rec_replay_tab->clearExecutionList();
 
     delete listVM->currentItem();
 
     if (listVM->count() != 0)
     {
         listVM->setCurrentRow(0);
+    }
+    else
+    {
+        emit recordReplayEnableBtns(false);
+        qemu_play->setEnabled(false);
     }
     return del_vm_name;
 }
@@ -339,6 +352,7 @@ void QemuGUI::play_machine()
                 qemu_pause->setEnabled(false);
                 qemu_stop->setEnabled(false);
                 emit recordReplayEnableBtns(false);
+                emit recordReplayStateVM(false);
 
                 QThread *thread = new QThread();
                 launch_qemu->moveToThread(thread);
@@ -392,6 +406,7 @@ void QemuGUI::finish_qemu(int exitCode)
     delete qmp;
     qmp = NULL;
     emit recordReplayEnableBtns(true);
+    emit recordReplayStateVM(true);
 }
 
 void QemuGUI::pause_machine()

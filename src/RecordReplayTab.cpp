@@ -17,6 +17,7 @@ RecordReplayTab::RecordReplayTab(GlobalConfig *globalConfig, QWidget *parent)
     executionList = new QListWidget();
     rec_btn = new QPushButton("Start record");
     rpl_btn = new QPushButton("Start replay");
+    rec_btn->setEnabled(false);
     rpl_btn->setEnabled(false);
 
     renameAct = new QAction("Rename", executionList);
@@ -52,6 +53,7 @@ void RecordReplayTab::setRecordReplayList(VMConfig *virtualMachine)
     disconnect(executionList, 0, 0, 0);
 
     vm = virtualMachine;
+    rec_btn->setEnabled(true);
     executionList->clear();
 
     connect(executionList, SIGNAL(currentRowChanged(int)),
@@ -88,6 +90,12 @@ QString RecordReplayTab::getSnapshotPeriod()
 void RecordReplayTab::setSnapshotPeriod(QString val)
 {
     periodAutoSnap = val;
+}
+
+void RecordReplayTab::clearExecutionList()
+{
+    disconnect(executionList, 0, 0, 0);
+    executionList->clear();
 }
 
 void RecordReplayTab::connect_signals()
@@ -390,6 +398,11 @@ void RecordReplayTab::autoSnapshotEnabled(int state)
     periodLineEdit->setEnabled(state);
 }
 
+void RecordReplayTab::setState(bool state)
+{
+    isNotRunning = state;
+}
+
 void RecordReplayTab::recordDeleteRecords()
 {
     executionList->clear();
@@ -407,7 +420,6 @@ void RecordReplayTab::deleteRecordFolder()
 
 void RecordReplayTab::enableBtns(bool state)
 {
-    isNotRunning = state;
     rec_btn->setEnabled(state);
     rpl_btn->setEnabled(executionList->currentItem() && state);
 }
