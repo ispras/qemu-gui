@@ -124,6 +124,7 @@ signals:
     void monitor_connect(int);
     void monitor_abort();
     void recordReplayEnableBtns(bool);
+    void recordReplayStateVM(bool);
     void deleteRecord();
     void currentQemuChanged();
 
