@@ -65,7 +65,6 @@ void QMPInteraction::read_terminal()
 
 void QMPInteraction::connectedSocket()
 {
-    qDebug() << "\n----- connect\n";
     socket.write(init());
 }
 
