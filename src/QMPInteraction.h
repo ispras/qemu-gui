@@ -17,6 +17,7 @@ public:
 
 private:
     QemuSocket socket;
+    bool isQmpConnect;
 
 protected:
     QByteArray init();
@@ -33,6 +34,7 @@ public slots:
     void commandShutdownQemu();
 
 signals :
+    void connectionEstablished();
     void qemu_resumed();
     void qemu_stopped();
 };

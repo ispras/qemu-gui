@@ -85,6 +85,7 @@ private:
     void fill_qemu_install_dir_from_config();
 
 public slots:
+    void setButtonsState();
     void stop_qemu_btn_state();
     void resume_qemu_btn_state();
     void set_connection_settings(const QString &qmp, const QString &monitor);
