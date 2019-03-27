@@ -178,6 +178,14 @@ void QemuGUI::fill_qemu_install_dir_from_config()
         qemu_install_dir_combo->setCurrentText(global_config->get_current_qemu_dir());
 }
 
+void QemuGUI::setButtonsState()
+{
+    qemu_play->setEnabled(debugCheckBox->isChecked());
+    qemu_pause->setEnabled(launchMode == LaunchMode::NORMAL 
+        && !debugCheckBox->isChecked());
+    qemu_stop->setEnabled(true);
+}
+
 void QemuGUI::stop_qemu_btn_state()
 {
     vm_state = VMState::Stopped;
@@ -318,11 +326,18 @@ void QemuGUI::play_machine()
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getSnapshotPeriod() : "");
             if (launch_qemu->isQemuExist())
             {
-                vm_state = VMState::Running;
+                if (debugCheckBox->isChecked())
+                {
+                    vm_state = VMState::Stopped;
+                }
+                else
+                {
+                    vm_state = VMState::Running;
+                }
                 rec_replay_tab->setSnapshotPeriod("");
-                qemu_play->setDisabled(true);
-                qemu_stop->setEnabled(true);
-                qemu_pause->setEnabled(launchMode == LaunchMode::NORMAL ? true : false);
+                qemu_play->setEnabled(false);
+                qemu_pause->setEnabled(false);
+                qemu_stop->setEnabled(false);
                 emit recordReplayEnableBtns(false);
 
                 QThread *thread = new QThread();
@@ -333,6 +348,7 @@ void QemuGUI::play_machine()
                 thread->start();
 
                 qmp = new QMPInteraction(nullptr, qmp_port.toInt());
+                connect(qmp, SIGNAL(connectionEstablished()), this, SLOT(setButtonsState()));
                 connect(this, SIGNAL(qmp_resume_qemu()), qmp, SLOT(command_resume_qemu()));
                 connect(this, SIGNAL(qmp_stop_qemu()), qmp, SLOT(command_stop_qemu()));
                 connect(this, SIGNAL(qmp_shutdown_qemu()), qmp, SLOT(commandShutdownQemu()));

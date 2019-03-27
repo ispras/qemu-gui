@@ -11,12 +11,13 @@ class QMPInteraction : public QObject
     Q_OBJECT
 
 public:
-    QMPInteraction(QObject *parent) {};
+    QMPInteraction(QObject *parent);
     QMPInteraction(QObject *parent, int port);
     ~QMPInteraction();
 
 private:
     QemuSocket socket;
+    bool isQmpConnect;
 
 protected:
     QByteArray init();
@@ -33,6 +34,7 @@ public slots:
     void commandShutdownQemu();
 
 signals :
+    void connectionEstablished();
     void qemu_resumed();
     void qemu_stopped();
 };

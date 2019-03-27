@@ -1,8 +1,13 @@
 #include "QMPInteraction.h"
 
 
+QMPInteraction::QMPInteraction(QObject *parent)
+    : QObject(parent), isQmpConnect(false)
+{
+}
+
 QMPInteraction::QMPInteraction(QObject *parent, int port)
-    : QObject(parent)
+    : QObject(parent), isQmpConnect(false)
 {
     connect(&socket, SIGNAL(readyRead()), this, SLOT(read_terminal()));
     connect(&socket, SIGNAL(connected()), this, SLOT(connectedSocket()));
@@ -36,6 +41,11 @@ QByteArray QMPInteraction::cmd_shutdown()
 
 void QMPInteraction::what_said_qmp(QByteArray message)
 {
+    if (!isQmpConnect)
+    {
+        isQmpConnect = true;
+        emit connectionEstablished();
+    }
     qDebug() << "QMP: " << message;
     QJsonDocument qmp_message = QJsonDocument::fromJson(message);
     QJsonObject obj = qmp_message.object();
