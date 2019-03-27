@@ -11,6 +11,8 @@ set(CMAKE_CXX_STANDARD 11)
 find_package(Qt5Widgets)
 find_package(Qt5Network)
 
+add_definitions(-DQT_NO_DEBUG_OUTPUT)
+
 add_executable(qemu-gui src/main.cpp src/CreateVMForm.cpp src/QemuGUI.cpp
     src/RecordReplayTab.cpp src/VMSettingsForm.cpp src/QemuGUI.qrc
     src/GlobalConfig.cpp src/VMConfig.cpp src/QemuLauncher.cpp
