@@ -11,11 +11,11 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
     icount(icount), period(periodSnap), isDebug(isDebugEnable)
 {
     createQemuPath(qemu_install_dir_path, virtual_machine->getPlatform());
-
     qemu = NULL;
     mon = " -monitor \"tcp:127.0.0.1:" + port_monitor + ",server,nowait\"";
     qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,nowait\"";
     debugCmd = (isDebug && mode != LaunchMode::RECORD) ? " -s -S" : "";
+    createLogFile();
 }
 
 QemuLauncher::QemuLauncher(const QString &qemuPath, const QString &platform,
@@ -29,6 +29,7 @@ QemuLauncher::QemuLauncher(const QString &qemuPath, const QString &platform,
     mon = "";
     qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,nowait\"";
     debugCmd = "";
+    createLogFile();
 }
 
 QemuLauncher::~QemuLauncher()
@@ -41,6 +42,12 @@ bool QemuLauncher::isQemuExist()
     return qemuFile.exists();
 }
 
+
+void QemuLauncher::createLogFile()
+{
+    qemuLog.setFileName("Log.txt");
+    qemuLog.open(QIODevice::WriteOnly);
+}
 
 void QemuLauncher::createQemuPath(const QString &qemuPath, const QString &platform)
 {
@@ -113,6 +120,7 @@ void QemuLauncher::launchQemu()
     QString cmdLine = "\"" + qemuExePath + "\" " + recordReplay + cmd
         + mon + qmp + debugCmd;
     qDebug() << cmdLine;
+    qemuLog.write(cmdLine.toLocal8Bit());
     qemu->start(cmdLine);
     if (virtual_machine)
     {
@@ -126,6 +134,8 @@ void QemuLauncher::launchQemu()
 
 void QemuLauncher::finish_qemu(int exitCode, QProcess::ExitStatus ExitStatus)
 {
+    qemuLog.write(QString("\nexit code %1").arg(exitCode).toLocal8Bit());
+    qemuLog.close();
     qDebug() << "exit code" << exitCode << "exit status" << ExitStatus;
     emit qemu_laucher_finished(exitCode);
 }

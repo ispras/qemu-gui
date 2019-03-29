@@ -7,6 +7,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_definitions(-DQT_NO_DEBUG_OUTPUT)
+endif(CMAKE_BUILD_TYPE STREQUAL "Release")
+
 # Find the QtWidgets library
 find_package(Qt5Widgets)
 find_package(Qt5Network)
