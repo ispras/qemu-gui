@@ -25,7 +25,6 @@ public:
     bool isQemuExist();
 
 private:
-    QFile qemuLog;
     QString qemuDirPath;
     QString qemuExePath;
     VMConfig *virtual_machine;
@@ -51,7 +50,6 @@ private:
     bool isDebug;
 
 private:
-    void createLogFile();
     void createQemuPath(const QString &qemuPath, const QString &platform);
     void createOverlays();
     void launchQemu();

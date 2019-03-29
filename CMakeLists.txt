@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     add_definitions(-DQT_NO_DEBUG_OUTPUT)
-endif(CMAKE_BUILD_TYPE STREQUAL "Release")
+endif()
 
 # Find the QtWidgets library
 find_package(Qt5Widgets)
