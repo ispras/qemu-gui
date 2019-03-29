@@ -11,7 +11,6 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
     icount(icount), period(periodSnap), isDebug(isDebugEnable)
 {
     createQemuPath(qemu_install_dir_path, virtual_machine->getPlatform());
-
     qemu = NULL;
     mon = " -monitor \"tcp:127.0.0.1:" + port_monitor + ",server,nowait\"";
     qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,nowait\"";
@@ -40,7 +39,6 @@ bool QemuLauncher::isQemuExist()
     QFile qemuFile(qemuExePath);
     return qemuFile.exists();
 }
-
 
 void QemuLauncher::createQemuPath(const QString &qemuPath, const QString &platform)
 {
