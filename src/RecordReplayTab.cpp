@@ -405,7 +405,7 @@ void RecordReplayTab::setState(bool state)
 
 void RecordReplayTab::recordDeleteRecords()
 {
-    executionList->clear();
+    clearExecutionList();
 }
 
 void RecordReplayTab::deleteRecordFolder()
