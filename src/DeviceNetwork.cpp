@@ -44,7 +44,7 @@ const QStringList &DeviceNetworkController::getControllers() const
     return controllers;
 }
 
-const QStringList & DeviceNetworkController::getNetdevBackend() const
+const QStringList &DeviceNetworkController::getNetdevBackend() const
 {
     static QStringList netdev = { "user", noNetdev };
     return netdev;
