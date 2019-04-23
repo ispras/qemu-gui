@@ -172,7 +172,7 @@ QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
 
     if (cmdParams.getLaunchMode() == LaunchMode::NORMAL)
     {
-        QString cmdFile = " -drive file=" + getImage() + ",if=none,id="
+        QString cmdFile = " -drive file=\"" + getImage() + "\"" + ",if=none,id="
             + getId() + "-file";
         return  cmdFile + " -device ide-hd"
             +",bus=" + ide->getId() + "." + QString::number(bus->getNumber()) 
@@ -182,7 +182,7 @@ QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
     else
     {
         QString overlay = cmdParams.getOverlayForImage(getImage());
-        QString cmdFile = " -drive file=" + overlay + ",if=none,id="
+        QString cmdFile = " -drive file=\"" + overlay + "\"" + ",if=none,id="
              + getId() + "-file";
 
         return cmdFile + " -drive driver=blkreplay,if=none,image="
@@ -235,7 +235,7 @@ QString DeviceIdeCdrom::getCommandLineOption(CommandLineParameters &cmdParams)
 
     if (cmdParams.getLaunchMode() == LaunchMode::NORMAL)
     {
-        QString cmdFile = " -drive file=" + getImage() + ",if=none,id="
+        QString cmdFile = " -drive file=\"" + getImage() + "\"" + ",if=none,id="
             + getId() + "-file";
         return  cmdFile + " -device ide-cd"
             + ",bus=" + ide->getId() + "." + QString::number(bus->getNumber())
@@ -245,7 +245,7 @@ QString DeviceIdeCdrom::getCommandLineOption(CommandLineParameters &cmdParams)
     else
     {
         QString overlay = cmdParams.getOverlayForImage(getImage());
-        QString cmdFile = " -drive file=" + overlay + ",if=none,id="
+        QString cmdFile = " -drive file=\"" + overlay + "\"" + ",if=none,id="
             + getId() + "-file";
 
         return cmdFile + " -drive driver=blkreplay,if=none,image="
@@ -296,7 +296,7 @@ QString DeviceScsiHd::getCommandLineOption(CommandLineParameters &cmdParams)
     Q_ASSERT(scsi);
     if (cmdParams.getLaunchMode() == LaunchMode::NORMAL)
     {
-        QString cmdFile = " -drive file=" + getImage() + ",if=none,id="
+        QString cmdFile = " -drive file=\"" + getImage() + "\"" + ",if=none,id="
             + getId() + "-file";
         return  cmdFile + " -device scsi-hd,drive=" + getId() + "-file"
             + ",bus=" + scsi->getId() + ".0";
@@ -304,7 +304,7 @@ QString DeviceScsiHd::getCommandLineOption(CommandLineParameters &cmdParams)
     else
     {
         QString overlay = cmdParams.getOverlayForImage(getImage());
-        QString cmdFile = " -drive file=" + overlay + ",if=none,id="
+        QString cmdFile = " -drive file=\"" + overlay + "\"" + ",if=none,id="
             + getId() + "-file";
 
         return cmdFile + " -drive driver=blkreplay,if=none,image="

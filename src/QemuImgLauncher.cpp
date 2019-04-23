@@ -46,7 +46,7 @@ void QemuImgLauncher::startQemuImg(const QString & cmd)
 void QemuImgLauncher::startQemuImgCreateOverlay()
 {
     QString cmd = "\"" + qemuImg + "\"" + " create -f qcow2 -b " +
-        "\"" + imageName + "\" " + overlayName;
+        "\"" + imageName + "\" " + "\"" + overlayName + "\"";
     qDebug() << "create overlay: " << cmd << "----";
     startQemuImg(cmd);
 }
