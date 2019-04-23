@@ -68,7 +68,7 @@ void TerminalTab::set_terminal_interface(QColor bckgrnd_color, QColor text_color
     terminal_text->ensureCursorVisible();
 }
 
-QTextEdit * TerminalTab::get_terminal_text()
+QTextEdit *TerminalTab::get_terminal_text()
 {
     return terminal_text;
 }
@@ -131,6 +131,9 @@ bool TerminalTab::eventFilter(QObject *obj, QEvent *event)
 void TerminalTab::send_monitor_command()
 {
     monitor_socket.write(terminal_cmd->text().toLocal8Bit() + "\n");
+    QTextCursor cursor(terminal_text->textCursor());
+    cursor.movePosition(QTextCursor::End);
+    terminal_text->setTextCursor(cursor);
     terminal_text->insertPlainText(terminal_cmd->text() + "\n");
     if (!saved_terminal_cmds.contains(terminal_cmd->text()))
     {

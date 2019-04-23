@@ -108,8 +108,8 @@ void QemuLauncher::createOverlays()
 
 void QemuLauncher::launchQemu()
 {
-    QString cmdLine = "\"" + qemuExePath + "\" " + recordReplay + cmd
-        + mon + qmp + debugCmd;
+    QString cmdLine = "\"" + qemuExePath + "\" " + recordReplay + " -net none "
+        + cmd + mon + qmp + debugCmd;
     qDebug() << cmdLine;
     qemu->start(cmdLine);
     if (virtual_machine)
