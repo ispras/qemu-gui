@@ -297,13 +297,13 @@ void RecordReplayTab::executionListItemSelectionChanged()
         if (qemuHash.compare(PlatformInformationReader::getQemuHash(globalConfig->get_current_qemu_dir())) == 0)
         {
             rpl_btn->setEnabled(true);
-            renameAct->setDisabled(false);
-            deleteAct->setDisabled(false);
         }
         else
         {
             rpl_btn->setEnabled(false);
         }
+        renameAct->setDisabled(false);
+        deleteAct->setDisabled(false);
     }
     else
     {
@@ -349,6 +349,7 @@ void RecordReplayTab::delete_ctxmenu()
         if (answer == QMessageBox::Yes)
         {
             vm->remove_directory_vm(currentDirRR);
+            disconnect(executionList, 0, 0, 0);
             QListWidgetItem *it = executionList->takeItem(executionList->currentRow());
             delete it;
             executionListItemSelectionChanged();
