@@ -69,4 +69,4 @@ If you need to use debugger, is necessary set checkbox "Debug enable". After tha
 
 `gdb -ex 'target remote :1234'`
 
-![You can read more about debugging](https://github.com/ispras/swat/blob/master/docs/ReverseDebugging.md)
+[You can read more about debugging](https://github.com/ispras/swat/blob/master/docs/ReverseDebugging.md)
