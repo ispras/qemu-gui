@@ -10,4 +10,4 @@ make
 ./qemu-gui
 ```
 
-See more details in [User guide](docs/Using\ qemu-gui.md)
+See more details in [User guide](docs/Using%20qemu-gui.md)
