@@ -9,3 +9,5 @@ cmake ../qemu-gui
 make
 ./qemu-gui
 ```
+
+[User guide](docs/Using qemu-gui.md)
