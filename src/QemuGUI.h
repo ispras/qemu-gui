@@ -13,6 +13,7 @@
 #include "QMPInteraction.h"
 #include "TerminalSettingsForm.h"
 #include "TerminalTab.h"
+#include "ConsoleTab.h"
 #include "ConnectionSettingsForm.h"
 #include "PlatformInformationReader.h"
 
@@ -66,6 +67,7 @@ private:
     CreateVMForm *createVMWindow;
     RecordReplayTab *rec_replay_tab;
     TerminalTab *terminal_tab;
+    ConsoleTab *consoleTab;
 
 
     QString qmp_port = "";

@@ -83,8 +83,9 @@ QemuGUI::QemuGUI(QWidget *parent)
     rec_replay_tab = new RecordReplayTab(global_config, this);
     tab->addTab(rec_replay_tab, "Record/Replay");
     terminal_tab = new TerminalTab(global_config, this);
-
     tab->addTab(terminal_tab, "Terminal");
+    consoleTab = new ConsoleTab();
+    tab->addTab(consoleTab, "Console");
 
     // info tab
     propBox = new QGroupBox(tab_info);
@@ -336,7 +337,8 @@ void QemuGUI::play_machine()
                 qmp_port, monitor_port, launchMode, debugCheckBox->isChecked(),
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getCurrentDirRR() : "",
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getICountValue() : "",
-                launchMode != LaunchMode::NORMAL ? rec_replay_tab->getSnapshotPeriod() : "");
+                launchMode != LaunchMode::NORMAL ? rec_replay_tab->getSnapshotPeriod() : "",
+                consoleTab);
             if (launch_qemu->isQemuExist())
             {
                 if (debugCheckBox->isChecked())
