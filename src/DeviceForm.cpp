@@ -137,7 +137,7 @@ DeviceStorageForm::DeviceStorageForm(DeviceStorage *dev)
 void DeviceStorageForm::editImage()
 {
     QString newImage = QFileDialog::getOpenFileName(nullptr, "Selecting image",
-        "", "*.qcow *.qcow2 *.img *.raw");
+        "", "*.qcow *.qcow2 *.img *.raw *.iso *.*");
     if (!newImage.isEmpty())
     {
         emit newImageSet(newImage);
