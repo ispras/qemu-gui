@@ -220,20 +220,32 @@ DeviceNetworkForm::DeviceNetworkForm(DeviceNetworkController *dev)
     : DeviceForm(dev), device(dev)
 {
     QComboBox *controllersCombo = new QComboBox();
-    QComboBox *netdevCombo = new QComboBox();
+    netdevCombo = new QComboBox();
+    tapIfNameEdit = new QLineEdit();
+    tapIfNameLbl = new QLabel("Tap interface");
+
 
     controllersCombo->addItems(device->getControllers());
     controllersCombo->setCurrentText(device->getCurrentController());
     netdevCombo->addItems(device->getNetdevBackend());
     netdevCombo->setCurrentText(device->getCurrentNetdev());
+    tapIfNameEdit->setText(device->getCurrentTabIfName());
 
     devFormAddWidget(controllersCombo);
     devFormAddWidget(netdevCombo);
+    QHBoxLayout *tapIfLay = new QHBoxLayout();
+    tapIfLay->addWidget(tapIfNameLbl);
+    tapIfLay->addWidget(tapIfNameEdit);
+    devFormAddLayout(tapIfLay);
+
+    setVisibleTapSetting();
 
     connect(controllersCombo, SIGNAL(currentIndexChanged(const QString &)),
         this, SLOT(setController(const QString &)));
     connect(netdevCombo, SIGNAL(currentIndexChanged(const QString &)),
         this, SLOT(setNetdev(const QString &)));
+    connect(tapIfNameEdit, SIGNAL(editingFinished()),
+        this, SLOT(setTapIfName()));
 }
 
 void DeviceNetworkForm::setController(const QString &name)
@@ -242,8 +254,31 @@ void DeviceNetworkForm::setController(const QString &name)
     getCmdWidget()->updateCmd();
 }
 
+void DeviceNetworkForm::setVisibleTapSetting()
+{   
+    bool isTap = netdevCombo->currentText() == "tap";
+    tapIfNameEdit->setVisible(isTap);
+    tapIfNameLbl->setVisible(isTap);
+    if (!isTap)
+    {
+        device->setTapIfName("");
+    }
+    else
+    {
+        tapIfNameEdit->setFocus();
+    }
+}
+
 void DeviceNetworkForm::setNetdev(const QString &name)
 {
+    setVisibleTapSetting();
     device->setNetdev(name);
     getCmdWidget()->updateCmd();
 }
+
+void DeviceNetworkForm::setTapIfName()
+{
+    device->setTapIfName(tapIfNameEdit->text());
+    getCmdWidget()->updateCmd();
+}
+

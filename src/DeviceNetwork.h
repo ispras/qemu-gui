@@ -21,8 +21,10 @@ public:
     const QStringList &getNetdevBackend() const;
     void setController(const QString &name) { controller = name; }
     void setNetdev(const QString &name) { netdev = name; }
+    void setTapIfName(const QString &name) { tapIfName = name; }
     QString getCurrentController() const { return controller; }
     QString getCurrentNetdev() const { return netdev; }
+    QString getCurrentTabIfName() const { return tapIfName; }
 
 protected:
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams);
@@ -35,6 +37,7 @@ private:
     static const char deviceName[];
     QString controller;
     QString netdev;
+    QString tapIfName;
 
 };
 

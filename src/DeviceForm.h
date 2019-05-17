@@ -106,10 +106,16 @@ public:
 
 private:
     DeviceNetworkController *device;
+    QLineEdit *tapIfNameEdit;
+    QComboBox *netdevCombo;
+    QLabel *tapIfNameLbl;
+
+    void setVisibleTapSetting();
 
 private slots:
     void setController(const QString &name);
     void setNetdev(const QString &name);
+    void setTapIfName();
 
 };
 #endif // DEVICEFORM_H
