@@ -16,7 +16,7 @@ private:
     QTextEdit *consoleText;
 
 public slots:
-    void setConsoleText(const QString &text);
+    void addConsoleText(const QString &text);
 };
 
 

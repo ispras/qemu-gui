@@ -19,7 +19,7 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
 
 QemuLauncher::QemuLauncher(const QString &qemuPath, const QString &platform,
     const QString &machine, const QString &port_qmp)
-    : port_qmp(port_qmp), mode(LaunchMode::NORMAL), isDebug(false)
+    : port_qmp(port_qmp), mode(LaunchMode::NORMAL), isDebug(false), con(NULL)
 {
     createQemuPath(qemuPath, platform);
     cmd = "-machine " + machine + " ";
@@ -111,7 +111,7 @@ void QemuLauncher::launchQemu()
     QString cmdLine = "\"" + qemuExePath + "\" " + recordReplay + " -net none "
         + cmd + mon + qmp + debugCmd;
     qDebug() << cmdLine;
-    con->setConsoleText(cmdLine);
+    con->addConsoleText(cmdLine);
     qemu->start(cmdLine);
     if (virtual_machine)
     {

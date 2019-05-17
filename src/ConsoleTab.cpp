@@ -19,7 +19,7 @@ ConsoleTab::~ConsoleTab()
 
 }
 
-void ConsoleTab::setConsoleText(const QString &text)
+void ConsoleTab::addConsoleText(const QString &text)
 {
     QTextCursor cursor(consoleText->textCursor());
     cursor.movePosition(QTextCursor::End);
