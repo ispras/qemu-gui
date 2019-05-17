@@ -5,10 +5,10 @@
 QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
     const QString &port_qmp, const QString &port_monitor, LaunchMode mode,
     bool isDebugEnable, const QString &dirRR, const QString &icount, 
-    const QString &periodSnap, QObject *parent)
+    const QString &periodSnap, ConsoleTab *console, QObject *parent)
     : QObject(parent), virtual_machine(vm), port_monitor(port_monitor),
     port_qmp(port_qmp), mode(mode), dirRR(dirRR), qemuDirPath(qemu_install_dir_path),
-    icount(icount), period(periodSnap), isDebug(isDebugEnable)
+    icount(icount), period(periodSnap), isDebug(isDebugEnable), con(console)
 {
     createQemuPath(qemu_install_dir_path, virtual_machine->getPlatform());
     qemu = NULL;
@@ -19,7 +19,7 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
 
 QemuLauncher::QemuLauncher(const QString &qemuPath, const QString &platform,
     const QString &machine, const QString &port_qmp)
-    : port_qmp(port_qmp), mode(LaunchMode::NORMAL), isDebug(false)
+    : port_qmp(port_qmp), mode(LaunchMode::NORMAL), isDebug(false), con(NULL)
 {
     createQemuPath(qemuPath, platform);
     cmd = "-machine " + machine + " ";
@@ -111,6 +111,7 @@ void QemuLauncher::launchQemu()
     QString cmdLine = "\"" + qemuExePath + "\" " + recordReplay + " -net none "
         + cmd + mon + qmp + debugCmd;
     qDebug() << cmdLine;
+    con->addConsoleText(cmdLine);
     qemu->start(cmdLine);
     if (virtual_machine)
     {
