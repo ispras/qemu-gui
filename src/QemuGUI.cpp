@@ -91,9 +91,10 @@ QemuGUI::QemuGUI(QWidget *parent)
     // info tab
     propBox = new QGroupBox(tab_info);
     edit_btn = new QPushButton("Edit VM", tab_info);
-    info_lbl = new QLabel("", propBox);
+    vmInfoTextEdit = new QTextEdit(propBox);
+    vmInfoTextEdit->setReadOnly(true);
 
-    info_lbl->setStyleSheet("background-color: white; color: darkblue; border: 1px; height: 14px;");
+    vmInfoTextEdit->setStyleSheet("background-color: white; color: darkblue; border: 1px; height: 14px;");
 
     propBox->setMinimumWidth(300);
     propBox->setVisible(false);
@@ -156,8 +157,7 @@ void QemuGUI::fill_listVM_from_config()
 void QemuGUI::widget_placement()
 {
     QVBoxLayout *infoGroupLay = new QVBoxLayout(propBox);
-    infoGroupLay->addWidget(info_lbl);
-    infoGroupLay->addStretch(100);
+    infoGroupLay->addWidget(vmInfoTextEdit);
 
     QVBoxLayout *infoLay = new QVBoxLayout(tab_info);
     infoLay->addWidget(propBox);
@@ -493,7 +493,8 @@ void QemuGUI::listVM_item_selection_changed()
         VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
         if (vm)
         {
-            info_lbl->setText(vm->get_vm_info());
+            vmInfoTextEdit->setPlainText(vm->get_vm_info());
+            vmInfoTextEdit->ensureCursorVisible();
             vm->fillReplayList();
             rec_replay_tab->setRecordReplayList(vm);
         }

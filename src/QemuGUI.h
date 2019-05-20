@@ -61,7 +61,7 @@ private:
     QAction *exclude_act;
 
     QGroupBox *propBox;
-    QLabel *info_lbl;
+    QTextEdit *vmInfoTextEdit;
     QPushButton *edit_btn;
     QTabWidget *tab;
     QWidget *tab_info;
