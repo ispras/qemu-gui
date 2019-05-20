@@ -57,28 +57,30 @@ QString DeviceNetworkController::getCommandLineOption(CommandLineParameters &cmd
     {
         QString netdevCmd = " -netdev " + netdev + ",id=" + getId();
         QString devCmd = " -device " + controller + ",netdev=" + getId();
+        QString tapCmd = netdevCmd + ",ifname=" + tapIfName +
+            ",script=no,downscript=no" + devCmd;
+        QString netAllCmd = netdevCmd + devCmd;
         QString rrCmd = " -object filter-replay,id=replay,netdev=" + getId();
-        QString tapCmd = ",ifname=" + tapIfName + ",script=no,downscript=no";
         if (cmdParams.getLaunchMode() == LaunchMode::NORMAL)
         {
             if (netdev.compare("tap") != 0)
             {
-                return netdevCmd + devCmd;
+                return netAllCmd;
             }
             else
             {
-                return netdevCmd + tapCmd + devCmd;
+                return tapCmd;
             }
         }
         else
         {
             if (netdev.compare("tap") != 0)
             {
-                return netdevCmd + devCmd + rrCmd;
+                return netAllCmd + rrCmd;
             }
             else
             {
-                return netdevCmd + tapCmd + devCmd + rrCmd;
+                return tapCmd + rrCmd;
             }
         }
     }
