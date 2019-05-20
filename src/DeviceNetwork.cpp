@@ -60,28 +60,18 @@ QString DeviceNetworkController::getCommandLineOption(CommandLineParameters &cmd
         QString tapCmd = netdevCmd + ",ifname=" + tapIfName +
             ",script=no,downscript=no" + devCmd;
         QString netAllCmd = netdevCmd + devCmd;
-        QString rrCmd = " -object filter-replay,id=replay,netdev=" + getId();
-        if (cmdParams.getLaunchMode() == LaunchMode::NORMAL)
+        QString rrCmd = "";
+        if (cmdParams.getLaunchMode() != LaunchMode::NORMAL)
         {
-            if (netdev.compare("tap") != 0)
-            {
-                return netAllCmd;
-            }
-            else
-            {
-                return tapCmd;
-            }
+            rrCmd = " -object filter-replay,id=replay,netdev=" + getId();
+        }
+        if (netdev.compare("tap") != 0)
+        {
+            return netAllCmd + rrCmd;
         }
         else
         {
-            if (netdev.compare("tap") != 0)
-            {
-                return netAllCmd + rrCmd;
-            }
-            else
-            {
-                return tapCmd + rrCmd;
-            }
+            return tapCmd + rrCmd;
         }
     }
     else
