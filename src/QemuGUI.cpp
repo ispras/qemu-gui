@@ -68,7 +68,8 @@ QemuGUI::QemuGUI(QWidget *parent)
     qemu_stop->setEnabled(false);
 
     debugCheckBox = new QCheckBox("Debug enable");
-    mainToolBar->addWidget(debugCheckBox);
+    snapshotCheckBox = new QCheckBox("Snapshot enable");
+    mainToolBar->addAction("Run options", this, SLOT(setRunOptions()));
 
     mainToolBar->addWidget(qemu_install_dir_combo);
     //mainToolBar->addSeparator();
@@ -113,6 +114,7 @@ QemuGUI::QemuGUI(QWidget *parent)
     listVM->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     create_qemu_install_dir_dialog();
+    createRunOptionsDialog();
     connect_signals();
     fill_listVM_from_config();
     fill_qemu_install_dir_from_config();
@@ -124,6 +126,7 @@ QemuGUI::~QemuGUI()
 {
     global_config->set_current_qemu_dir(qemu_install_dir_combo->currentText());
     delete qemu_install_dir_settings;
+    delete runOptionsDlg;
 }
 
 
@@ -243,6 +246,22 @@ void QemuGUI::create_qemu_install_dir_dialog()
     connect(del_install_dir_btn, SIGNAL(clicked()), this, SLOT(del_qemu_install_dir_btn()));
 }
 
+void QemuGUI::createRunOptionsDialog()
+{
+    runOptionsDlg = new QDialog(this);
+    runOptionsDlg->setWindowTitle("Run options");
+    runOptionsDlg->setModal(true);
+    QDialogButtonBox *okBtn = new QDialogButtonBox(QDialogButtonBox::Ok);
+    connect(okBtn, &QDialogButtonBox::accepted, runOptionsDlg, &QDialog::close);
+
+    QVBoxLayout *mainLay = new QVBoxLayout();
+    mainLay->addWidget(debugCheckBox);
+    mainLay->addWidget(snapshotCheckBox);
+    mainLay->addWidget(okBtn);
+
+    runOptionsDlg->setLayout(mainLay);
+}
+
 void QemuGUI::connect_signals()
 {
     /* edit machine */
@@ -335,6 +354,7 @@ void QemuGUI::play_machine()
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
                 global_config->get_vm_by_name(listVM->currentItem()->text()),
                 qmp_port, monitor_port, launchMode, debugCheckBox->isChecked(),
+                snapshotCheckBox->isChecked(),
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getCurrentDirRR() : "",
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getICountValue() : "",
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getSnapshotPeriod() : "",
@@ -448,6 +468,11 @@ void QemuGUI::add_machine()
         else
             QMessageBox::critical(this, "Error", "Virtual machine cannot be add");
     }
+}
+
+void QemuGUI::setRunOptions()
+{
+    runOptionsDlg->show();
 }
 
 void QemuGUI::edit_settings()
