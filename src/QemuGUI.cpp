@@ -67,8 +67,6 @@ QemuGUI::QemuGUI(QWidget *parent)
     connect(qemu_stop, SIGNAL(triggered()), this, SLOT(stop_machine()));
     qemu_stop->setEnabled(false);
 
-    debugCheckBox = new QCheckBox("Debug enable");
-    snapshotCheckBox = new QCheckBox("Snapshot enable");
     mainToolBar->addAction("Run options", this, SLOT(setRunOptions()));
 
     mainToolBar->addWidget(qemu_install_dir_combo);
@@ -251,12 +249,23 @@ void QemuGUI::createRunOptionsDialog()
     runOptionsDlg = new QDialog(this);
     runOptionsDlg->setWindowTitle("Run options");
     runOptionsDlg->setModal(true);
+
+    debugCheckBox = new QCheckBox("Debug enable");
+    snapshotCheckBox = new QCheckBox("Snapshot enable");
+    cmdLineAdditionalLineEdit = new QLineEdit();
     QDialogButtonBox *okBtn = new QDialogButtonBox(QDialogButtonBox::Ok);
     connect(okBtn, &QDialogButtonBox::accepted, runOptionsDlg, &QDialog::close);
 
     QVBoxLayout *mainLay = new QVBoxLayout();
-    mainLay->addWidget(debugCheckBox);
-    mainLay->addWidget(snapshotCheckBox);
+    QHBoxLayout *chkLay = new QHBoxLayout();
+    chkLay->addWidget(debugCheckBox);
+    chkLay->addWidget(snapshotCheckBox);
+    QHBoxLayout *cmdLay = new QHBoxLayout();
+    cmdLay->addWidget(new QLabel("Command line options"));
+    cmdLay->addWidget(cmdLineAdditionalLineEdit);
+
+    mainLay->addLayout(chkLay);
+    mainLay->addLayout(cmdLay);
     mainLay->addWidget(okBtn);
 
     runOptionsDlg->setLayout(mainLay);
@@ -354,7 +363,7 @@ void QemuGUI::play_machine()
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
                 global_config->get_vm_by_name(listVM->currentItem()->text()),
                 qmp_port, monitor_port, launchMode, debugCheckBox->isChecked(),
-                snapshotCheckBox->isChecked(),
+                snapshotCheckBox->isChecked(), cmdLineAdditionalLineEdit->text(),
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getCurrentDirRR() : "",
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getICountValue() : "",
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getSnapshotPeriod() : "",

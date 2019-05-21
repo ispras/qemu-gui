@@ -49,6 +49,7 @@ private:
     QDialog *runOptionsDlg;
     QCheckBox *debugCheckBox;
     QCheckBox *snapshotCheckBox;
+    QLineEdit *cmdLineAdditionalLineEdit;
 
     QAction *qemu_play;
     QAction *qemu_pause;
