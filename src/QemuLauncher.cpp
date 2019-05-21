@@ -16,7 +16,8 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
     mon = " -monitor \"tcp:127.0.0.1:" + port_monitor + ",server,nowait\"";
     qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,nowait\"";
     QString debugCmd = (isDebugEnable && mode != LaunchMode::RECORD) ? " -s -S" : "";
-    QString snapshotCmd = (isSnapshotEnable) ? " -snapshot" : "";
+    QString snapshotCmd = (isSnapshotEnable && mode == LaunchMode::NORMAL) ?
+        " -snapshot" : "";
     additionalOptionsCmd = debugCmd + snapshotCmd;
 }
 
