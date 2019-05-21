@@ -4,9 +4,9 @@
 
 QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
     const QString &port_qmp, const QString &port_monitor, LaunchMode mode,
-    bool isDebugEnable, bool isSnapshotEnable, const QString &cmdAddLine, 
-    const QString &dirRR, const QString &icount, const QString &periodSnap, 
-    ConsoleTab *console, QObject *parent)
+    bool isDebugEnable, bool isSnapshotEnable, const QString &cmdAddLine,
+    const QStringList &logOptions, const QString &dirRR, const QString &icount,
+    const QString &periodSnap, ConsoleTab *console, QObject *parent)
     : QObject(parent), virtual_machine(vm), port_monitor(port_monitor),
     port_qmp(port_qmp), mode(mode), dirRR(dirRR), qemuDirPath(qemu_install_dir_path),
     icount(icount), period(periodSnap), con(console)
@@ -18,7 +18,26 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
     QString debugCmd = (isDebugEnable && mode != LaunchMode::RECORD) ? " -s -S" : "";
     QString snapshotCmd = (isSnapshotEnable && mode == LaunchMode::NORMAL) ?
         " -snapshot" : "";
-    additionalOptionsCmd = debugCmd + snapshotCmd + " " + cmdAddLine;
+    QString logOp = "";
+    if (!logOptions.at(0).isEmpty())
+    {
+        logOp = " -D " + logOptions.at(0);
+    }
+    if (logOptions.count() > 1)
+    {
+        logOp += " -d ";
+        for (int i = 1; i < logOptions.count(); i++)
+        {
+            logOp += logOptions.at(i);
+            if (i < logOptions.count() - 1)
+            {
+                logOp += ",";
+            }
+        }
+    }
+    
+
+    additionalOptionsCmd = debugCmd + snapshotCmd + " " + cmdAddLine + logOp;
 }
 
 QemuLauncher::QemuLauncher(const QString &qemuPath, const QString &platform,

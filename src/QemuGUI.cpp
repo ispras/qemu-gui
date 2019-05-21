@@ -246,6 +246,10 @@ void QemuGUI::create_qemu_install_dir_dialog()
 
 void QemuGUI::createRunOptionsDialog()
 {
+    QStringList logOptions = { "out_asm", "in_asm", "op", "op_opt", "op_ind",
+        "int", "exec", "cpu", "fpu", "mmu", "pcall", "cpu_reset", "unimp",
+        "guest_error", "page", "nochain" };
+
     runOptionsDlg = new QDialog(this);
     runOptionsDlg->setWindowTitle("Run options");
     runOptionsDlg->setModal(true);
@@ -253,8 +257,20 @@ void QemuGUI::createRunOptionsDialog()
     debugCheckBox = new QCheckBox("Debug enable");
     snapshotCheckBox = new QCheckBox("Snapshot enable");
     cmdLineAdditionalLineEdit = new QLineEdit();
+    logfileNameLineEdit = new QLineEdit();
+
+    foreach(QString op, logOptions)
+    {
+        QCheckBox *check = new QCheckBox(op);
+        check->setObjectName(op);
+        logCheckBox.append(check);
+    }
+
+    QGroupBox *logGroup = new QGroupBox("Logging options");
+    QGroupBox *commonGroup = new QGroupBox("Common options");
+
     QDialogButtonBox *okBtn = new QDialogButtonBox(QDialogButtonBox::Ok);
-    connect(okBtn, &QDialogButtonBox::accepted, runOptionsDlg, &QDialog::close);
+    connect(okBtn, &QDialogButtonBox::accepted, this, &QemuGUI::runOptionPrepare);
 
     QVBoxLayout *mainLay = new QVBoxLayout();
     QHBoxLayout *chkLay = new QHBoxLayout();
@@ -264,7 +280,27 @@ void QemuGUI::createRunOptionsDialog()
     cmdLay->addWidget(new QLabel("Command line options"));
     cmdLay->addWidget(cmdLineAdditionalLineEdit);
 
-    mainLay->addLayout(chkLay);
+    QVBoxLayout *logLay = new QVBoxLayout();
+    QHBoxLayout *logFileLay = new QHBoxLayout();
+    logFileLay->addWidget(new QLabel("Name of logfile"));
+    logFileLay->addWidget(logfileNameLineEdit);
+    QGridLayout *logOpLay = new QGridLayout();
+    for (int i = 0, k = 0; i <= logCheckBox.count() / 4; i++)
+    {
+        for (int j = 0; j < 4; j++, k++)
+        {
+            if (k == logCheckBox.count()) break;
+            logOpLay->addWidget(logCheckBox.at(k), i, j);
+        }
+    }
+    logLay->addLayout(logFileLay);
+    logLay->addLayout(logOpLay);
+
+    commonGroup->setLayout(chkLay);
+    logGroup->setLayout(logLay);
+    
+    mainLay->addWidget(commonGroup);
+    mainLay->addWidget(logGroup);
     mainLay->addLayout(cmdLay);
     mainLay->addWidget(okBtn);
 
@@ -363,7 +399,7 @@ void QemuGUI::play_machine()
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
                 global_config->get_vm_by_name(listVM->currentItem()->text()),
                 qmp_port, monitor_port, launchMode, debugCheckBox->isChecked(),
-                snapshotCheckBox->isChecked(), cmdLineAdditionalLineEdit->text(),
+                snapshotCheckBox->isChecked(), cmdLineAdditionalLineEdit->text(), logOptions,
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getCurrentDirRR() : "",
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getICountValue() : "",
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getSnapshotPeriod() : "",
@@ -640,6 +676,20 @@ void QemuGUI::overlayFailed()
     QMessageBox::critical(this, "Error", "Overlay is not created");
     connect(this, SIGNAL(deleteRecord()), rec_replay_tab, SLOT(deleteRecordFolder()));
     emit deleteRecord();
+}
+
+void QemuGUI::runOptionPrepare()
+{
+    logOptions.clear();
+    logOptions.append(logfileNameLineEdit->text());
+    foreach(QCheckBox *op, logCheckBox)
+    {
+        if (op->isChecked())
+        {
+            logOptions.append(op->objectName());
+        }
+    }
+    runOptionsDlg->close();
 }
 
 void QemuGUI::set_connection_settings(const QString &qmp, const QString &monitor)

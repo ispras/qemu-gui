@@ -50,6 +50,9 @@ private:
     QCheckBox *debugCheckBox;
     QCheckBox *snapshotCheckBox;
     QLineEdit *cmdLineAdditionalLineEdit;
+    QLineEdit *logfileNameLineEdit;
+    QList<QCheckBox *> logCheckBox;
+    QStringList logOptions;
 
     QAction *qemu_play;
     QAction *qemu_pause;
@@ -124,6 +127,7 @@ private slots:
     void set_terminal_settings();
     void launch_settings();
     void overlayFailed();
+    void runOptionPrepare();
 
 signals:
     void qmp_resume_qemu();
