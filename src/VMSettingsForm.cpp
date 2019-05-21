@@ -117,7 +117,7 @@ void VMSettingsForm::widget_placement()
 
     splitter->setSizes(QList<int>{150, 250});
 
-    QGroupBox *addCmdLineParamsGrpoup = new QGroupBox("Additional command line parameters");
+    QGroupBox *addCmdLineParamsGrpoup = new QGroupBox("Additional vitrual machine options");
     QVBoxLayout *addCmdLay = new QVBoxLayout();
     addCmdLay->addWidget(addCmdLineParamsEdit);
     addCmdLineParamsGrpoup->setLayout(addCmdLay);
