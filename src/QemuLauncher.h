@@ -19,8 +19,9 @@ public:
     QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm, 
         const QString &port_qmp, const QString &port_monitor, LaunchMode mode,
         bool isDebugEnable, bool isSnapshotEnable, const QString &cmdAddLine,
-        const QString &dirRR, const QString &icount, const QString &periodSnap,
-        ConsoleTab *console, QObject *parent = 0);
+        const QString &logFile, const QStringList &logOptions, const QString &dirRR,
+        const QString &icount, const QString &periodSnap, ConsoleTab *console, 
+        QObject *parent = 0);
     QemuLauncher(const QString &qemuPath, const QString &platform,
         const QString &machine, const QString &port_qmp);
     ~QemuLauncher();
