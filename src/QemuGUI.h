@@ -45,7 +45,10 @@ private:
     QToolBar *vmToolBar;
     QWidget *centralWidget;
     QStatusBar *statusBar;
+
+    QDialog *runOptionsDlg;
     QCheckBox *debugCheckBox;
+    QCheckBox *snapshotCheckBox;
 
     QAction *qemu_play;
     QAction *qemu_pause;
@@ -58,7 +61,7 @@ private:
     QAction *exclude_act;
 
     QGroupBox *propBox;
-    QLabel *info_lbl;
+    QTextEdit *vmInfoTextEdit;
     QPushButton *edit_btn;
     QTabWidget *tab;
     QWidget *tab_info;
@@ -81,6 +84,7 @@ private:
 private:
     QIcon set_button_icon_for_state(const QString &normal_icon, const QString &disable_icon);
     void create_qemu_install_dir_dialog();
+    void createRunOptionsDialog();
     void connect_signals();
     void widget_placement();
     void fill_listVM_from_config();
@@ -110,6 +114,7 @@ private slots:
     void stop_machine();
     void create_machine();
     void add_machine();
+    void setRunOptions();
     void edit_settings();
     void listVM_item_selection_changed();
     void listVM_current_item_changed(QListWidgetItem *current, QListWidgetItem *previous);

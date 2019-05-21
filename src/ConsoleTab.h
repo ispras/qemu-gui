@@ -15,6 +15,8 @@ public:
 private:
     QTextEdit *consoleText;
 
+    void setTextCursor();
+
 public slots:
     void addConsoleText(const QString &text);
 };

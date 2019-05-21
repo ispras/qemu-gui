@@ -19,11 +19,17 @@ ConsoleTab::~ConsoleTab()
 
 }
 
-void ConsoleTab::addConsoleText(const QString &text)
+void ConsoleTab::setTextCursor()
 {
     QTextCursor cursor(consoleText->textCursor());
     cursor.movePosition(QTextCursor::End);
     consoleText->setTextCursor(cursor);
+}
+
+void ConsoleTab::addConsoleText(const QString &text)
+{
+    setTextCursor();
     consoleText->insertPlainText(text + "\n\n");
+    consoleText->ensureCursorVisible();
 }
 
