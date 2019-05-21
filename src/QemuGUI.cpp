@@ -285,14 +285,11 @@ void QemuGUI::createRunOptionsDialog()
     logFileLay->addWidget(new QLabel("Name of logfile"));
     logFileLay->addWidget(logfileNameLineEdit);
     QGridLayout *logOpLay = new QGridLayout();
-    for (int i = 0, k = 0; i <= logCheckBox.count() / 4; i++)
+    for (int k = 0; k < logCheckBox.count(); k++)
     {
-        for (int j = 0; j < 4; j++, k++)
-        {
-            if (k == logCheckBox.count()) break;
-            logOpLay->addWidget(logCheckBox.at(k), i, j);
-        }
+        logOpLay->addWidget(logCheckBox.at(k), k / 4, k % 4);
     }
+
     logLay->addLayout(logFileLay);
     logLay->addLayout(logOpLay);
 
@@ -399,7 +396,8 @@ void QemuGUI::play_machine()
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
                 global_config->get_vm_by_name(listVM->currentItem()->text()),
                 qmp_port, monitor_port, launchMode, debugCheckBox->isChecked(),
-                snapshotCheckBox->isChecked(), cmdLineAdditionalLineEdit->text(), logOptions,
+                snapshotCheckBox->isChecked(), cmdLineAdditionalLineEdit->text(), 
+                logFileName, logOptions,
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getCurrentDirRR() : "",
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getICountValue() : "",
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab->getSnapshotPeriod() : "",
@@ -680,8 +678,8 @@ void QemuGUI::overlayFailed()
 
 void QemuGUI::runOptionPrepare()
 {
+    logFileName = logfileNameLineEdit->text();
     logOptions.clear();
-    logOptions.append(logfileNameLineEdit->text());
     foreach(QCheckBox *op, logCheckBox)
     {
         if (op->isChecked())

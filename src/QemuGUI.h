@@ -52,6 +52,7 @@ private:
     QLineEdit *cmdLineAdditionalLineEdit;
     QLineEdit *logfileNameLineEdit;
     QList<QCheckBox *> logCheckBox;
+    QString logFileName;
     QStringList logOptions;
 
     QAction *qemu_play;
