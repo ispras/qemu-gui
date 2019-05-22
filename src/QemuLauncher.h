@@ -7,8 +7,9 @@
 
 #include "VMConfig.h"
 #include "ConsoleTab.h"
+#include "QemuRunOptions.h"
 
-
+class RecordReplayTab;
 enum class LaunchMode : int { NORMAL, RECORD, REPLAY };
 
 class QemuLauncher : public QObject
@@ -17,11 +18,8 @@ class QemuLauncher : public QObject
 
 public:
     QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm, 
-        const QString &port_qmp, const QString &port_monitor, LaunchMode mode,
-        bool isDebugEnable, bool isSnapshotEnable, const QString &cmdAddLine,
-        const QString &logFile, const QStringList &logOptions, const QString &dirRR,
-        const QString &icount, const QString &periodSnap, ConsoleTab *console, 
-        QObject *parent = 0);
+        QemuRunOptions *runOptions, LaunchMode mode, ConsoleTab *console,
+        RecordReplayTab *rr, QObject *parent = 0);
     QemuLauncher(const QString &qemuPath, const QString &platform,
         const QString &machine, const QString &port_qmp);
     ~QemuLauncher();

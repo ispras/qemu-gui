@@ -1,29 +1,30 @@
 #include "QemuLauncher.h"
 #include "QemuImgLauncher.h"
 #include "CommandLineParameters.h"
+#include "RecordReplayTab.h"
 
 QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
-    const QString &port_qmp, const QString &port_monitor, LaunchMode mode,
-    bool isDebugEnable, bool isSnapshotEnable, const QString &cmdAddLine,
-    const QString &logFile, const QStringList &logOptions, const QString &dirRR,
-    const QString &icount, const QString &periodSnap, ConsoleTab *console,
-    QObject *parent)
-    : QObject(parent), virtual_machine(vm), port_monitor(port_monitor),
-    port_qmp(port_qmp), mode(mode), dirRR(dirRR), qemuDirPath(qemu_install_dir_path),
-    icount(icount), period(periodSnap), con(console)
+    QemuRunOptions *runOptions, LaunchMode mode, ConsoleTab *console, 
+    RecordReplayTab *rr, QObject *parent)
+    : QObject(parent), virtual_machine(vm), mode(mode), dirRR(""),
+    qemuDirPath(qemu_install_dir_path), icount(""), period(""),
+    con(console)
 {
     createQemuPath(qemu_install_dir_path, virtual_machine->getPlatform());
     qemu = NULL;
-    mon = " -monitor \"tcp:127.0.0.1:" + port_monitor + ",server,nowait\"";
-    qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,nowait\"";
-    QString debugCmd = (isDebugEnable && mode != LaunchMode::RECORD) ? " -s -S" : "";
-    QString snapshotCmd = (isSnapshotEnable && mode == LaunchMode::NORMAL) ?
+    mon = " -monitor \"tcp:127.0.0.1:" + runOptions->getMonitorPort() + ",server,nowait\"";
+    qmp = " -qmp \"tcp:127.0.0.1:" + runOptions->getQmpPort() + ",server,nowait\"";
+    
+    QString debugCmd = (runOptions->getDebugEnable() && mode != LaunchMode::RECORD) ? " -s -S" : "";
+    QString snapshotCmd = (runOptions->getSnapshotEnable() && mode == LaunchMode::NORMAL) ?
         " -snapshot" : "";
+    con->addConsoleText(snapshotCmd);
     QString logOp = "";
-    if (!logFile.isEmpty())
+    if (!runOptions->getLogfileName().isEmpty())
     {
-        logOp = " -D " + logFile;
+        logOp = " -D " + runOptions->getLogfileName();
     }
+    QStringList logOptions = runOptions->getOptionList();
     if (logOptions.count())
     {
         logOp += " -d ";
@@ -34,8 +35,15 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
         logOp.chop(1);
     }
     
+    additionalOptionsCmd = debugCmd + snapshotCmd + " "
+        + runOptions->getAdditionalCmdLine() + logOp;
 
-    additionalOptionsCmd = debugCmd + snapshotCmd + " " + cmdAddLine + logOp;
+    if (rr)
+    {
+        dirRR = rr->getCurrentDirRR();
+        icount = rr->getICountValue();
+        period = rr->getSnapshotPeriod();
+    }
 }
 
 QemuLauncher::QemuLauncher(const QString &qemuPath, const QString &platform,
