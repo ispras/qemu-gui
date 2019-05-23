@@ -411,7 +411,6 @@ void RecordReplayTab::recordDeleteRecords()
 
 void RecordReplayTab::deleteRecordFolder()
 {
-    QString name = executionList->item(executionList->count() - 1)->text();
     vm->remove_directory_vm(currentDirRR);
     delete executionList->item(executionList->count() - 1);
     executionList->clearSelection();

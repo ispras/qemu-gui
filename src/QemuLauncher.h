@@ -20,12 +20,13 @@ public:
     QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm, 
         QemuRunOptions *runOptions, LaunchMode mode, ConsoleTab *console,
         RecordReplayTab *rr, QObject *parent = 0);
-    QemuLauncher(const QString &qemuPath, const QString &platform,
-        const QString &machine, const QString &port_qmp);
+    QemuLauncher(const QString &qemuPath, QemuRunOptions *runOptions,
+        const QString &platform, const QString &machine);
     ~QemuLauncher();
     bool isQemuExist();
 
 private:
+    QemuRunOptions *runOptions;
     QString qemuDirPath;
     QString qemuExePath;
     VMConfig *virtual_machine;

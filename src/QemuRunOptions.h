@@ -3,6 +3,8 @@
 
 #include <QtWidgets>
 
+enum class LaunchMode;
+
 class QemuRunOptions : public QObject
 {
     Q_OBJECT
@@ -31,6 +33,10 @@ public:
 
     void setSnapshotEnable(bool value) { isSnapshotEnable = value; }
     bool getSnapshotEnable() { return isSnapshotEnable; }
+
+    QString getMonitorCmd();
+    QString getQmpCmd();
+    QString getAllAdditionalOptionsCmd(LaunchMode mode);
 
 private:
     QString qmpPort;

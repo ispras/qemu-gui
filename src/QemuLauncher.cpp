@@ -8,36 +8,13 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
     RecordReplayTab *rr, QObject *parent)
     : QObject(parent), virtual_machine(vm), mode(mode), dirRR(""),
     qemuDirPath(qemu_install_dir_path), icount(""), period(""),
-    con(console)
+    con(console), runOptions(runOptions)
 {
     createQemuPath(qemu_install_dir_path, virtual_machine->getPlatform());
     qemu = NULL;
-    mon = " -monitor \"tcp:127.0.0.1:" + runOptions->getMonitorPort() + ",server,nowait\"";
-    qmp = " -qmp \"tcp:127.0.0.1:" + runOptions->getQmpPort() + ",server,nowait\"";
-    
-    QString debugCmd = (runOptions->getDebugEnable() && mode != LaunchMode::RECORD) ? " -s -S" : "";
-    QString snapshotCmd = (runOptions->getSnapshotEnable() && mode == LaunchMode::NORMAL) ?
-        " -snapshot" : "";
-    con->addConsoleText(snapshotCmd);
-    QString logOp = "";
-    if (!runOptions->getLogfileName().isEmpty())
-    {
-        logOp = " -D " + runOptions->getLogfileName();
-    }
-    QStringList logOptions = runOptions->getOptionList();
-    if (logOptions.count())
-    {
-        logOp += " -d ";
-        foreach(QString op, logOptions)
-        {
-            logOp += (op + ",");
-        }
-        logOp.chop(1);
-    }
-    
-    additionalOptionsCmd = debugCmd + snapshotCmd + " "
-        + runOptions->getAdditionalCmdLine() + logOp;
-
+    mon = runOptions->getMonitorCmd();
+    qmp = runOptions->getQmpCmd();
+    additionalOptionsCmd = runOptions->getAllAdditionalOptionsCmd(mode);
     if (rr)
     {
         dirRR = rr->getCurrentDirRR();
@@ -46,16 +23,16 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
     }
 }
 
-QemuLauncher::QemuLauncher(const QString &qemuPath, const QString &platform,
-    const QString &machine, const QString &port_qmp)
-    : port_qmp(port_qmp), mode(LaunchMode::NORMAL), con(NULL)
+QemuLauncher::QemuLauncher(const QString &qemuPath, QemuRunOptions *runOptions,
+    const QString &platform, const QString &machine)
+    : mode(LaunchMode::NORMAL), con(NULL), runOptions(runOptions)
 {
     createQemuPath(qemuPath, platform);
     cmd = "-machine " + machine + " ";
     qemu = NULL;
     virtual_machine = NULL;
     mon = "";
-    qmp = " -qmp \"tcp:127.0.0.1:" + port_qmp + ",server,nowait\"";
+    qmp = runOptions->getQmpCmd();
     additionalOptionsCmd = "";
 }
 
@@ -138,7 +115,7 @@ void QemuLauncher::createOverlays()
 void QemuLauncher::launchQemu()
 {
     QString cmdLine = "\"" + qemuExePath + "\" " + recordReplay + " -net none "
-        + cmd + mon + qmp + additionalOptionsCmd;
+        + cmd + mon + runOptions->getQmpCmd() + additionalOptionsCmd;
     qDebug() << cmdLine;
     con->addConsoleText(cmdLine);
     qemu->start(cmdLine);

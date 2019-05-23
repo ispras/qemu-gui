@@ -592,7 +592,7 @@ void QemuGUI::add_qemu_install_dir_btn()
         fill_qemu_install_dir_from_config();
         
         platformInfo = new PlatformInformationReader(qemu_install_dir,
-            global_config->get_home_dir());
+            global_config->get_home_dir(), runOptions);
         connect(platformInfo, SIGNAL(workFinish()), this, SLOT(platformInfoReady()));
     }
 }

@@ -1,9 +1,9 @@
 #include "PlatformInformationReader.h"
 
-
 PlatformInformationReader::PlatformInformationReader(const QString &qemuPath,
-    const QString &homeDir)
-    : qemuDirPath(qemuPath), platformDirPath(homeDir + "/platforms")
+    const QString &homeDir, QemuRunOptions *runOptions)
+    : qemuDirPath(qemuPath), platformDirPath(homeDir + "/platforms"),
+    runOptions(runOptions)
 {
     platforms = { QStringList({ "i386", "pc" }),
         QStringList({ "x86_64", "pc" }),
@@ -15,7 +15,7 @@ PlatformInformationReader::PlatformInformationReader(const QString &qemuPath,
     qmp = NULL;
     qemu = NULL;
     timer = NULL;
-    qmpPort = "2323";
+    qmpPort = runOptions->getQmpPort();
     allInfoReady = false;
 
     QDir platformDir(platformDirPath);
@@ -53,8 +53,8 @@ void PlatformInformationReader::launchQemu()
 {
     allInfoReady = false;
 
-    qemu = new QemuLauncher(qemuDirPath, platforms.first().at(0),
-        platforms.first().at(1), qmpPort);
+    qemu = new QemuLauncher(qemuDirPath, runOptions, platforms.first().at(0),
+        platforms.first().at(1));
     if (qemu->isQemuExist())
     {
         result.clear();

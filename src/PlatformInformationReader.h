@@ -4,18 +4,21 @@
 #include <QtWidgets> 
 #include "QMPInteraction.h"
 #include "QemuLauncher.h"
+#include "QemuRunOptions.h"
 
 class PlatformInformationReader : public QObject
 {
     Q_OBJECT
 
 public:
-    PlatformInformationReader(const QString &qemuPath, const QString &homeDir);
+    PlatformInformationReader(const QString &qemuPath, const QString &homeDir, 
+        QemuRunOptions *runOptions);
     ~PlatformInformationReader();
     static QString getQemuProfilePath(const QString &name);
     static QString getQemuHash(const QString &name);
 
 private:
+    QemuRunOptions *runOptions;
     QThread *thread;
     QProgressDialog *progress;
     QString qemuDirPath;
