@@ -117,7 +117,10 @@ void QemuLauncher::launchQemu()
     QString cmdLine = "\"" + qemuExePath + "\" " + recordReplay + " -net none "
         + cmd + mon + runOptions->getQmpCmd() + additionalOptionsCmd;
     qDebug() << cmdLine;
-    con->addConsoleText(cmdLine);
+    if (con)
+    {
+        con->addConsoleText(cmdLine);
+    }
     qemu->start(cmdLine);
     if (virtual_machine)
     {
