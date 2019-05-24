@@ -9,6 +9,9 @@ QemuGUI::QemuGUI(QWidget *parent)
         QemuGUI::setObjectName(QStringLiteral("QemuGUI"));
     setWindowTitle(QApplication::translate("QemuGUIClass", "QemuGUI", Q_NULLPTR));
     resize(600, 400);
+    
+    runOptions = new QemuRunOptions();
+
     menuBar = new QMenuBar(this);
     menuBar->setObjectName(QStringLiteral("menuBar"));
     setMenuBar(menuBar);
@@ -32,6 +35,8 @@ QemuGUI::QemuGUI(QWidget *parent)
 
     qmp_port = global_config->get_port_qmp();
     monitor_port = global_config->get_port_monitor();
+    runOptions->setQmpPort(qmp_port);
+    runOptions->setMonitorPort(monitor_port);
     
 
     //main menu
@@ -393,15 +398,11 @@ void QemuGUI::play_machine()
         if (vm_state == VMState::None && 
             qemu_install_dir_combo->currentIndex() != qemu_install_dir_combo->count() - 1)
         {
+            VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
+            
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
-                global_config->get_vm_by_name(listVM->currentItem()->text()),
-                qmp_port, monitor_port, launchMode, debugCheckBox->isChecked(),
-                snapshotCheckBox->isChecked(), cmdLineAdditionalLineEdit->text(), 
-                logFileName, logOptions,
-                launchMode != LaunchMode::NORMAL ? rec_replay_tab->getCurrentDirRR() : "",
-                launchMode != LaunchMode::NORMAL ? rec_replay_tab->getICountValue() : "",
-                launchMode != LaunchMode::NORMAL ? rec_replay_tab->getSnapshotPeriod() : "",
-                consoleTab);
+                vm, runOptions, launchMode, consoleTab,
+                launchMode != LaunchMode::NORMAL ? rec_replay_tab : NULL);
             if (launch_qemu->isQemuExist())
             {
                 if (debugCheckBox->isChecked())
@@ -591,7 +592,7 @@ void QemuGUI::add_qemu_install_dir_btn()
         fill_qemu_install_dir_from_config();
         
         platformInfo = new PlatformInformationReader(qemu_install_dir,
-            global_config->get_home_dir());
+            global_config->get_home_dir(), runOptions);
         connect(platformInfo, SIGNAL(workFinish()), this, SLOT(platformInfoReady()));
     }
 }
@@ -687,13 +688,23 @@ void QemuGUI::runOptionPrepare()
             logOptions.append(op->objectName());
         }
     }
+    runOptions->setLogfileName(logfileNameLineEdit->text());
+    runOptions->setLogOptionList(logOptions);
+
+    runOptions->setDebugEnable(debugCheckBox->isChecked());
+    runOptions->setSnapshotEnable(snapshotCheckBox->isChecked());
+
+    runOptions->setAdditionalCmdLine(cmdLineAdditionalLineEdit->text());
+
     runOptionsDlg->close();
 }
 
 void QemuGUI::set_connection_settings(const QString &qmp, const QString &monitor)
 {
-    monitor_port = qmp;
-    qmp_port = monitor;
+    monitor_port = monitor;
+    qmp_port = qmp;
+    runOptions->setMonitorPort(monitor_port);
+    runOptions->setQmpPort(qmp_port);
 }
 
 

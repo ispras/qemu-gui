@@ -16,6 +16,7 @@
 #include "ConsoleTab.h"
 #include "ConnectionSettingsForm.h"
 #include "PlatformInformationReader.h"
+#include "QemuRunOptions.h"
 
 enum VMState {None, Running, Stopped};
 
@@ -33,6 +34,7 @@ protected:
 private:
     GlobalConfig *global_config;
     QemuLauncher *launch_qemu;
+    QemuRunOptions *runOptions;
 
     VMState vm_state;
     QTcpSocket monitor_socket;
