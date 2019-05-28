@@ -16,6 +16,8 @@ public:
     CreateVMForm(const QString &home_dir = "", const QString &qemu_dir = "");
     ~CreateVMForm();
 
+    static QStringList getMachineList(const QString &path);
+
 private:
     QLineEdit *name_edit;
     QLineEdit *pathtovm_edit;

@@ -196,6 +196,19 @@ QString VMConfig::getPlatform()
     return platform;
 }
 
+QString VMConfig::getMachine()
+{
+    foreach(Device *dev, system.getDevices())
+    {
+        if (dev->getDeviceTypeName() == "DeviceMachine")
+        {
+            DeviceMachine *machine = dynamic_cast<DeviceMachine *>(dev);
+            return machine->getName();
+        }
+    }
+    return "";
+}
+
 QString VMConfig::get_name()
 {
     return name_vm;

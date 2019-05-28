@@ -32,6 +32,7 @@ public:
 
     void setPlatform(const QString &platformVM);
     QString getPlatform();
+    QString getMachine();
 
     QString get_name();
     QString getCmdLine();
@@ -53,7 +54,6 @@ private:
     QString dir_path;
     QString platform;
     QString addCmdLine;
-
     Device system;
     QStringList replayList;
 

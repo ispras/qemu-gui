@@ -119,6 +119,28 @@ CreateVMForm::~CreateVMForm()
 
 }
 
+QStringList CreateVMForm::getMachineList(const QString &path)
+{
+    QStringList machines;
+    QFile file(path + ".xml");
+    if (file.open(QIODevice::ReadOnly))
+    {
+        QXmlStreamReader xmlReader(&file);
+        xmlReader.readNextStartElement();
+        QString platform = path.section('/', -1);
+        Q_ASSERT(xmlReader.name() == platform);
+
+        while (xmlReader.readNextStartElement())
+        {
+            if (xmlReader.name() == "Machine")
+            {
+                machines.append(xmlReader.readElementText());
+            }
+        }
+    }
+    return machines;
+}
+
 void CreateVMForm::widget_placement()
 {
     QGroupBox *common_gr = new QGroupBox("OS information");
@@ -247,16 +269,13 @@ void CreateVMForm::changePlatform(const QString &text)
 
         while (xmlReader.readNextStartElement())
         {
-            if (xmlReader.name() == "Machine")
-            {
-                machineCombo->addItem(xmlReader.readElementText());
-            }
-            else if (xmlReader.name() == "Cpu")
+            if (xmlReader.name() == "Cpu")
             {
                 cpuCombo->addItem(xmlReader.readElementText());
             }
         }
     }
+    machineCombo->addItems(getMachineList(platformDirPath + "/" + text));
 }
 
 void CreateVMForm::connect_signals()
