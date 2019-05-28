@@ -170,6 +170,10 @@ void QemuGUI::fill_listVM_from_config()
     {
         qemu_play->setEnabled(true);
     }
+    else
+    {
+        editVMAct->setVisible(false);
+    }
 }
 
 void QemuGUI::widget_placement()
