@@ -177,6 +177,7 @@ void RecordReplayTab::createDialog(const QString &caption)
 {
     replayDialog = new QDialog();
     replayDialog->setWindowTitle(caption);
+    replayDialog->setWindowIcon(QIcon(":Resources/settings.png"));
     replayDialog->setModal(true);
     replayDialog->setAttribute(Qt::WA_DeleteOnClose);
 }

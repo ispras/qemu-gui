@@ -9,6 +9,7 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
     resize(420, 340);
     setWindowTitle(QApplication::translate("VMSettingsForm", "VM Settings", Q_NULLPTR));
     setWindowModality(Qt::WindowModality::ApplicationModal);
+    setWindowIcon(QIcon(":Resources/settings.png"));
 
     deviceTree = new QTreeWidget();
     savecancel_btn = new QDialogButtonBox(QDialogButtonBox::Apply
