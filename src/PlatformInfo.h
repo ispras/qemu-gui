@@ -7,11 +7,11 @@ class PlatformInfo : public QObject
 {
 
 public:
-    PlatformInfo(const QString &path);
+    explicit PlatformInfo(const QString &path);
     ~PlatformInfo() {}
 
-    QStringList getMachines() { return machines; }
-    QStringList getCpus() { return cpus; }
+    QStringList getMachines() const { return machines; }
+    QStringList getCpus() const { return cpus; }
 
 private:
     QStringList machines;
