@@ -1,7 +1,7 @@
 #include "QemuGUICommon.h"
 #include "CreateVMForm.h"
 #include "PlatformInformationReader.h"
-#include "PlatformInformation.h"
+#include "PlatformInfo.h"
 
 const QString xml_machine = "Machine";
 const QString xml_cpu = "Cpu";
@@ -239,11 +239,10 @@ void CreateVMForm::changePlatform(const QString &text)
     machineCombo->clear();
     cpuCombo->clear();
 
-    machineCombo->addItems(PlatformInformation::getPlatformInfoByName(
-        platformDirPath + "/" + text, "Machine"));
-    cpuCombo->addItems(PlatformInformation::getPlatformInfoByName(
-        platformDirPath + "/" + text, "Cpu"));
-    }
+    PlatformInfo platformInfo(platformDirPath + "/" + text);
+    machineCombo->addItems(platformInfo.getMachines());
+    cpuCombo->addItems(platformInfo.getCpus());
+}
 
 void CreateVMForm::connect_signals()
 {

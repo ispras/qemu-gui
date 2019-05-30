@@ -1,6 +1,6 @@
 #include "QemuGUI.h"
 #include "PlatformInformationReader.h"
-#include "PlatformInformation.h"
+#include "PlatformInfo.h"
 
 
 QemuGUI::QemuGUI(QWidget *parent)
@@ -216,7 +216,8 @@ void QemuGUI::checkQemuCompatibility()
         VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
         QString path = global_config->get_home_dir() + PlatformInformationReader::getQemuProfilePath(
             qemu_install_dir_combo->currentText()) + "/" + vm->getPlatform();
-        QStringList machines = PlatformInformation::getPlatformInfoByName(path, "Machine");
+        PlatformInfo platformInfo(path);
+        QStringList machines = platformInfo.getMachines();
         bool qemuIsCompatible = machines.contains(vm->getMachine());
         if (vm_state == VMState::None)
         {

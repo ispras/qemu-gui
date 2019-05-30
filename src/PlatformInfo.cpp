@@ -1,10 +1,8 @@
-#include "PlatformInformation.h"
+#include "PlatformInfo.h"
 
 
-QStringList PlatformInformation::getPlatformInfoByName(const QString &path,
-    const QString &element)
+PlatformInfo::PlatformInfo(const QString &path)
 {
-    QStringList list;
     QFile file(path + ".xml");
     if (file.open(QIODevice::ReadOnly))
     {
@@ -15,16 +13,17 @@ QStringList PlatformInformation::getPlatformInfoByName(const QString &path,
 
         while (xmlReader.readNextStartElement())
         {
-            if (xmlReader.name() == element)
+            if (xmlReader.name() == "Machine")
             {
-                list.append(xmlReader.readElementText());
+                machines.append(xmlReader.readElementText());
             }
-            else
+            else if (xmlReader.name() == "Cpu")
             {
-                xmlReader.readElementText();
+                cpus.append(xmlReader.readElementText());
             }
         }
     }
-    return list;
 }
+
+
 
