@@ -1,5 +1,6 @@
 #include "QemuGUI.h"
 #include "PlatformInformationReader.h"
+#include "PlatformInfo.h"
 
 
 QemuGUI::QemuGUI(QWidget *parent)
@@ -17,11 +18,13 @@ QemuGUI::QemuGUI(QWidget *parent)
     setMenuBar(menuBar);
     mainToolBar = new QToolBar(this);
     mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
+    mainToolBar->setIconSize(QSize(30, 30));
     addToolBar(mainToolBar);
     vmToolBar = new QToolBar(this);
+    vmToolBar->setIconSize(QSize(30, 30));
     
     this->addToolBarBreak();
-    addToolBar(Qt::ToolBarArea::TopToolBarArea, vmToolBar);
+    addToolBar(Qt::ToolBarArea::LeftToolBarArea, vmToolBar);
 
     centralWidget = new QWidget(this);
     centralWidget->setObjectName(QStringLiteral("centralWidget"));
@@ -72,14 +75,28 @@ QemuGUI::QemuGUI(QWidget *parent)
     connect(qemu_stop, SIGNAL(triggered()), this, SLOT(stop_machine()));
     qemu_stop->setEnabled(false);
 
-    mainToolBar->addAction("Run options", this, SLOT(setRunOptions()));
+    QAction *runOptionsAct = new QAction(set_button_icon_for_state(":Resources/run_options.png",
+        ":Resources/create_disable.png"), "Run options");
+    mainToolBar->addAction(runOptionsAct);
+    connect(runOptionsAct, SIGNAL(triggered()), this, SLOT(setRunOptions()));
 
     mainToolBar->addWidget(qemu_install_dir_combo);
     //mainToolBar->addSeparator();
-    vmToolBar->addAction("Create machine", this, SLOT(create_machine()));
-    vmToolBar->addAction("Add existing machine", this, SLOT(add_machine()));
+    editVMAct = new QAction(set_button_icon_for_state(":Resources/settings.png",
+        ":Resources/settings_disable.png"), "Edit virtial machine");
+    vmToolBar->addAction(editVMAct);
+    connect(editVMAct, SIGNAL(triggered()), this, SLOT(edit_settings()));
+    vmToolBar->addSeparator();
+    QAction *createAct = new QAction(set_button_icon_for_state(":Resources/create.png",
+        ":Resources/create_disable.png"), "Create machine");
+    vmToolBar->addAction(createAct);
+    connect(createAct, SIGNAL(triggered()), this, SLOT(create_machine()));
+    QAction *addAct = new QAction(set_button_icon_for_state(":Resources/import.png", 
+        ":Resources/import_disable.png"), "Add existing machine");
+    vmToolBar->addAction(addAct);
+    connect(addAct, SIGNAL(triggered()), this, SLOT(add_machine()));
     
-    // tab widget	
+    // tab widget
     tab = new QTabWidget(centralWidget);
     tab->setMinimumWidth(400);
     tab_info = new QWidget(centralWidget);
@@ -93,7 +110,6 @@ QemuGUI::QemuGUI(QWidget *parent)
 
     // info tab
     propBox = new QGroupBox(tab_info);
-    edit_btn = new QPushButton("Edit VM", tab_info);
     vmInfoTextEdit = new QTextEdit(propBox);
     vmInfoTextEdit->setReadOnly(true);
 
@@ -101,8 +117,6 @@ QemuGUI::QemuGUI(QWidget *parent)
 
     propBox->setMinimumWidth(300);
     propBox->setVisible(false);
-    edit_btn->setVisible(false);
-    edit_btn->setAutoDefault(true);
 
     listVM = new QListWidget();
     listVM->setMaximumWidth(500);
@@ -110,6 +124,7 @@ QemuGUI::QemuGUI(QWidget *parent)
     QFont listVMfont;
     listVMfont.setPointSize(10);
     listVM->setFont(listVMfont);
+    listVM->setDragDropMode(QAbstractItemView::DragDropMode::InternalMove);
 
     delete_act = new QAction("Delete VM", listVM);
     exclude_act = new QAction("Exclude VM", listVM);
@@ -122,6 +137,7 @@ QemuGUI::QemuGUI(QWidget *parent)
     connect_signals();
     fill_listVM_from_config();
     fill_qemu_install_dir_from_config();
+    checkQemuCompatibility();
 
     widget_placement();
 }
@@ -155,6 +171,10 @@ void QemuGUI::fill_listVM_from_config()
     {
         qemu_play->setEnabled(true);
     }
+    else
+    {
+        editVMAct->setVisible(false);
+    }
 }
 
 void QemuGUI::widget_placement()
@@ -164,7 +184,6 @@ void QemuGUI::widget_placement()
 
     QVBoxLayout *infoLay = new QVBoxLayout(tab_info);
     infoLay->addWidget(propBox);
-    infoLay->addWidget(edit_btn);
 
     QHBoxLayout *one = new QHBoxLayout(centralWidget);
 
@@ -188,6 +207,24 @@ void QemuGUI::fill_qemu_install_dir_from_config()
     }
     if (global_config->get_current_qemu_dir() != "")
         qemu_install_dir_combo->setCurrentText(global_config->get_current_qemu_dir());
+}
+
+void QemuGUI::checkQemuCompatibility()
+{
+    if (listVM->currentItem())
+    {
+        VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
+        QString path = global_config->get_home_dir() + PlatformInformationReader::getQemuProfilePath(
+            qemu_install_dir_combo->currentText()) + "/" + vm->getPlatform();
+        PlatformInfo platformInfo(path);
+        QStringList machines = platformInfo.getMachines();
+        bool qemuIsCompatible = machines.contains(vm->getMachine());
+        if (vm_state == VMState::None)
+        {
+            qemu_play->setEnabled(qemuIsCompatible);
+            emit recordReplayEnableBtns(qemuIsCompatible);
+        }
+    }
 }
 
 void QemuGUI::setButtonsState()
@@ -257,6 +294,7 @@ void QemuGUI::createRunOptionsDialog()
 
     runOptionsDlg = new QDialog(this);
     runOptionsDlg->setWindowTitle("Run options");
+    runOptionsDlg->setWindowIcon(QIcon(":Resources/run_options_mini.png"));
     runOptionsDlg->setModal(true);
 
     debugCheckBox = new QCheckBox("Debug enable");
@@ -311,8 +349,6 @@ void QemuGUI::createRunOptionsDialog()
 
 void QemuGUI::connect_signals()
 {
-    /* edit machine */
-    connect(edit_btn, SIGNAL(clicked()), this, SLOT(edit_settings()));
     /* list of machines */
     connect(listVM, SIGNAL(itemSelectionChanged()), 
         this, SLOT(listVM_item_selection_changed()));
@@ -405,6 +441,7 @@ void QemuGUI::play_machine()
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab : NULL);
             if (launch_qemu->isQemuExist())
             {
+                vmToolBar->setEnabled(false);
                 if (debugCheckBox->isChecked())
                 {
                     vm_state = VMState::Stopped;
@@ -463,6 +500,7 @@ void QemuGUI::finish_qemu(int exitCode)
 {
     if (exitCode != 0)
         emit monitor_abort();
+    vmToolBar->setEnabled(true);
     vm_state = VMState::None;
     qemu_play->setEnabled(true);
     qemu_stop->setEnabled(false);
@@ -542,17 +580,18 @@ void QemuGUI::listVM_item_selection_changed()
             vm->fillReplayList();
             rec_replay_tab->setRecordReplayList(vm);
         }
+        checkQemuCompatibility();
         propBox->setVisible(true);
-        edit_btn->setVisible(true);
         delete_act->setDisabled(false);
         exclude_act->setDisabled(false);
+        editVMAct->setVisible(true);
     }
     else
     {
         propBox->setVisible(false);
-        edit_btn->setVisible(false);
         delete_act->setDisabled(true);
         exclude_act->setDisabled(true);
+        editVMAct->setVisible(false);
     }
 }
 
@@ -569,7 +608,7 @@ void QemuGUI::listVM_current_item_changed(QListWidgetItem *current, QListWidgetI
         }
 
         font.setBold(true);
-        current->setTextColor(Qt::GlobalColor::darkRed);
+        current->setTextColor(Qt::GlobalColor::darkBlue);
         current->setFont(font);
     }
 }
@@ -642,6 +681,7 @@ void QemuGUI::qemu_install_dir_combo_activated(int index)
     else
     {
         global_config->set_current_qemu_dir(qemu_install_dir_combo->itemText(index));
+        checkQemuCompatibility();
         emit currentQemuChanged();
     }
 }

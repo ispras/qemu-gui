@@ -1,6 +1,7 @@
 #include "QemuGUICommon.h"
 #include "CreateVMForm.h"
 #include "PlatformInformationReader.h"
+#include "PlatformInfo.h"
 
 const QString xml_machine = "Machine";
 const QString xml_cpu = "Cpu";
@@ -12,7 +13,7 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
         CreateVMForm::setObjectName(QStringLiteral("CreateVMForm"));
     resize(400, 460);
     setWindowTitle(QApplication::translate("CreateVMForm", "Create Virtual Machine", Q_NULLPTR));
-    setWindowIcon(QIcon(":Resources/qemu.png"));
+    setWindowIcon(QIcon(":Resources/create.png"));
     setWindowModality(Qt::ApplicationModal);
     setWindowFlags(Qt::MSWindowsFixedSizeDialogHint);
     
@@ -238,25 +239,9 @@ void CreateVMForm::changePlatform(const QString &text)
     machineCombo->clear();
     cpuCombo->clear();
 
-    QFile file(platformDirPath + "/" + text + ".xml");
-    if (file.open(QIODevice::ReadOnly))
-    {
-        QXmlStreamReader xmlReader(&file);
-        xmlReader.readNextStartElement();
-        Q_ASSERT(xmlReader.name() == text);
-
-        while (xmlReader.readNextStartElement())
-        {
-            if (xmlReader.name() == "Machine")
-            {
-                machineCombo->addItem(xmlReader.readElementText());
-            }
-            else if (xmlReader.name() == "Cpu")
-            {
-                cpuCombo->addItem(xmlReader.readElementText());
-            }
-        }
-    }
+    PlatformInfo platformInfo(platformDirPath + "/" + text);
+    machineCombo->addItems(platformInfo.getMachines());
+    cpuCombo->addItems(platformInfo.getCpus());
 }
 
 void CreateVMForm::connect_signals()

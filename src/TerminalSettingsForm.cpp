@@ -9,7 +9,7 @@ TerminalSettingsForm::TerminalSettingsForm(QTextEdit *terminal, QWidget *parent)
     resize(484, 214);
     
     setWindowTitle(QApplication::translate("TerminalSettings", "Terminal interface settings", Q_NULLPTR));
-    setWindowIcon(QIcon(":Resources/qemu.png"));
+    setWindowIcon(QIcon(":Resources/settings.png"));
     //setWindowModality(Qt::ApplicationModal);
     setWindowFlags(Qt::MSWindowsFixedSizeDialogHint);
 

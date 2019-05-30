@@ -7,5 +7,13 @@
         <file>Resources/pause_disable.png</file>
         <file>Resources/play_disable.png</file>
         <file>Resources/stop_disable.png</file>
+        <file>Resources/settings.png</file>
+        <file>Resources/settings_disable.png</file>
+        <file>Resources/import.png</file>
+        <file>Resources/import_disable.png</file>
+        <file>Resources/create.png</file>
+        <file>Resources/create_disable.png</file>
+        <file>Resources/run_options.png</file>
+        <file>Resources/run_options_mini.png</file>
     </qresource>
 </RCC>

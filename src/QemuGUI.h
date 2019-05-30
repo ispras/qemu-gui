@@ -60,6 +60,7 @@ private:
     QAction *qemu_play;
     QAction *qemu_pause;
     QAction *qemu_stop;
+    QAction *editVMAct;
     
     QComboBox *qemu_install_dir_combo;
 
@@ -69,7 +70,6 @@ private:
 
     QGroupBox *propBox;
     QTextEdit *vmInfoTextEdit;
-    QPushButton *edit_btn;
     QTabWidget *tab;
     QWidget *tab_info;
     QMPInteraction *qmp;
@@ -96,6 +96,7 @@ private:
     void widget_placement();
     void fill_listVM_from_config();
     void fill_qemu_install_dir_from_config();
+    void checkQemuCompatibility();
 
 public slots:
     void setButtonsState();

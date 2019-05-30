@@ -41,12 +41,12 @@ public:
     virtual QString getDeviceTypeName() const = 0;
     virtual bool isDeviceInvisible() { return true; }
     virtual BusType needsBus() const { return BusType::System; }
+    QString getName() const { return name; }
 
 protected:
     virtual void saveParameters(QXmlStreamWriter &xml) const;
     virtual void readParameters(QXmlStreamReader &xml);
     void setName(const QString &newName) { name = newName; }
-    QString getName() const { return name; }
 
 private:
     QString name;
