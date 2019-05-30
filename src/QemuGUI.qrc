@@ -14,5 +14,6 @@
         <file>Resources/create.png</file>
         <file>Resources/create_disable.png</file>
         <file>Resources/run_options.png</file>
+        <file>Resources/run_options_mini.png</file>
     </qresource>
 </RCC>

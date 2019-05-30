@@ -293,7 +293,7 @@ void QemuGUI::createRunOptionsDialog()
 
     runOptionsDlg = new QDialog(this);
     runOptionsDlg->setWindowTitle("Run options");
-    runOptionsDlg->setWindowIcon(QIcon(":Resources/run_options.png"));
+    runOptionsDlg->setWindowIcon(QIcon(":Resources/run_options_mini.png"));
     runOptionsDlg->setModal(true);
 
     debugCheckBox = new QCheckBox("Debug enable");
@@ -607,7 +607,7 @@ void QemuGUI::listVM_current_item_changed(QListWidgetItem *current, QListWidgetI
         }
 
         font.setBold(true);
-        current->setTextColor(Qt::GlobalColor::darkRed);
+        current->setTextColor(Qt::GlobalColor::darkBlue);
         current->setFont(font);
     }
 }
