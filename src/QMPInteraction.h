@@ -18,6 +18,7 @@ public:
 private:
     QemuSocket socket;
     bool isQmpConnect;
+    QList<QByteArray> messageBuffer;
 
 protected:
     QByteArray init();
