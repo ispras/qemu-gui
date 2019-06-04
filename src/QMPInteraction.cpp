@@ -65,7 +65,7 @@ void QMPInteraction::what_said_qmp(QByteArray message)
 void QMPInteraction::read_terminal()
 {
     QByteArray message = socket.readAll();
-    messageBuffer = message.split('\n');
+    QList<QByteArray> messageBuffer = message.split('\n');
     foreach(QByteArray message, messageBuffer)
     {
         what_said_qmp(message);
