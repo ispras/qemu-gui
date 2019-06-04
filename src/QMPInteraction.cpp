@@ -56,7 +56,7 @@ void QMPInteraction::what_said_qmp(QByteArray message)
     {
         emit qemu_resumed();
     }
-    if (command.compare("stop", Qt::CaseInsensitive) == 0)
+    else if (command.compare("stop", Qt::CaseInsensitive) == 0)
     {
         emit qemu_stopped();
     }
@@ -65,7 +65,11 @@ void QMPInteraction::what_said_qmp(QByteArray message)
 void QMPInteraction::read_terminal()
 {
     QByteArray message = socket.readAll();
-    what_said_qmp(message);
+    QList<QByteArray> messageBuffer = message.split('\n');
+    foreach(QByteArray message, messageBuffer)
+    {
+        what_said_qmp(message);
+    }
 }
 
 void QMPInteraction::connectedSocket()
