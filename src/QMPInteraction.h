@@ -24,6 +24,7 @@ protected:
     QByteArray cmd_stop();
     QByteArray cmd_continue();
     QByteArray cmd_shutdown();
+    QByteArray cmdQueryStatus();
     void what_said_qmp(QByteArray message);
 
 public slots:
@@ -37,6 +38,7 @@ signals :
     void connectionEstablished();
     void qemu_resumed();
     void qemu_stopped();
+    void qemuRunningStatus(bool runStatus);
 };
 
 
