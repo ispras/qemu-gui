@@ -227,12 +227,15 @@ void QemuGUI::checkQemuCompatibility()
     }
 }
 
-void QemuGUI::setButtonsState()
+void QemuGUI::setButtonsState(bool runningState)
 {
-    qemu_play->setEnabled(debugCheckBox->isChecked());
-    qemu_pause->setEnabled(launchMode == LaunchMode::NORMAL 
-        && !debugCheckBox->isChecked());
+    qemu_play->setEnabled(!runningState);
+    qemu_pause->setEnabled(launchMode != LaunchMode::RECORD && runningState);
     qemu_stop->setEnabled(true);
+    if (!runningState)
+    {
+        vm_state = VMState::Stopped;
+    }
 }
 
 void QemuGUI::stop_qemu_btn_state()
@@ -245,8 +248,8 @@ void QemuGUI::stop_qemu_btn_state()
 void QemuGUI::resume_qemu_btn_state()
 {
     vm_state = VMState::Running;
-    qemu_play->setDisabled(true);
-    qemu_pause->setEnabled(true);
+    qemu_play->setEnabled(false);
+    qemu_pause->setEnabled(launchMode != LaunchMode::RECORD && true);
 }
 
 QIcon QemuGUI::set_button_icon_for_state(const QString &normal_icon, 
@@ -465,7 +468,8 @@ void QemuGUI::play_machine()
                 thread->start();
 
                 qmp = new QMPInteraction(nullptr, qmp_port.toInt());
-                connect(qmp, SIGNAL(connectionEstablished()), this, SLOT(setButtonsState()));
+                connect(qmp, SIGNAL(qemuRunningStatus(bool)), this, SLOT(setButtonsState(bool)));
+
                 connect(this, SIGNAL(qmp_resume_qemu()), qmp, SLOT(command_resume_qemu()));
                 connect(this, SIGNAL(qmp_stop_qemu()), qmp, SLOT(command_stop_qemu()));
                 connect(this, SIGNAL(qmp_shutdown_qemu()), qmp, SLOT(commandShutdownQemu()));
@@ -487,7 +491,6 @@ void QemuGUI::play_machine()
             emit qmp_resume_qemu();
         }
     }
-    launchMode = LaunchMode::NORMAL;
 }
 
 void QemuGUI::play_machine(LaunchMode mode)
@@ -502,6 +505,7 @@ void QemuGUI::finish_qemu(int exitCode)
         emit monitor_abort();
     vmToolBar->setEnabled(true);
     vm_state = VMState::None;
+    launchMode = LaunchMode::NORMAL;
     qemu_play->setEnabled(true);
     qemu_stop->setEnabled(false);
     qemu_pause->setEnabled(false);

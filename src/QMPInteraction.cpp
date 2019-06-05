@@ -39,6 +39,11 @@ QByteArray QMPInteraction::cmd_shutdown()
     return "{ \"execute\": \"quit\" }";
 }
 
+QByteArray QMPInteraction::cmdQueryStatus()
+{
+    return "{ \"execute\": \"query-status\" }";
+}
+
 void QMPInteraction::what_said_qmp(QByteArray message)
 {
     if (!isQmpConnect)
@@ -49,16 +54,26 @@ void QMPInteraction::what_said_qmp(QByteArray message)
     qDebug() << "QMP: " << message;
     QJsonDocument qmp_message = QJsonDocument::fromJson(message);
     QJsonObject obj = qmp_message.object();
-    QJsonValue json_command = obj["event"];
-    qDebug() << json_command;
-    QString command = json_command.toString();
-    if (command.compare("resume", Qt::CaseInsensitive) == 0)
+    
+    QJsonValue json_command = obj["return"];
+    if (!json_command.toObject()["running"].isNull())
     {
-        emit qemu_resumed();
+        bool runStatus = json_command.toObject()["running"].toBool();
+        emit qemuRunningStatus(runStatus);
     }
-    else if (command.compare("stop", Qt::CaseInsensitive) == 0)
+    else
     {
-        emit qemu_stopped();
+        QJsonValue json_command = obj["event"];
+        qDebug() << json_command;
+        QString command = json_command.toString();
+        if (command.compare("resume", Qt::CaseInsensitive) == 0)
+        {
+            emit qemu_resumed();
+        }
+        else if (command.compare("stop", Qt::CaseInsensitive) == 0)
+        {
+            emit qemu_stopped();
+        }
     }
 }
 
@@ -75,6 +90,7 @@ void QMPInteraction::read_terminal()
 void QMPInteraction::connectedSocket()
 {
     socket.write(init());
+    socket.write(cmdQueryStatus());
 }
 
 void QMPInteraction::command_stop_qemu()
