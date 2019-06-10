@@ -109,6 +109,7 @@ public slots:
 private slots:
 
     void set_qemu_install_dir();
+    void setQemuInstallDirFromForm(QListWidgetItem *item);
     void add_qemu_install_dir_btn();
     void del_qemu_install_dir_btn();
     void refresh();

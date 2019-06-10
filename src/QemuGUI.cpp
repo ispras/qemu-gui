@@ -279,7 +279,6 @@ void QemuGUI::create_qemu_install_dir_dialog()
     buttons_lay->addWidget(del_install_dir_btn);
 
     QVBoxLayout *layout = new QVBoxLayout();
-    
     layout->addLayout(buttons_lay);
     layout->addWidget(qemu_install_dir_list);
 
@@ -287,6 +286,8 @@ void QemuGUI::create_qemu_install_dir_dialog()
 
     connect(add_install_dir_btn, SIGNAL(clicked()), this, SLOT(add_qemu_install_dir_btn()));
     connect(del_install_dir_btn, SIGNAL(clicked()), this, SLOT(del_qemu_install_dir_btn()));
+    connect(qemu_install_dir_list, SIGNAL(itemDoubleClicked(QListWidgetItem *)),
+        this, SLOT(setQemuInstallDirFromForm(QListWidgetItem *)));
 }
 
 void QemuGUI::createRunOptionsDialog()
@@ -614,6 +615,14 @@ void QemuGUI::listVM_current_item_changed(QListWidgetItem *current, QListWidgetI
         current->setTextColor(Qt::GlobalColor::darkBlue);
         current->setFont(font);
     }
+}
+
+void QemuGUI::setQemuInstallDirFromForm(QListWidgetItem *item)
+{
+    int index = qemu_install_dir_combo->findText(item->text());
+    qemu_install_dir_combo->setCurrentIndex(index);
+    emit qemu_install_dir_combo->activated(index);
+    qemu_install_dir_settings->close();
 }
 
 void QemuGUI::add_qemu_install_dir_btn()
