@@ -434,8 +434,7 @@ void QemuGUI::play_machine()
 {
     if (listVM->currentItem())
     {
-        if (vm_state == VMState::None && 
-            qemu_install_dir_combo->currentIndex() != qemu_install_dir_combo->count() - 1)
+        if (vm_state == VMState::None)
         {
             VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
             
@@ -681,6 +680,8 @@ void QemuGUI::qemu_install_dir_combo_activated(int index)
     if (index == qemu_install_dir_combo->count() - 1)
     {
         qemu_install_dir_settings->show();
+        qemu_play->setEnabled(false);
+        emit recordReplayEnableBtns(false);
     }
     else
     {
