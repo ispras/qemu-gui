@@ -621,7 +621,7 @@ void QemuGUI::setQemuInstallDirFromForm(QListWidgetItem *item)
 {
     int index = qemu_install_dir_combo->findText(item->text());
     qemu_install_dir_combo->setCurrentIndex(index);
-    emit qemu_install_dir_combo->activated(index);
+    qemu_install_dir_combo->activated(index);
     qemu_install_dir_settings->close();
 }
 
@@ -703,7 +703,6 @@ void QemuGUI::qemu_install_dir_combo_activated(int index)
 
 void QemuGUI::qemu_install_dir_combo_index_changed(int index)
 {
-
 }
 
 void QemuGUI::set_terminal_settings()
