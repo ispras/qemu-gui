@@ -133,15 +133,20 @@ void VMSettingsForm::widget_placement()
 
 void VMSettingsForm::applySettings()
 {
+    bool isExucutionList = emit isExecutionListNoEmpty();
+    QString message = isExucutionList ? "All recorded executions will be removed. " : "";
     int answer = QMessageBox::question(this, "Saving",
-        "All recorded executions will be removed. Are you sure?",
+        message + "Are you sure?",
         QMessageBox::Yes, QMessageBox::No);
     if (answer == QMessageBox::Yes)
     {
         vm->setCmdLine(addCmdLineParamsEdit->text());
         vm->save_vm_config();
         vm->remove_directory_vm(vm->getPathRRDir());
-        emit settingsDeleteRecords();
+        if (isExucutionList)
+        {
+            emit settingsDeleteRecords();
+        }
         emit updateVMInfo();
     }
 }

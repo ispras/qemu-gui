@@ -51,6 +51,7 @@ private slots:
 signals:
     void settingsDeleteRecords();
     void updateVMInfo();
+    bool isExecutionListNoEmpty();
 
 };
 
