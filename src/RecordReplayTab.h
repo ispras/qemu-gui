@@ -76,6 +76,7 @@ public slots:
     void executionListItemSelectionChanged();
     void executionListItemRowChanged(int currentRow);
     void replayCurrentQemuChanged();
+    bool isExecutionsExist();
 
 signals:
     void startRR(LaunchMode mode);

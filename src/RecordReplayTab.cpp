@@ -327,6 +327,11 @@ void RecordReplayTab::replayCurrentQemuChanged()
     executionListItemSelectionChanged();
 }
 
+bool RecordReplayTab::isExecutionsExist()
+{
+    return executionList->count();
+}
+
 void RecordReplayTab::rename_ctxmenu()
 {
     if (executionList->currentItem())
