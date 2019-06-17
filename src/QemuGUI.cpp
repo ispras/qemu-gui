@@ -568,7 +568,7 @@ void QemuGUI::edit_settings()
     settingsWindow->setAttribute(Qt::WA_DeleteOnClose);
     connect(settingsWindow, SIGNAL(settingsDeleteRecords()),
         rec_replay_tab, SLOT(recordDeleteRecords()));
-    connect(settingsWindow, SIGNAL(isExecutionListNoEmpty()),
+    connect(settingsWindow, SIGNAL(isExecutionListNotEmpty()),
         rec_replay_tab, SLOT(isExecutionsExist()));
     connect(settingsWindow, SIGNAL(updateVMInfo()),
         this, SLOT(listVM_item_selection_changed()));
