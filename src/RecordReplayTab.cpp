@@ -19,6 +19,8 @@ RecordReplayTab::RecordReplayTab(GlobalConfig *globalConfig, QWidget *parent)
     rpl_btn = new QPushButton("Start replay");
     rec_btn->setEnabled(false);
     rpl_btn->setEnabled(false);
+    rec_btn->setIcon(QIcon(":Resources/play.png"));
+    rpl_btn->setIcon(QIcon(":Resources/replay.png"));
 
     renameAct = new QAction("Rename", executionList);
     deleteAct = new QAction("Delete", executionList);
