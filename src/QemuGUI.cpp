@@ -10,7 +10,7 @@ QemuGUI::QemuGUI(QWidget *parent)
         QemuGUI::setObjectName(QStringLiteral("QemuGUI"));
     setWindowTitle(QApplication::translate("QemuGUIClass", "QemuGUI", Q_NULLPTR));
     resize(600, 400);
-    
+
     runOptions = new QemuRunOptions();
 
     menuBar = new QMenuBar(this);
@@ -22,7 +22,7 @@ QemuGUI::QemuGUI(QWidget *parent)
     addToolBar(mainToolBar);
     vmToolBar = new QToolBar(this);
     vmToolBar->setIconSize(QSize(30, 30));
-    
+
     this->addToolBarBreak();
     addToolBar(Qt::ToolBarArea::LeftToolBarArea, vmToolBar);
 
@@ -40,14 +40,14 @@ QemuGUI::QemuGUI(QWidget *parent)
     monitor_port = global_config->get_port_monitor();
     runOptions->setQmpPort(qmp_port);
     runOptions->setMonitorPort(monitor_port);
-    
+
 
     //main menu
     QMenu *settings_menu = new QMenu("Settings", this);
     menuBar->addMenu(settings_menu);
     QMenu *service_menu = new QMenu("Service", this);
     menuBar->addMenu(service_menu);
-    
+
     settings_menu->addAction("Set QEMU", this, SLOT(set_qemu_install_dir()));
     settings_menu->addAction("Connection settings", this, SLOT(launch_settings()));
 
@@ -57,45 +57,38 @@ QemuGUI::QemuGUI(QWidget *parent)
     qemu_install_dir_combo = new QComboBox(this);
     qemu_install_dir_combo->setMinimumWidth(150);
 
-    qemu_play = new QAction(set_button_icon_for_state(":Resources/play.png",
-        ":Resources/play_disable.png"), "Run VM", this);
-    mainToolBar->addAction(qemu_play);
+    qemu_play = mainToolBar->addAction(set_button_icon_for_state(":Resources/play.png",
+        ":Resources/play_disable.png"), "Run VM");
     connect(qemu_play, SIGNAL(triggered()), this, SLOT(play_machine()));
     qemu_play->setEnabled(false);
 
-    qemu_pause = new QAction(set_button_icon_for_state(":Resources/pause.png",
-        ":Resources/pause_disable.png"), "Pause VM", this);
-    mainToolBar->addAction(qemu_pause);
+    qemu_pause = mainToolBar->addAction(set_button_icon_for_state(":Resources/pause.png",
+        ":Resources/pause_disable.png"), "Pause VM");
     connect(qemu_pause, SIGNAL(triggered()), this, SLOT(pause_machine()));
     qemu_pause->setEnabled(false);
 
-    qemu_stop = new QAction(set_button_icon_for_state(":Resources/stop.png",
-        ":Resources/stop_disable.png"), "Stop VM", this);
-    mainToolBar->addAction(qemu_stop);
+    qemu_stop = mainToolBar->addAction(set_button_icon_for_state(":Resources/stop.png",
+        ":Resources/stop_disable.png"), "Stop VM");
     connect(qemu_stop, SIGNAL(triggered()), this, SLOT(stop_machine()));
     qemu_stop->setEnabled(false);
 
-    QAction *runOptionsAct = new QAction(set_button_icon_for_state(":Resources/run_options.png",
+    QAction *runOptionsAct = mainToolBar->addAction(set_button_icon_for_state(":Resources/run_options.png",
         ":Resources/create_disable.png"), "Run options");
-    mainToolBar->addAction(runOptionsAct);
     connect(runOptionsAct, SIGNAL(triggered()), this, SLOT(setRunOptions()));
 
     mainToolBar->addWidget(qemu_install_dir_combo);
     //mainToolBar->addSeparator();
-    editVMAct = new QAction(set_button_icon_for_state(":Resources/settings.png",
+    editVMAct = vmToolBar->addAction(set_button_icon_for_state(":Resources/settings.png",
         ":Resources/settings_disable.png"), "Edit virtial machine");
-    vmToolBar->addAction(editVMAct);
     connect(editVMAct, SIGNAL(triggered()), this, SLOT(edit_settings()));
     vmToolBar->addSeparator();
-    QAction *createAct = new QAction(set_button_icon_for_state(":Resources/create.png",
+    QAction *createAct = vmToolBar->addAction(set_button_icon_for_state(":Resources/create.png",
         ":Resources/create_disable.png"), "Create machine");
-    vmToolBar->addAction(createAct);
     connect(createAct, SIGNAL(triggered()), this, SLOT(create_machine()));
-    QAction *addAct = new QAction(set_button_icon_for_state(":Resources/import.png", 
+    QAction *addAct = vmToolBar->addAction(set_button_icon_for_state(":Resources/import.png",
         ":Resources/import_disable.png"), "Add existing machine");
-    vmToolBar->addAction(addAct);
     connect(addAct, SIGNAL(triggered()), this, SLOT(add_machine()));
-    
+
     // tab widget
     tab = new QTabWidget(centralWidget);
     tab->setMinimumWidth(400);
@@ -252,7 +245,7 @@ void QemuGUI::resume_qemu_btn_state()
     qemu_pause->setEnabled(launchMode != LaunchMode::RECORD && true);
 }
 
-QIcon QemuGUI::set_button_icon_for_state(const QString &normal_icon, 
+QIcon QemuGUI::set_button_icon_for_state(const QString &normal_icon,
     const QString &disable_icon)
 {
     QIcon icon;
@@ -342,7 +335,7 @@ void QemuGUI::createRunOptionsDialog()
 
     commonGroup->setLayout(chkLay);
     logGroup->setLayout(logLay);
-    
+
     mainLay->addWidget(commonGroup);
     mainLay->addWidget(logGroup);
     mainLay->addLayout(cmdLay);
@@ -354,35 +347,35 @@ void QemuGUI::createRunOptionsDialog()
 void QemuGUI::connect_signals()
 {
     /* list of machines */
-    connect(listVM, SIGNAL(itemSelectionChanged()), 
+    connect(listVM, SIGNAL(itemSelectionChanged()),
         this, SLOT(listVM_item_selection_changed()));
-    connect(listVM, SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)), 
+    connect(listVM, SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)),
         this, SLOT(listVM_current_item_changed(QListWidgetItem *, QListWidgetItem *)));
     /* delete VM */
     connect(delete_act, SIGNAL(triggered()), this, SLOT(delete_vm_ctxmenu()));
     /* exclude VM */
     connect(exclude_act, SIGNAL(triggered()), this, SLOT(exclude_vm_ctxmenu()));
     /* create VM */
-    connect(global_config, SIGNAL(globalConfig_new_vm_is_complete()), 
+    connect(global_config, SIGNAL(globalConfig_new_vm_is_complete()),
         this, SLOT(refresh()));
-    
-    connect(qemu_install_dir_combo, SIGNAL(activated(int)), 
+
+    connect(qemu_install_dir_combo, SIGNAL(activated(int)),
         this, SLOT(qemu_install_dir_combo_activated(int)));
-    connect(qemu_install_dir_combo, SIGNAL(currentIndexChanged(int)), 
+    connect(qemu_install_dir_combo, SIGNAL(currentIndexChanged(int)),
         this, SLOT(qemu_install_dir_combo_index_changed(int)));
 
-    connect(this, SIGNAL(monitor_connect(int)), 
+    connect(this, SIGNAL(monitor_connect(int)),
         terminal_tab, SLOT(terminalTab_connect(int)));
     connect(this, SIGNAL(monitor_abort()),
         terminal_tab, SLOT(terminalTab_abort()));
 
-    connect(rec_replay_tab, SIGNAL(startRR(LaunchMode)), 
+    connect(rec_replay_tab, SIGNAL(startRR(LaunchMode)),
         this, SLOT(play_machine(LaunchMode)));
-    connect(this, SIGNAL(recordReplayEnableBtns(bool)), 
+    connect(this, SIGNAL(recordReplayEnableBtns(bool)),
         rec_replay_tab, SLOT(enableBtns(bool)));
     connect(this, SIGNAL(recordReplayStateVM(bool)),
         rec_replay_tab, SLOT(setState(bool)));
-    connect(this, SIGNAL(currentQemuChanged()), 
+    connect(this, SIGNAL(currentQemuChanged()),
         rec_replay_tab, SLOT(replayCurrentQemuChanged()));
 }
 
@@ -438,7 +431,7 @@ void QemuGUI::play_machine()
         if (vm_state == VMState::None)
         {
             VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
-            
+
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
                 vm, runOptions, launchMode, consoleTab,
                 launchMode != LaunchMode::NORMAL ? rec_replay_tab : NULL);
@@ -633,7 +626,7 @@ void QemuGUI::add_qemu_install_dir_btn()
         "Select Qemu directory", "");
     if (qemu_install_dir != "")
     {
-        if (qemu_install_dir_list->findItems(qemu_install_dir, 
+        if (qemu_install_dir_list->findItems(qemu_install_dir,
             Qt::MatchFlag::MatchFixedString).size() != 0)
         {
             QMessageBox::critical(this, "Error", qemu_install_dir + " is already added");
@@ -643,7 +636,7 @@ void QemuGUI::add_qemu_install_dir_btn()
         global_config->add_qemu_installation_dir(qemu_install_dir);
         global_config->set_current_qemu_dir(qemu_install_dir);
         fill_qemu_install_dir_from_config();
-        
+
         platformInfo = new PlatformInformationReader(qemu_install_dir,
             global_config->get_home_dir(), runOptions);
         connect(platformInfo, SIGNAL(workFinish()), this, SLOT(platformInfoReady()));
@@ -712,7 +705,7 @@ void QemuGUI::set_terminal_settings()
     TerminalSettingsForm *terminal_settings = new TerminalSettingsForm(terminal_tab->get_terminal_text());
     terminal_settings->setAttribute(Qt::WA_DeleteOnClose);
 
-    connect(terminal_settings, SIGNAL(save_terminal_settings(QTextEdit *)), 
+    connect(terminal_settings, SIGNAL(save_terminal_settings(QTextEdit *)),
         terminal_tab, SLOT(save_terminal_interface_changes(QTextEdit *)));
 }
 
@@ -721,7 +714,7 @@ void QemuGUI::launch_settings()
     ConnectionSettingsForm *connections_settings = new ConnectionSettingsForm(global_config);
     connections_settings->setAttribute(Qt::WA_DeleteOnClose);
 
-    connect(connections_settings, SIGNAL(done_connection_settings(QString, QString)), 
+    connect(connections_settings, SIGNAL(done_connection_settings(QString, QString)),
         this, SLOT(set_connection_settings(QString, QString)));
 }
 
