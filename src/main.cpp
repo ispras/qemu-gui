@@ -14,5 +14,6 @@ int main(int argc, char *argv[])
     QemuGUI w;
     w.setWindowIcon(QIcon(":Resources/qemu.png"));
     w.show();
+
     return a.exec();
 }

@@ -1,5 +1,6 @@
 #include "RecordReplayTab.h"
 #include "PlatformInformationReader.h"
+#include "QemuGUI.h"
 
 static const char regExpForName[] = "[A-Za-z0-9_-][A-Za-z0-9_-\\s]+";
 const QString constXmlName = "replay.xml";
@@ -43,6 +44,8 @@ RecordReplayTab::RecordReplayTab(GlobalConfig *globalConfig, QWidget *parent)
     isNotRunning = true;
     oldRRName = "";
     periodAutoSnap = "";
+
+    pWidget = parent;
 }
 
 RecordReplayTab::~RecordReplayTab()
@@ -259,6 +262,7 @@ void RecordReplayTab::record_execution()
 
     replayDialog->setLayout(mainLay);
     replayDialog->show();
+    QemuGUI::setWindowGeometry(replayDialog, pWidget);
 
     connect(okCancelBtn, &QDialogButtonBox::accepted,
         this, &RecordReplayTab::setRRNameDir);
@@ -283,6 +287,7 @@ void RecordReplayTab::replay_execution()
         
         periodLineEdit->setText(periodAutoSnap);
         replayDialog->show();
+        QemuGUI::setWindowGeometry(replayDialog, pWidget);
 
         connect(okCancelBtn, &QDialogButtonBox::accepted,
             this, &RecordReplayTab::setPeriodSnapReplay);

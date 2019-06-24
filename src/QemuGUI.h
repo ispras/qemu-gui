@@ -28,6 +28,8 @@ public:
     QemuGUI(QWidget *parent = 0);
     ~QemuGUI();
 
+    static void setWindowGeometry(QWidget *window, QWidget *parent);
+
 protected:
     bool eventFilter(QObject *target, QEvent *event);
 
