@@ -133,6 +133,10 @@ QemuGUI::QemuGUI(QWidget *parent)
     checkQemuCompatibility();
 
     widget_placement();
+
+    QRect desktopRect = frameGeometry();
+    desktopRect.moveCenter(QDesktopWidget().availableGeometry().center());
+    move(desktopRect.topLeft());
 }
 
 QemuGUI::~QemuGUI()
@@ -220,6 +224,14 @@ void QemuGUI::checkQemuCompatibility()
     }
 }
 
+void QemuGUI::setWindowGeometry(QWidget *window, QWidget *parent)
+{
+    int x = parent->geometry().center().x() - window->width() / 2;
+    int y = parent->geometry().center().y() - window->height() / 2;
+
+    window->setGeometry(x, y, window->width(), window->height());
+}
+
 void QemuGUI::setButtonsState(bool runningState)
 {
     qemu_play->setEnabled(!runningState);
@@ -259,8 +271,10 @@ QIcon QemuGUI::set_button_icon_for_state(const QString &normal_icon,
 
 void QemuGUI::create_qemu_install_dir_dialog()
 {
-    qemu_install_dir_settings = new QDialog(this);
+    qemu_install_dir_settings = new QDialog();
+    qemu_install_dir_settings->setWindowIcon(QIcon(":Resources/qemu.png"));
     qemu_install_dir_settings->setWindowTitle("Qemu installation folders");
+
     qemu_install_dir_list = new QListWidget();
     QPushButton *add_install_dir_btn = new QPushButton("Add QEMU");
     add_install_dir_btn->setAutoDefault(true);
@@ -289,7 +303,7 @@ void QemuGUI::createRunOptionsDialog()
         "int", "exec", "cpu", "fpu", "mmu", "pcall", "cpu_reset", "unimp",
         "guest_error", "page", "nochain" };
 
-    runOptionsDlg = new QDialog(this);
+    runOptionsDlg = new QDialog();
     runOptionsDlg->setWindowTitle("Run options");
     runOptionsDlg->setWindowIcon(QIcon(":Resources/run_options_mini.png"));
     runOptionsDlg->setModal(true);
@@ -527,13 +541,15 @@ void QemuGUI::create_machine()
     {
         createVMWindow = new CreateVMForm(global_config->get_home_dir(),
             qemu_install_dir_combo->currentText());
+        setWindowGeometry(createVMWindow, this);
+        connect(createVMWindow, SIGNAL(createVM_new_vm_is_complete(VMConfig *)),
+            global_config, SLOT(vm_is_created(VMConfig *)));
     }
     else
     {
-        createVMWindow = new CreateVMForm(global_config->get_home_dir());
+        QMessageBox::warning(this, "No selected Qemu",
+            "You have to add Qemu or select existing one");
     }
-    connect(createVMWindow, SIGNAL(createVM_new_vm_is_complete(VMConfig *)),
-        global_config, SLOT(vm_is_created(VMConfig *)));
 }
 
 void QemuGUI::add_machine()
@@ -552,12 +568,14 @@ void QemuGUI::add_machine()
 void QemuGUI::setRunOptions()
 {
     runOptionsDlg->show();
+    setWindowGeometry(runOptionsDlg, this);
 }
 
 void QemuGUI::edit_settings()
 {
     VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
     VMSettingsForm *settingsWindow = new VMSettingsForm(vm);
+    setWindowGeometry(settingsWindow, this);
     settingsWindow->setAttribute(Qt::WA_DeleteOnClose);
     connect(settingsWindow, SIGNAL(settingsDeleteRecords()),
         rec_replay_tab, SLOT(recordDeleteRecords()));
@@ -676,6 +694,7 @@ void QemuGUI::refresh()
 void QemuGUI::set_qemu_install_dir()
 {
     qemu_install_dir_settings->show();
+    setWindowGeometry(qemu_install_dir_settings, this);
 }
 
 
@@ -684,6 +703,7 @@ void QemuGUI::qemu_install_dir_combo_activated(int index)
     if (index == qemu_install_dir_combo->count() - 1)
     {
         qemu_install_dir_settings->show();
+        setWindowGeometry(qemu_install_dir_settings, this);
         qemu_play->setEnabled(false);
         emit recordReplayEnableBtns(false);
     }
@@ -703,6 +723,7 @@ void QemuGUI::qemu_install_dir_combo_index_changed(int index)
 void QemuGUI::set_terminal_settings()
 {
     TerminalSettingsForm *terminal_settings = new TerminalSettingsForm(terminal_tab->get_terminal_text());
+    setWindowGeometry(terminal_settings, this);
     terminal_settings->setAttribute(Qt::WA_DeleteOnClose);
 
     connect(terminal_settings, SIGNAL(save_terminal_settings(QTextEdit *)),
@@ -712,6 +733,7 @@ void QemuGUI::set_terminal_settings()
 void QemuGUI::launch_settings()
 {
     ConnectionSettingsForm *connections_settings = new ConnectionSettingsForm(global_config);
+    setWindowGeometry(connections_settings, this);
     connections_settings->setAttribute(Qt::WA_DeleteOnClose);
 
     connect(connections_settings, SIGNAL(done_connection_settings(QString, QString)),
@@ -738,10 +760,8 @@ void QemuGUI::runOptionPrepare()
     }
     runOptions->setLogfileName(logfileNameLineEdit->text());
     runOptions->setLogOptionList(logOptions);
-
     runOptions->setDebugEnable(debugCheckBox->isChecked());
     runOptions->setSnapshotEnable(snapshotCheckBox->isChecked());
-
     runOptions->setAdditionalCmdLine(cmdLineAdditionalLineEdit->text());
 
     runOptionsDlg->close();

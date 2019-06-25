@@ -24,6 +24,7 @@ public:
 private:
     VMConfig *vm;
     GlobalConfig *globalConfig;
+    QWidget *pWidget;
 
 private:
     void connect_signals();
