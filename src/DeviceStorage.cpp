@@ -183,9 +183,10 @@ QString DeviceIdeHd::getCommandLineOption(CommandLineParameters &cmdParams)
     {
         QString overlay = cmdParams.getOverlayForImage(getImage());
         QString cmdFile = " -drive file=\"" + overlay + "\"" + ",if=none,id="
-             + getId() + "-file";
+            + getId() + "-file";
+        QString overlayEnable = cmdParams.isOverlayEnable() ? "" : ",snapshot=on";
 
-        return cmdFile + " -drive driver=blkreplay,if=none,image="
+        return cmdFile + overlayEnable + " -drive driver=blkreplay,if=none,image="
             + getId() + "-file,id=" + getId() 
             + "-driver -device ide-hd,drive=" + getId() + "-driver"
             +",bus=" + ide->getId() + "." + QString::number(bus->getNumber()) 

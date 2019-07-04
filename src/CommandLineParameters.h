@@ -13,10 +13,12 @@ public:
     LaunchMode getLaunchMode();
 
     /* record|replay */
-    const QStringList & getImages() { return images; }
-    const QStringList & getOverlays() { return overlays; }
-    void setOverlayDir(const QString & path) { overlayPath = path; }
-    QString getOverlayForImage(const QString & image);
+    const QStringList &getImages() { return images; }
+    const QStringList &getOverlays() { return overlays; }
+    void setOverlayDir(const QString &path) { overlayPath = path; }
+    QString getOverlayForImage(const QString &image);
+    void setOverlayEnable(bool isEnable) { overlayEnable = isEnable; }
+    bool isOverlayEnable() { return overlayEnable; }
 
 private:
     QString getNextOverlayName();
@@ -27,6 +29,7 @@ private:
     QStringList overlays;
     int diskID;
     QString overlayPath;
+    bool overlayEnable;
 
 };
 
