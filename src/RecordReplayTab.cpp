@@ -92,6 +92,11 @@ QString RecordReplayTab::getSnapshotPeriod()
     return periodAutoSnap;
 }
 
+bool RecordReplayTab::isOverlayEnabled()
+{
+    return overlayCheck->isChecked();
+}
+
 void RecordReplayTab::setSnapshotPeriod(QString val)
 {
     periodAutoSnap = val;
@@ -228,6 +233,17 @@ QHBoxLayout *RecordReplayTab::periodLayout(int width)
     return periodLay;
 }
 
+QHBoxLayout *RecordReplayTab::overlayLayout()
+{
+    overlayCheck = new QCheckBox();
+    overlayCheck->setChecked(true);
+
+    QHBoxLayout *overlayLay = new QHBoxLayout();
+    overlayLay->addWidget(new QLabel("Create overlay and RR snapshot"));
+    overlayLay->addWidget(overlayCheck);
+    return overlayLay;
+}
+
 void RecordReplayTab::record_execution()
 {
     QDir rrDir(vm->getPathRRDir());
@@ -257,6 +273,7 @@ void RecordReplayTab::record_execution()
     QVBoxLayout *mainLay = new QVBoxLayout();
     mainLay->addLayout(topLay);
     mainLay->addLayout(bottomLay);
+    mainLay->addLayout(overlayLayout());
     mainLay->addLayout(periodLayout(nameEdit->width() / 2));
     mainLay->addWidget(okCancelBtn);
 
@@ -280,6 +297,7 @@ void RecordReplayTab::replay_execution()
             | QDialogButtonBox::Cancel);
 
         QVBoxLayout *mainLay = new QVBoxLayout();
+        mainLay->addLayout(overlayLayout());
         mainLay->addLayout(periodLayout(40));
         mainLay->addWidget(okCancelBtn);
 

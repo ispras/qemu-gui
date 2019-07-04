@@ -50,6 +50,7 @@ private:
 
     QString icount;
     QString period;
+    bool overlayRR;
 
 private:
     void createQemuPath(const QString &qemuPath, const QString &platform);

@@ -18,6 +18,7 @@ public:
     QString getCurrentDirRR();
     QString getICountValue();
     QString getSnapshotPeriod();
+    bool isOverlayEnabled();
     void setSnapshotPeriod(QString val);
     void clearExecutionList();
 
@@ -36,6 +37,7 @@ private:
     bool checkPeriodSet();
     bool checkReplayForm();
     QHBoxLayout *periodLayout(int width);
+    QHBoxLayout *overlayLayout();
 
 private:
     QListWidget *executionList;
@@ -49,6 +51,7 @@ private:
     QSpinBox *icountSpin;
     QCheckBox *periodCheckBox;
     QLineEdit *periodLineEdit;
+    QCheckBox *overlayCheck;
     QString commonDirRR;
     QString currentDirRR;
     QString oldRRName;
