@@ -92,7 +92,7 @@ QString RecordReplayTab::getSnapshotPeriod()
     return periodAutoSnap;
 }
 
-bool RecordReplayTab::isOverlayEnable()
+bool RecordReplayTab::isOverlayEnabled()
 {
     return overlayCheck->isChecked();
 }

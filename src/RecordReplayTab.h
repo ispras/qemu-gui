@@ -18,7 +18,7 @@ public:
     QString getCurrentDirRR();
     QString getICountValue();
     QString getSnapshotPeriod();
-    bool isOverlayEnable();
+    bool isOverlayEnabled();
     void setSnapshotPeriod(QString val);
     void clearExecutionList();
 
