@@ -10,7 +10,7 @@ class AddDeviceForm : public QWidget
     Q_OBJECT
 
 public:
-    AddDeviceForm(const Device *device);
+    AddDeviceForm(const Device *device, QWidget *parent = 0);
     ~AddDeviceForm();
 
     int getAddDevicesCount();
@@ -19,6 +19,7 @@ public slots:
     void addDevice();
 
 private:
+    QWidget *pWidget;
     QListWidget *deviceList;
     Devices addDevices;
     

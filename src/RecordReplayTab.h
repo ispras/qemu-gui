@@ -29,6 +29,7 @@ private:
 
 private:
     void connect_signals();
+    void executionListConnectSignals();
     void widget_placement();
     void createXml(const QString &path, const QString &name);
     void readXml(const QString &name);

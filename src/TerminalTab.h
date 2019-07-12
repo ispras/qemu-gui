@@ -29,12 +29,15 @@ private:
 
     QemuSocket monitor_socket;
 
+    int currentCommandIndex;
+
 private:
     void set_terminal_interface(QColor bckgrnd_color, QColor text_color,
         const QString &font_family, int font_size);
 
 public:
     QTextEdit *get_terminal_text();
+    void setCommmandLineFocus();
 
 private slots:
     void send_monitor_command();

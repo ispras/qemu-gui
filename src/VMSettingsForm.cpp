@@ -197,7 +197,7 @@ void VMSettingsForm::showContextMenu(const QPoint &pos)
         Q_ASSERT(devItem);
         Device *dev = devItem->getDevice();
 
-        addDev = new AddDeviceForm(dev);
+        addDev = new AddDeviceForm(dev, this);
         addDev->setAttribute(Qt::WA_DeleteOnClose);
         if (addDev->getAddDevicesCount())
         {

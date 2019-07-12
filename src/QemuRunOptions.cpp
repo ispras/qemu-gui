@@ -23,6 +23,7 @@ QString QemuRunOptions::getAllAdditionalOptionsCmd(LaunchMode mode)
     QString debugCmd = (getDebugEnable() && mode != LaunchMode::RECORD) ? " -s -S" : "";
     QString snapshotCmd = (getSnapshotEnable() && mode == LaunchMode::NORMAL) ?
         " -snapshot" : "";
+    QString stoppedCmd = (debugCmd.isEmpty() && getQemuRunStopped()) ? " -S" : "";
 
     QString logOp = "";
     if (!getLogfileName().isEmpty())
@@ -40,7 +41,7 @@ QString QemuRunOptions::getAllAdditionalOptionsCmd(LaunchMode mode)
         logOp.chop(1);
     }
 
-    return debugCmd + snapshotCmd + " " + getAdditionalCmdLine() + logOp;
+    return debugCmd + snapshotCmd + stoppedCmd + " " + getAdditionalCmdLine() + logOp;
 }
 
 
