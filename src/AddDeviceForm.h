@@ -10,7 +10,7 @@ class AddDeviceForm : public QWidget
     Q_OBJECT
 
 public:
-    AddDeviceForm(const Device *device, QWidget *parent = 0);
+    AddDeviceForm(const Device *device, QWidget *parent);
     ~AddDeviceForm();
 
     int getAddDevicesCount();
