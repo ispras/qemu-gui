@@ -97,7 +97,8 @@ QemuGUI::QemuGUI(QWidget *parent)
     rec_replay_tab = new RecordReplayTab(global_config, this);
     tab->addTab(rec_replay_tab, "Record/Replay");
     terminal_tab = new TerminalTab(global_config, this);
-    tab->addTab(terminal_tab, "Terminal");
+    terminal_tab->setObjectName("Terminal");
+    tab->addTab(terminal_tab, terminal_tab->objectName());
     consoleTab = new ConsoleTab();
     tab->addTab(consoleTab, "Console");
 
@@ -274,6 +275,7 @@ void QemuGUI::create_qemu_install_dir_dialog()
     qemu_install_dir_settings = new QDialog();
     qemu_install_dir_settings->setWindowIcon(QIcon(":Resources/qemu.png"));
     qemu_install_dir_settings->setWindowTitle("Qemu installation folders");
+    qemu_install_dir_settings->setModal(true);
 
     qemu_install_dir_list = new QListWidget();
     QPushButton *add_install_dir_btn = new QPushButton("Add QEMU");
@@ -310,6 +312,7 @@ void QemuGUI::createRunOptionsDialog()
 
     debugCheckBox = new QCheckBox("Debug enable");
     snapshotCheckBox = new QCheckBox("Snapshot enable");
+    qemuStoppedCheckBox = new QCheckBox("Stopped Qemu");
     cmdLineAdditionalLineEdit = new QLineEdit();
     logfileNameLineEdit = new QLineEdit();
 
@@ -330,6 +333,7 @@ void QemuGUI::createRunOptionsDialog()
     QHBoxLayout *chkLay = new QHBoxLayout();
     chkLay->addWidget(debugCheckBox);
     chkLay->addWidget(snapshotCheckBox);
+    chkLay->addWidget(qemuStoppedCheckBox);
     QHBoxLayout *cmdLay = new QHBoxLayout();
     cmdLay->addWidget(new QLabel("Command line options"));
     cmdLay->addWidget(cmdLineAdditionalLineEdit);
@@ -383,6 +387,8 @@ void QemuGUI::connect_signals()
     connect(this, SIGNAL(monitor_abort()),
         terminal_tab, SLOT(terminalTab_abort()));
 
+    connect(tab, SIGNAL(currentChanged(int)), this, SLOT(currentTabChanged(int)));
+
     connect(rec_replay_tab, SIGNAL(startRR(LaunchMode)),
         this, SLOT(play_machine(LaunchMode)));
     connect(this, SIGNAL(recordReplayEnableBtns(bool)),
@@ -391,6 +397,14 @@ void QemuGUI::connect_signals()
         rec_replay_tab, SLOT(setState(bool)));
     connect(this, SIGNAL(currentQemuChanged()),
         rec_replay_tab, SLOT(replayCurrentQemuChanged()));
+}
+
+void QemuGUI::currentTabChanged(int index)
+{
+    if (tab->tabText(index) == terminal_tab->objectName())
+    {
+        terminal_tab->setCommmandLineFocus();
+    }
 }
 
 QString QemuGUI::delete_exclude_vm(bool delete_vm)
@@ -761,6 +775,7 @@ void QemuGUI::runOptionPrepare()
     runOptions->setLogfileName(logfileNameLineEdit->text());
     runOptions->setLogOptionList(logOptions);
     runOptions->setDebugEnable(debugCheckBox->isChecked());
+    runOptions->setQemuRunStopped(qemuStoppedCheckBox->isChecked());
     runOptions->setSnapshotEnable(snapshotCheckBox->isChecked());
     runOptions->setAdditionalCmdLine(cmdLineAdditionalLineEdit->text());
 

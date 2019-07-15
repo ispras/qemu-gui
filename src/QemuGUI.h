@@ -53,6 +53,7 @@ private:
     QDialog *runOptionsDlg;
     QCheckBox *debugCheckBox;
     QCheckBox *snapshotCheckBox;
+    QCheckBox *qemuStoppedCheckBox;
     QLineEdit *cmdLineAdditionalLineEdit;
     QLineEdit *logfileNameLineEdit;
     QList<QCheckBox *> logCheckBox;
@@ -110,6 +111,7 @@ public slots:
 
 private slots:
 
+    void currentTabChanged(int index);
     void set_qemu_install_dir();
     void setQemuInstallDirFromForm(QListWidgetItem *item);
     void add_qemu_install_dir_btn();

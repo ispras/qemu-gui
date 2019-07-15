@@ -28,6 +28,8 @@ TerminalTab::TerminalTab(GlobalConfig *global_config, QWidget *parent)
 
     connect(terminal_cmd, SIGNAL(returnPressed()), this, SLOT(send_monitor_command()));
     connect(&monitor_socket, SIGNAL(readyRead()), this, SLOT(read_terminal()));
+
+    currentCommandIndex = -1;
 }
 
 TerminalTab::~TerminalTab()
@@ -73,6 +75,11 @@ QTextEdit *TerminalTab::get_terminal_text()
     return terminal_text;
 }
 
+void TerminalTab::setCommmandLineFocus()
+{
+    terminal_cmd->setFocus();
+}
+
 bool TerminalTab::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == terminal_cmd)
@@ -82,43 +89,22 @@ bool TerminalTab::eventFilter(QObject *obj, QEvent *event)
             QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
             if (keyEvent->key() == Qt::Key_Up)
             {
-                QString cur_cmd = terminal_cmd->text();
-                if (cur_cmd == "" && saved_terminal_cmds.size() > 0)
+                if (currentCommandIndex + 1 < saved_terminal_cmds.size())
                 {
-                    terminal_cmd->setText(saved_terminal_cmds.at(0));
-                }
-                else
-                {
-                    int index = saved_terminal_cmds.indexOf(terminal_cmd->text());
-                    if (index + 1 < saved_terminal_cmds.size())
-                    {
-                        terminal_cmd->setText(saved_terminal_cmds.at(index + 1));
-                    }
-                    else if (index + 1 == saved_terminal_cmds.size())
-                    {
-                        terminal_cmd->setText("");
-                    }
+                    terminal_cmd->setText(saved_terminal_cmds.at(++currentCommandIndex));
                 }
                 return true;
             }
             else if (keyEvent->key() == Qt::Key_Down)
             {
-                QString cur_cmd = terminal_cmd->text();
-                if (cur_cmd == "" && saved_terminal_cmds.size() > 0)
+                if (currentCommandIndex - 1 >= 0)
                 {
-                    terminal_cmd->setText(saved_terminal_cmds.back());
+                    terminal_cmd->setText(saved_terminal_cmds.at(--currentCommandIndex));
                 }
                 else
                 {
-                    int index = saved_terminal_cmds.indexOf(terminal_cmd->text());
-                    if (index > 0)
-                    {
-                        terminal_cmd->setText(saved_terminal_cmds.at(index - 1));
-                    }
-                    else if (index == 0)
-                    {
-                        terminal_cmd->setText("");
-                    }
+                    currentCommandIndex = -1;
+                    terminal_cmd->setText("");
                 }
                 return true;
             }
@@ -135,10 +121,7 @@ void TerminalTab::send_monitor_command()
     cursor.movePosition(QTextCursor::End);
     terminal_text->setTextCursor(cursor);
     terminal_text->insertPlainText(terminal_cmd->text() + "\n");
-    if (!saved_terminal_cmds.contains(terminal_cmd->text()))
-    {
-        saved_terminal_cmds.append(terminal_cmd->text());
-    }
+    saved_terminal_cmds.push_front(terminal_cmd->text());
     terminal_cmd->clear();
 }
 

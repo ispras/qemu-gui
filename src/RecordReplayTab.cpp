@@ -61,10 +61,7 @@ void RecordReplayTab::setRecordReplayList(VMConfig *virtualMachine)
     rec_btn->setEnabled(true);
     executionList->clear();
 
-    connect(executionList, SIGNAL(currentRowChanged(int)),
-        this, SLOT(executionListItemRowChanged(int)));
-    connect(executionList, SIGNAL(itemClicked(QListWidgetItem *)),
-        this, SLOT(executionListItemClicked(QListWidgetItem *)));
+    executionListConnectSignals();
 
     executionList->addItems(vm->getReplayList());
     if (vm->getReplayList().count())
@@ -115,6 +112,14 @@ void RecordReplayTab::connect_signals()
 
     connect(renameAct, SIGNAL(triggered()), this, SLOT(rename_ctxmenu()));
     connect(deleteAct, SIGNAL(triggered()), this, SLOT(delete_ctxmenu()));
+}
+
+void RecordReplayTab::executionListConnectSignals()
+{
+    connect(executionList, SIGNAL(currentRowChanged(int)),
+        this, SLOT(executionListItemRowChanged(int)));
+    connect(executionList, SIGNAL(itemClicked(QListWidgetItem *)),
+        this, SLOT(executionListItemClicked(QListWidgetItem *)));
 }
 
 void RecordReplayTab::widget_placement()
@@ -383,6 +388,8 @@ void RecordReplayTab::delete_ctxmenu()
             disconnect(executionList, 0, 0, 0);
             QListWidgetItem *it = executionList->takeItem(executionList->currentRow());
             delete it;
+
+            executionListConnectSignals();
             executionListItemSelectionChanged();
         }
     }

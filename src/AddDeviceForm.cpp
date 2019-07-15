@@ -1,8 +1,9 @@
 #include "AddDeviceForm.h"
 #include "DeviceFactory.h"
+#include "QemuGUI.h"
 
 
-AddDeviceForm::AddDeviceForm(const Device *device)
+AddDeviceForm::AddDeviceForm(const Device *device, QWidget *parent)
 {
     if (AddDeviceForm::objectName().isEmpty())
         AddDeviceForm::setObjectName(QStringLiteral("AddDeviceForm"));
@@ -37,6 +38,7 @@ AddDeviceForm::AddDeviceForm(const Device *device)
     {
         deviceList->addItem(dev->getDeviceTypeName());
     }
+    pWidget = parent;
 }
 
 AddDeviceForm::~AddDeviceForm()
@@ -61,6 +63,7 @@ void AddDeviceForm::addDevice()
 {
     deviceList->setCurrentRow(0);
     show();
+    QemuGUI::setWindowGeometry(this, pWidget);
 }
 
 void AddDeviceForm::addNewDevice()

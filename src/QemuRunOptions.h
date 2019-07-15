@@ -34,6 +34,9 @@ public:
     void setSnapshotEnable(bool value) { isSnapshotEnable = value; }
     bool getSnapshotEnable() { return isSnapshotEnable; }
 
+    void setQemuRunStopped(bool value) { isQemuRunStopped = value; }
+    bool getQemuRunStopped() { return isQemuRunStopped; }
+
     QString getMonitorCmd();
     QString getQmpCmd();
     QString getAllAdditionalOptionsCmd(LaunchMode mode);
@@ -46,6 +49,7 @@ private:
     QString additionalCmdLine;
     bool isDebugEnable;
     bool isSnapshotEnable;
+    bool isQemuRunStopped;
 };
 
 #endif // QEMURUNOPTIONS_H
