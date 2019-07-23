@@ -6,6 +6,7 @@
 #include "VMConfig.h"
 #include "QemuImgLauncher.h"
 #include "QemuGUICommon.h"
+#include "VMPropertiesForm.h"
 
 
 class CreateVMForm : public QWidget
@@ -38,6 +39,8 @@ private:
     QComboBox *machineCombo;
     QComboBox *cpuCombo;
     QComboBox *platformCombo;
+    VMPropertiesForm *kernelForm;
+
 
     QString default_path;
     QString qemu_dir;

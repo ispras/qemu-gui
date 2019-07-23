@@ -41,6 +41,7 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     machineCombo = new QComboBox(this);
     cpuCombo = new QComboBox(this);
     platformCombo = new QComboBox(this);
+    kernelForm = new VMPropertiesForm(this, "System files");
 
     hdd_no_rb = new QRadioButton("No disk");
     hdd_exist_rb = new QRadioButton("Select exist disk");
@@ -117,31 +118,31 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
 
 CreateVMForm::~CreateVMForm()
 {
-
+    delete kernelForm;
 }
 
 void CreateVMForm::widget_placement()
 {
-    QGroupBox *common_gr = new QGroupBox("OS information");
-    QHBoxLayout *dir_lay = new QHBoxLayout();
-    dir_lay->addWidget(pathtovm_edit);
-    dir_lay->addWidget(pathtovm_btn);
+    QGroupBox *commonGroup = new QGroupBox("OS information");
+    QHBoxLayout *dirLay = new QHBoxLayout();
+    dirLay->addWidget(pathtovm_edit);
+    dirLay->addWidget(pathtovm_btn);
     
-    QGridLayout *common_lay = new QGridLayout();
-    common_lay->addWidget(new QLabel("Name"), 0, 0, Qt::AlignmentFlag::AlignLeft);
-    common_lay->addWidget(name_edit, 0, 1, Qt::AlignmentFlag::AlignLeft);
-    common_lay->addWidget(new QLabel("Path to VM"), 1, 0, Qt::AlignmentFlag::AlignLeft);
-    common_lay->addLayout(dir_lay, 1, 1);
-    common_lay->addWidget(new QLabel("OS type"), 2, 0, Qt::AlignmentFlag::AlignLeft);
-    common_lay->addWidget(typeOS_combo, 2, 1, Qt::AlignmentFlag::AlignLeft);
-    common_lay->addWidget(new QLabel("OS version"), 3, 0, Qt::AlignmentFlag::AlignLeft);
-    common_lay->addWidget(verOS_combo, 3, 1, Qt::AlignmentFlag::AlignLeft);
-    common_lay->setColumnStretch(1, 100);
+    QGridLayout *commonLay = new QGridLayout();
+    commonLay->addWidget(new QLabel("Name"), 0, 0, Qt::AlignmentFlag::AlignLeft);
+    commonLay->addWidget(name_edit, 0, 1, Qt::AlignmentFlag::AlignLeft);
+    commonLay->addWidget(new QLabel("Path to VM"), 1, 0, Qt::AlignmentFlag::AlignLeft);
+    commonLay->addLayout(dirLay, 1, 1);
+    commonLay->addWidget(new QLabel("OS type"), 2, 0, Qt::AlignmentFlag::AlignLeft);
+    commonLay->addWidget(typeOS_combo, 2, 1, Qt::AlignmentFlag::AlignLeft);
+    commonLay->addWidget(new QLabel("OS version"), 3, 0, Qt::AlignmentFlag::AlignLeft);
+    commonLay->addWidget(verOS_combo, 3, 1, Qt::AlignmentFlag::AlignLeft);
+    commonLay->setColumnStretch(1, 100);
 
-    common_gr->setLayout(common_lay);
+    commonGroup->setLayout(commonLay);
 
-    QGroupBox *systemGr = new QGroupBox("System information");
-    systemGr->setMinimumWidth(width());
+    QGroupBox *systemGroup = new QGroupBox("System information");
+    systemGroup->setMinimumWidth(width());
 
     QVBoxLayout *systemLay = new QVBoxLayout();
     QHBoxLayout *platformLay = new QHBoxLayout();
@@ -153,65 +154,67 @@ void CreateVMForm::widget_placement()
     QHBoxLayout *cpuLay = new QHBoxLayout();
     cpuLay->addWidget(new QLabel("CPU"));
     cpuLay->addWidget(cpuCombo);
+
     systemLay->addLayout(platformLay);
     systemLay->addLayout(machineLay);
     systemLay->addLayout(cpuLay);
 
-    systemGr->setLayout(systemLay);
+    systemGroup->setLayout(systemLay);
 
-    QGroupBox *memory_gr = new QGroupBox("Memory size");
-    memory_gr->setMinimumWidth(this->width());
+    QGroupBox *memoryGroup = new QGroupBox("Memory size");
+    memoryGroup->setMinimumWidth(this->width());
 
-    QHBoxLayout *memory_lay = new QHBoxLayout();
-    memory_lay->addWidget(new QLabel("RAM"));
-    memory_lay->addWidget(ram_slider);
-    memory_lay->addWidget(ram_spin);
+    QHBoxLayout *memoryLay = new QHBoxLayout();
+    memoryLay->addWidget(new QLabel("RAM"));
+    memoryLay->addWidget(ram_slider);
+    memoryLay->addWidget(ram_spin);
 
-    memory_gr->setLayout(memory_lay);
+    memoryGroup->setLayout(memoryLay);
 
-    QGroupBox *hdd_gr = new QGroupBox("Disk");
-    QHBoxLayout *hdd_lay = new QHBoxLayout();
+    QGroupBox *hddGroup = new QGroupBox("Disk");
+    QHBoxLayout *hddLay = new QHBoxLayout();
 
-    hdd_lay->addWidget(hdd_no_rb);
-    hdd_lay->addWidget(hdd_exist_rb);
-    hdd_lay->addWidget(hdd_new_rb);
-    hdd_lay->addStretch(50);
+    hddLay->addWidget(hdd_no_rb);
+    hddLay->addWidget(hdd_exist_rb);
+    hddLay->addWidget(hdd_new_rb);
+    hddLay->addStretch(50);
 
-    QHBoxLayout *place_lay = new QHBoxLayout();
-    place_lay->addWidget(imageplace_lbl);
-    place_lay->addWidget(imageplace_edit);
-    place_lay->addWidget(imageplace_btn);
+    QHBoxLayout *placeLay = new QHBoxLayout();
+    placeLay->addWidget(imageplace_lbl);
+    placeLay->addWidget(imageplace_edit);
+    placeLay->addWidget(imageplace_btn);
 
     // new hdd
-    QHBoxLayout *new_hdd_size_lay = new QHBoxLayout();
-    new_hdd_size_lay->addWidget(hddsize_lbl);
-    new_hdd_size_lay->addWidget(hddsize_slider);
-    new_hdd_size_lay->addWidget(hddsize_spin);
+    QHBoxLayout *newHddSizeLay = new QHBoxLayout();
+    newHddSizeLay->addWidget(hddsize_lbl);
+    newHddSizeLay->addWidget(hddsize_slider);
+    newHddSizeLay->addWidget(hddsize_spin);
 
-    QHBoxLayout *new_hdd_format_lay = new QHBoxLayout();
-    new_hdd_format_lay->addWidget(format_lbl);
-    new_hdd_format_lay->addWidget(format_combo);
+    QHBoxLayout *newHddFormatLay = new QHBoxLayout();
+    newHddFormatLay->addWidget(format_lbl);
+    newHddFormatLay->addWidget(format_combo);
 
-    QVBoxLayout *new_hdd_lay = new QVBoxLayout();
-    new_hdd_lay->addLayout(new_hdd_size_lay);
-    new_hdd_lay->addLayout(new_hdd_format_lay);
+    QVBoxLayout *newHddLay = new QVBoxLayout();
+    newHddLay->addLayout(newHddSizeLay);
+    newHddLay->addLayout(newHddFormatLay);
 
-    QVBoxLayout *hdd_all = new QVBoxLayout();
-    hdd_all->addLayout(hdd_lay);
-    hdd_all->addStretch(10);
-    hdd_all->addLayout(place_lay);
-    hdd_all->addLayout(new_hdd_lay);
+    QVBoxLayout *hddAll = new QVBoxLayout();
+    hddAll->addLayout(hddLay);
+    hddAll->addStretch(10);
+    hddAll->addLayout(placeLay);
+    hddAll->addLayout(newHddLay);
 
-    hdd_gr->setLayout(hdd_all);
+    hddGroup->setLayout(hddAll);
     
-    QVBoxLayout *main_lay = new QVBoxLayout(this);
-    main_lay->addWidget(common_gr);
-    main_lay->addWidget(systemGr);
-    main_lay->addWidget(memory_gr);
-    main_lay->addWidget(hdd_gr);
-    main_lay->addStretch(10);
-    main_lay->addWidget(error_lbl);
-    main_lay->addWidget(okcancel_btn);
+    QVBoxLayout *mainLay = new QVBoxLayout(this);
+    mainLay->addWidget(commonGroup);
+    mainLay->addWidget(systemGroup);
+    mainLay->addWidget(kernelForm);
+    mainLay->addWidget(memoryGroup);
+    mainLay->addWidget(hddGroup);
+    mainLay->addStretch(10);
+    mainLay->addWidget(error_lbl);
+    mainLay->addWidget(okcancel_btn);
 }
 
 QStringList CreateVMForm::getInformationFromQemu(const QString &cmd)
@@ -289,7 +292,7 @@ void CreateVMForm::change_path(const QString &name)
     set_path_to_vm(path_to_vm);
 }
 
-QString CreateVMForm::set_path_to_vm(const QString & home_path)
+QString CreateVMForm::set_path_to_vm(const QString &home_path)
 {
     QString path;
     if (!home_path.isEmpty())
@@ -365,6 +368,12 @@ bool CreateVMForm::input_verification(const QString &path, const QString &name)
     if (!machineCombo->count() || !cpuCombo->count())
     {
         show_error_message("Must be selected 'Machine' and 'CPU' fields");
+        return false;
+    }
+
+    if (kernelForm->getKernel().isEmpty() && !kernelForm->getInitrd().isEmpty())
+    {
+        show_error_message("Must be selected 'Kernel' file");
         return false;
     }
 
@@ -456,6 +465,8 @@ void CreateVMForm::create_vm()
     configVM->addDeviceMachine(machineCombo->currentText());
     configVM->addDeviceMemory(QString::number(ram_spin->value()));
     configVM->setPlatform(platformCombo->currentText());
+    configVM->setKernel(kernelForm->getKernel());
+    configVM->setInitrd(kernelForm->getInitrd());
 
     if (!hdd_new_rb->isChecked())
     {

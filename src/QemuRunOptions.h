@@ -37,6 +37,9 @@ public:
     void setQemuRunStopped(bool value) { isQemuRunStopped = value; }
     bool getQemuRunStopped() { return isQemuRunStopped; }
 
+    QString getKernelCmd(const QString &path);
+    QString getInitrdCmd(const QString &path);
+
     QString getMonitorCmd();
     QString getQmpCmd();
     QString getAllAdditionalOptionsCmd(LaunchMode mode);
@@ -47,6 +50,8 @@ private:
     QString logfileName;
     QStringList logOptionList;
     QString additionalCmdLine;
+    QString kernel;
+    QString initrd;
     bool isDebugEnable;
     bool isSnapshotEnable;
     bool isQemuRunStopped;

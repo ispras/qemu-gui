@@ -8,6 +8,16 @@ QemuRunOptions::QemuRunOptions() :
 
 }
 
+QString QemuRunOptions::getKernelCmd(const QString &path)
+{
+    return (!path.isEmpty()) ? " -kernel " + path : "";
+}
+
+QString QemuRunOptions::getInitrdCmd(const QString & path)
+{
+    return (!path.isEmpty()) ? " -initrd " + path : "";
+}
+
 QString QemuRunOptions::getMonitorCmd()
 {
     return " -monitor \"tcp:127.0.0.1:" + getMonitorPort() + ",server,nowait\"";;

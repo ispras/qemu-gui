@@ -10,6 +10,8 @@ const QString xml_field_dir = "Directory_path";
 const QString xml_field_img = "Image_path";
 const QString xml_platform = "Platform";
 const QString xml_cmdLine = "AdditionCommandLine";
+const QString xml_kernel = "Kernel";
+const QString xml_initrd = "InitialRamDisk";
 
 static bool remove_directory(QDir dir);
 
@@ -81,6 +83,14 @@ void VMConfig::readVMConfig()
             {
                 addCmdLine = xmlReader.readElementText();
             }
+            else if (xmlReader.name() == xml_kernel)
+            {
+                kernel = xmlReader.readElementText();
+            }
+            else if (xmlReader.name() == xml_initrd)
+            {
+                initrd = xmlReader.readElementText();
+            }
             else /* Device */
             {
                 system.read(xmlReader);
@@ -119,6 +129,14 @@ bool VMConfig::save_vm_config(const QString &path) const
 
         xmlWriter.writeStartElement(xml_cmdLine);
         xmlWriter.writeCharacters(addCmdLine);
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement(xml_kernel);
+        xmlWriter.writeCharacters(kernel);
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeStartElement(xml_initrd);
+        xmlWriter.writeCharacters(initrd);
         xmlWriter.writeEndElement();
 
         system.save(xmlWriter);
@@ -173,6 +191,16 @@ void VMConfig::addDeviceCpu(const QString &name)
     (new DeviceCpu(name, &system))->setRemovable(false);
 }
 
+void VMConfig::setKernel(const QString &name)
+{
+    kernel = name;
+}
+
+void VMConfig::setInitrd(const QString &name)
+{
+    initrd = name;
+}
+
 void VMConfig::addUsbDevice()
 {
     qDebug() << "---usb" << (new DeviceUsb(&system))->getDeviceTypeName();
@@ -181,7 +209,11 @@ void VMConfig::addUsbDevice()
 
 QString VMConfig::get_vm_info()
 {
-    QString info = "Name: " + name_vm + "\n" + "Directory: " + dir_path + "\n";
+    QString info = "Name: " + name_vm + "\n" + "Directory: " + dir_path + "\n" + 
+        "Platform: " + platform + "\n";
+    QString kernelInfo = (!kernel.isEmpty()) ? "Kernel: " + kernel + "\n" : "";
+    QString initrdInfo = (!initrd.isEmpty()) ? "Initial ram disk: " + initrd + "\n" : "";
+    info += (kernelInfo + initrdInfo);
     info += system.getCommonDeviceInfo();
     return info;
 }
@@ -212,6 +244,16 @@ QString VMConfig::getMachine()
 QString VMConfig::get_name()
 {
     return name_vm;
+}
+
+QString VMConfig::getKernel()
+{
+    return kernel;
+}
+
+QString VMConfig::getInitrd()
+{
+    return initrd;
 }
 
 QString VMConfig::getCmdLine()

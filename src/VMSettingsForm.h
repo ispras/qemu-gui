@@ -6,6 +6,7 @@
 #include "AddDeviceForm.h"
 #include "DeviceStorage.h"
 #include "DeviceUsb.h"
+#include "VMPropertiesForm.h"
 
 class VMSettingsForm : public QWidget
 {
@@ -25,6 +26,7 @@ private:
     QTreeWidget *deviceTree;
     QDialogButtonBox *savecancel_btn;
 
+    VMPropertiesForm *kernelForm;
     QLineEdit *addCmdLineParamsEdit;
     QSplitter *splitter;
     QMenu menu;
@@ -36,9 +38,10 @@ private:
     Device *isDevicesValid(Device *device);
     void closeEvent(QCloseEvent *event);
     void removingDevFromDevices(Device *dev);
+    bool changesVerification();
 
 private slots:
-    void applySettings();
+    bool applySettings();
     void save_settings();
     void onDeviceTreeItemClicked(QTreeWidgetItem *item, int column);
     void showContextMenu(const QPoint &pos);

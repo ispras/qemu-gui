@@ -27,6 +27,8 @@ public:
     void addDeviceMemory(const QString &size);
     void addDeviceMachine(const QString &name);
     void addDeviceCpu(const QString &name);
+    void setKernel(const QString &name);
+    void setInitrd(const QString &name);
     void addUsbDevice();
     QString get_vm_info();
 
@@ -35,6 +37,8 @@ public:
     QString getMachine();
 
     QString get_name();
+    QString getKernel();
+    QString getInitrd();
     QString getCmdLine();
     QString get_dir_path();
     QString getCommandLine(CommandLineParameters &cmdParams);
@@ -51,6 +55,8 @@ private:
 
     QString path;
     QString name_vm;
+    QString kernel;
+    QString initrd;
     QString dir_path;
     QString platform;
     QString addCmdLine;

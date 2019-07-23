@@ -117,8 +117,14 @@ void QemuLauncher::createOverlays()
 
 void QemuLauncher::launchQemu()
 {
+    QString kernelInitrd = "";
+    if (virtual_machine)
+    {
+        kernelInitrd += runOptions->getKernelCmd(virtual_machine->getKernel());
+        kernelInitrd += runOptions->getInitrdCmd(virtual_machine->getInitrd());
+    }
     QString cmdLine = "\"" + qemuExePath + "\" " + recordReplay + " -net none "
-        + cmd + mon + runOptions->getQmpCmd() + additionalOptionsCmd;
+        + kernelInitrd + cmd + mon + runOptions->getQmpCmd() + additionalOptionsCmd;
     qDebug() << cmdLine;
     if (con)
     {
