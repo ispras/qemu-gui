@@ -20,8 +20,8 @@ private slots:
     void setSystemFile();
 
 public:
-    QString getKernel();
-    QString getInitrd();
+    QString getKernel() const;
+    QString getInitrd() const;
     void setKernel(const QString &filename);
     void setInitrd(const QString &filename);
 

@@ -8,12 +8,12 @@ QemuRunOptions::QemuRunOptions() :
 
 }
 
-QString QemuRunOptions::getKernelCmd(const QString &path)
+QString QemuRunOptions::getKernelCmd(const QString &path) const
 {
     return (!path.isEmpty()) ? " -kernel " + path : "";
 }
 
-QString QemuRunOptions::getInitrdCmd(const QString & path)
+QString QemuRunOptions::getInitrdCmd(const QString & path) const
 {
     return (!path.isEmpty()) ? " -initrd " + path : "";
 }

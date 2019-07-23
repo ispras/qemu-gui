@@ -50,12 +50,12 @@ void VMPropertiesForm::setSystemFile()
     }
 }
 
-QString VMPropertiesForm::getKernel()
+QString VMPropertiesForm::getKernel() const
 {
     return kernelEdit->text();
 }
 
-QString VMPropertiesForm::getInitrd()
+QString VMPropertiesForm::getInitrd() const
 {
     return initrdEdit->text();
 }
