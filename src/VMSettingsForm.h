@@ -43,7 +43,7 @@ private:
 private slots:
     bool applySettings();
     void save_settings();
-    void onDeviceTreeItemClicked(QTreeWidgetItem *item, int column);
+    void deviceTreeItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
     void showContextMenu(const QPoint &pos);
     void addNewDevice(Device *newDevice);
     void addNewSystemDevice(const QString &devName);
