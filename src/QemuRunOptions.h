@@ -14,19 +14,19 @@ public:
 
 public:
     void setQmpPort(const QString &port) { qmpPort = port; }
-    QString getQmpPort() { return qmpPort; }
+    QString getQmpPort() const { return qmpPort; }
 
     void setMonitorPort(const QString &port) { monitorPort = port; }
-    QString getMonitorPort() { return monitorPort; }
+    QString getMonitorPort() const { return monitorPort; }
 
     void setLogfileName(const QString &name) { logfileName = name; }
-    QString getLogfileName() { return logfileName; }
+    QString getLogfileName() const { return logfileName; }
 
     void setLogOptionList(const QStringList &options) { logOptionList = options; }
-    QStringList getOptionList() { return logOptionList; }
+    QStringList getOptionList() const { return logOptionList; }
 
     void setAdditionalCmdLine(const QString &cmd) { additionalCmdLine = cmd; }
-    QString getAdditionalCmdLine() { return additionalCmdLine; }
+    QString getAdditionalCmdLine() const { return additionalCmdLine; }
 
     void setDebugEnable(bool value) { isDebugEnable = value; }
     bool getDebugEnable() { return isDebugEnable; }
@@ -36,6 +36,9 @@ public:
 
     void setQemuRunStopped(bool value) { isQemuRunStopped = value; }
     bool getQemuRunStopped() { return isQemuRunStopped; }
+
+    QString getKernelCmd(const QString &path) const;
+    QString getInitrdCmd(const QString &path) const;
 
     QString getMonitorCmd();
     QString getQmpCmd();
@@ -47,6 +50,8 @@ private:
     QString logfileName;
     QStringList logOptionList;
     QString additionalCmdLine;
+    QString kernel;
+    QString initrd;
     bool isDebugEnable;
     bool isSnapshotEnable;
     bool isQemuRunStopped;

@@ -6,7 +6,7 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
 {
     if (VMSettingsForm::objectName().isEmpty())
         VMSettingsForm::setObjectName(QStringLiteral("VMSettingsForm"));
-    resize(420, 340);
+    resize(420, 380);
     setWindowTitle(QApplication::translate("VMSettingsForm", "VM Settings", Q_NULLPTR));
     setWindowModality(Qt::WindowModality::ApplicationModal);
     setWindowIcon(QIcon(":Resources/settings.png"));
@@ -17,6 +17,10 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
 
     addCmdLineParamsEdit = new QLineEdit();
     addCmdLineParamsEdit->setText(vm->getCmdLine());
+
+    kernelForm = new VMPropertiesForm();
+    kernelForm->setKernel(vm->getKernel());
+    kernelForm->setInitrd(vm->getInitrd());
 
     savecancel_btn->button(QDialogButtonBox::Save)->setDefault(true);
     savecancel_btn->button(QDialogButtonBox::Cancel)->setAutoDefault(true);
@@ -49,6 +53,7 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
 
 VMSettingsForm::~VMSettingsForm()
 {
+    delete kernelForm;
 }
 
 void VMSettingsForm::connect_signals()
@@ -93,7 +98,17 @@ void VMSettingsForm::removingDevFromDevices(Device * dev)
     devParent->removeDevice(dev);
 }
 
-Device * VMSettingsForm::isDevicesValid(Device *device)
+bool VMSettingsForm::changesVerification()
+{
+    if (kernelForm->getKernel().isEmpty() && !kernelForm->getInitrd().isEmpty())
+    {
+        QMessageBox::warning(this, "Error", "Must be selected 'Kernel' file");
+        return false;
+    }
+    return true;
+}
+
+Device *VMSettingsForm::isDevicesValid(Device *device)
 {
     Device *retDevice = NULL;
     foreach(Device *dev, device->getDevices())
@@ -123,24 +138,26 @@ void VMSettingsForm::widget_placement()
     addCmdLay->addWidget(addCmdLineParamsEdit);
     addCmdLineParamsGrpoup->setLayout(addCmdLay);
 
-
     QVBoxLayout *main = new QVBoxLayout(this);
     main->addWidget(splitter);
+    main->addWidget(kernelForm);
     main->addWidget(addCmdLineParamsGrpoup);
     main->addStretch(100);
     main->addWidget(savecancel_btn);
 }
 
-void VMSettingsForm::applySettings()
+bool VMSettingsForm::applySettings()
 {
     bool isExecutionList = emit isExecutionListNotEmpty();
     QString message = isExecutionList ? "All recorded executions will be removed. " : "";
     int answer = QMessageBox::question(this, "Saving",
         message + "Are you sure?",
         QMessageBox::Yes, QMessageBox::No);
-    if (answer == QMessageBox::Yes)
+    if (answer == QMessageBox::Yes && changesVerification())
     {
         vm->setCmdLine(addCmdLineParamsEdit->text());
+        vm->setKernel(kernelForm->getKernel());
+        vm->setInitrd(kernelForm->getInitrd());
         vm->save_vm_config();
         vm->remove_directory_vm(vm->getPathRRDir());
         if (isExecutionList)
@@ -148,7 +165,9 @@ void VMSettingsForm::applySettings()
             emit settingsDeleteRecords();
         }
         emit updateVMInfo();
+        return true;
     }
+    return false;
 }
 
 void VMSettingsForm::save_settings()
@@ -156,8 +175,10 @@ void VMSettingsForm::save_settings()
     Device *dev = isDevicesValid(vm->getSystemDevice());
     if (!dev)
     {
-        applySettings();
-        close();
+        if (applySettings())
+        {
+            close();
+        }
     }
     else
     {
