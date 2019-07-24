@@ -48,6 +48,8 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
 
     connect_signals();
     widget_placement();
+
+    deviceTree->setItemSelected(deviceTree->itemAt(0, 0), true);
     show();
 }
 
@@ -58,8 +60,8 @@ VMSettingsForm::~VMSettingsForm()
 
 void VMSettingsForm::connect_signals()
 {
-    connect(deviceTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this,
-        SLOT(onDeviceTreeItemClicked(QTreeWidgetItem *, int)));
+    connect(deviceTree, SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
+        this, SLOT(deviceTreeItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)));
 
     connect(savecancel_btn, &QDialogButtonBox::accepted,
         this, &VMSettingsForm::save_settings);
@@ -187,9 +189,9 @@ void VMSettingsForm::save_settings()
     }
 }
 
-void VMSettingsForm::onDeviceTreeItemClicked(QTreeWidgetItem *item, int column)
+void VMSettingsForm::deviceTreeItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
 {
-    DeviceTreeItem *devItem = dynamic_cast<DeviceTreeItem*>(item);
+    DeviceTreeItem *devItem = dynamic_cast<DeviceTreeItem*>(current);
     Q_ASSERT(devItem);
 
     Device *dev = devItem->getDevice();
@@ -284,7 +286,7 @@ void VMSettingsForm::addNewDevice(Device *newDevice)
         DeviceTreeItem *it = new DeviceTreeItem(newDevice);
         deviceTree->currentItem()->addChild(it);
         deviceTree->setCurrentItem(it);
-        onDeviceTreeItemClicked(it, 0);
+        deviceTreeItemChanged(it, NULL);
     }
     else
     {
@@ -315,7 +317,7 @@ void VMSettingsForm::removeDevice()
     {
         removingDevFromDevices(dev);
         deviceTree->setCurrentItem(devItem->parent());
-        onDeviceTreeItemClicked(devItem->parent(), 0);
+        deviceTreeItemChanged(devItem->parent(), NULL);
         delete devItem;        
     }
 }
