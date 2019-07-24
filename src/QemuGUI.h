@@ -100,6 +100,7 @@ private:
     void fill_listVM_from_config();
     void fill_qemu_install_dir_from_config();
     void checkQemuCompatibility();
+    void runOptionPrepare();
 
 public slots:
     void setButtonsState(bool runningState);
@@ -136,7 +137,6 @@ private slots:
     void set_terminal_settings();
     void launch_settings();
     void overlayFailed();
-    void runOptionPrepare();
 
 signals:
     void qmp_resume_qemu();

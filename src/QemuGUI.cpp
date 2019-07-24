@@ -327,7 +327,7 @@ void QemuGUI::createRunOptionsDialog()
     QGroupBox *commonGroup = new QGroupBox("Common options");
 
     QDialogButtonBox *okBtn = new QDialogButtonBox(QDialogButtonBox::Ok);
-    connect(okBtn, &QDialogButtonBox::accepted, this, &QemuGUI::runOptionPrepare);
+    connect(okBtn, &QDialogButtonBox::accepted, runOptionsDlg, &QDialog::close);
 
     QVBoxLayout *mainLay = new QVBoxLayout();
     QHBoxLayout *chkLay = new QHBoxLayout();
@@ -459,6 +459,7 @@ void QemuGUI::play_machine()
         if (vm_state == VMState::None)
         {
             VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
+            runOptionPrepare();
 
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
                 vm, runOptions, launchMode, consoleTab,
@@ -778,8 +779,6 @@ void QemuGUI::runOptionPrepare()
     runOptions->setQemuRunStopped(qemuStoppedCheckBox->isChecked());
     runOptions->setSnapshotEnable(snapshotCheckBox->isChecked());
     runOptions->setAdditionalCmdLine(cmdLineAdditionalLineEdit->text());
-
-    runOptionsDlg->close();
 }
 
 void QemuGUI::set_connection_settings(const QString &qmp, const QString &monitor)
