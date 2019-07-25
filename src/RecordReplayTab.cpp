@@ -304,6 +304,7 @@ void RecordReplayTab::record_execution()
     connect(okCancelBtn, &QDialogButtonBox::rejected,
         replayDialog, &QDialog::close);
     connect(icountSpin, SIGNAL(valueChanged(int)), this, SLOT(setCurrentIcount(int)));
+    connect(overlayCheck, SIGNAL(stateChanged(int)), this, SLOT(setAutoSnapshotEnabled(int)));
 }
 
 void RecordReplayTab::replay_execution()
@@ -485,6 +486,12 @@ void RecordReplayTab::autoSnapshotEnabled(int state)
 void RecordReplayTab::setCurrentIcount(int value)
 {
     currentIcount = value;
+}
+
+void RecordReplayTab::setAutoSnapshotEnabled(int value)
+{
+    periodLineEdit->setEnabled(periodCheckBox->isChecked() && value);
+    periodCheckBox->setEnabled(value);
 }
 
 void RecordReplayTab::setState(bool state)

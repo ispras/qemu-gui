@@ -77,6 +77,7 @@ private slots:
     void executionListItemClicked(QListWidgetItem *item);
     void autoSnapshotEnabled(int state);
     void setCurrentIcount(int value);
+    void setAutoSnapshotEnabled(int value);
 
 public slots:
     void enableBtns(bool state);
