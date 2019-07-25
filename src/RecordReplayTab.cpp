@@ -6,10 +6,11 @@ static const char regExpForName[] = "[A-Za-z0-9_-][A-Za-z0-9_-\\s]+";
 const QString constXmlName = "replay.xml";
 const QString xml_hash = "QemuHash";
 const QString xml_icount = "icount";
+const QString xml_overlay = "IsOverlay";
 const QString xml_start = "replay_";
 
 RecordReplayTab::RecordReplayTab(GlobalConfig *globalConfig, QWidget *parent)
-    : QWidget(parent), globalConfig(globalConfig)
+    : QWidget(parent), globalConfig(globalConfig), currentIcount(5)
 {
     if (RecordReplayTab::objectName().isEmpty())
         RecordReplayTab::setObjectName(QStringLiteral("RecordReplayTab"));
@@ -25,14 +26,17 @@ RecordReplayTab::RecordReplayTab(GlobalConfig *globalConfig, QWidget *parent)
 
     renameAct = new QAction("Rename", executionList);
     deleteAct = new QAction("Delete", executionList);
+    deleteAllAct = new QAction("Delete all", executionList);
     renameAct->setDisabled(true);
     deleteAct->setDisabled(true);
+    deleteAllAct->setDisabled(true);
 
     executionList->setEditTriggers(QAbstractItemView::AnyKeyPressed | 
         QAbstractItemView::SelectedClicked | QAbstractItemView::DoubleClicked);
  
     executionList->addAction(renameAct);
     executionList->addAction(deleteAct);
+    executionList->addAction(deleteAllAct);
     executionList->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     rec_btn->setAutoDefault(true);
@@ -91,7 +95,7 @@ QString RecordReplayTab::getSnapshotPeriod()
 
 bool RecordReplayTab::isOverlayEnabled()
 {
-    return overlayCheck->isChecked();
+    return isOverlayChecked;
 }
 
 void RecordReplayTab::setSnapshotPeriod(QString val)
@@ -112,6 +116,7 @@ void RecordReplayTab::connect_signals()
 
     connect(renameAct, SIGNAL(triggered()), this, SLOT(rename_ctxmenu()));
     connect(deleteAct, SIGNAL(triggered()), this, SLOT(delete_ctxmenu()));
+    connect(deleteAllAct, SIGNAL(triggered()), this, SLOT(deleteAllCtxmenu()));
 }
 
 void RecordReplayTab::executionListConnectSignals()
@@ -154,6 +159,10 @@ void RecordReplayTab::createXml(const QString &path, const QString &name)
         xmlWriter.writeCharacters(icountValue);
         xmlWriter.writeEndElement();
 
+        xmlWriter.writeStartElement(xml_overlay);
+        xmlWriter.writeCharacters(overlayCheck->isChecked() ? "true" : "");
+        xmlWriter.writeEndElement();
+
         xmlWriter.writeEndElement();
         xmlWriter.writeEndDocument();
         file.close();
@@ -178,6 +187,10 @@ void RecordReplayTab::readXml(const QString &name)
             else if (xmlReader.name() == xml_icount)
             {
                 icountValue = xmlReader.readElementText();
+            }
+            else if (xmlReader.name() == xml_overlay)
+            {
+                isOverlayChecked = !xmlReader.readElementText().isEmpty();
             }
         }
     }
@@ -262,7 +275,7 @@ void RecordReplayTab::record_execution()
     icountSpin = new QSpinBox();
     icountSpin->setMinimum(1);
     icountSpin->setMaximum(12);
-    icountSpin->setValue(5);
+    icountSpin->setValue(currentIcount);
 
     QDialogButtonBox *okCancelBtn = new QDialogButtonBox(QDialogButtonBox::Ok
         | QDialogButtonBox::Cancel);
@@ -290,32 +303,40 @@ void RecordReplayTab::record_execution()
         this, &RecordReplayTab::setRRNameDir);
     connect(okCancelBtn, &QDialogButtonBox::rejected,
         replayDialog, &QDialog::close);
+    connect(icountSpin, SIGNAL(valueChanged(int)), this, SLOT(setCurrentIcount(int)));
 }
 
 void RecordReplayTab::replay_execution()
 {
     if (executionList->currentItem())
     {
-        createDialog("Auto snapshotting");
+        if (!isOverlayEnabled())
+        {
+            setCurrentDir(executionList->currentItem()->text());
+            emit startRR(LaunchMode::REPLAY);
+        }
+        else
+        {
+            createDialog("Auto snapshotting");
+            QDialogButtonBox *okCancelBtn = new QDialogButtonBox(QDialogButtonBox::Ok
+                | QDialogButtonBox::Cancel);
 
-        QDialogButtonBox *okCancelBtn = new QDialogButtonBox(QDialogButtonBox::Ok
-            | QDialogButtonBox::Cancel);
+            QVBoxLayout *mainLay = new QVBoxLayout();
+            mainLay->addLayout(periodLayout(40));
+            periodLineEdit->setText(periodAutoSnap);
+            connect(okCancelBtn, &QDialogButtonBox::accepted,
+                this, &RecordReplayTab::setPeriodSnapReplay);
 
-        QVBoxLayout *mainLay = new QVBoxLayout();
-        mainLay->addLayout(overlayLayout());
-        mainLay->addLayout(periodLayout(40));
-        mainLay->addWidget(okCancelBtn);
+            mainLay->addWidget(okCancelBtn);
+            replayDialog->setLayout(mainLay);
+            replayDialog->show();
+            QemuGUI::setWindowGeometry(replayDialog, pWidget);
 
-        replayDialog->setLayout(mainLay);
-        
-        periodLineEdit->setText(periodAutoSnap);
-        replayDialog->show();
-        QemuGUI::setWindowGeometry(replayDialog, pWidget);
-
-        connect(okCancelBtn, &QDialogButtonBox::accepted,
-            this, &RecordReplayTab::setPeriodSnapReplay);
-        connect(okCancelBtn, &QDialogButtonBox::rejected,
-            replayDialog, &QDialog::close);
+            connect(okCancelBtn, &QDialogButtonBox::accepted,
+                this, &RecordReplayTab::setPeriodSnapReplay);
+            connect(okCancelBtn, &QDialogButtonBox::rejected,
+                replayDialog, &QDialog::close);
+        }
     }
 }
 
@@ -335,12 +356,14 @@ void RecordReplayTab::executionListItemSelectionChanged()
         }
         renameAct->setDisabled(false);
         deleteAct->setDisabled(false);
+        deleteAllAct->setDisabled(false);
     }
     else
     {
         rpl_btn->setEnabled(false);
         renameAct->setDisabled(true);
         deleteAct->setDisabled(true);
+        deleteAllAct->setDisabled(true);
     }
 }
 
@@ -395,6 +418,28 @@ void RecordReplayTab::delete_ctxmenu()
     }
 }
 
+void RecordReplayTab::deleteAllCtxmenu()
+{
+    if (executionList->currentItem())
+    {
+        int answer = QMessageBox::question(this, "Deleting all executions", "Are you sure?",
+            QMessageBox::Yes, QMessageBox::No);
+        if (answer == QMessageBox::Yes)
+        {
+            for (int i = 0; i < executionList->count(); i++)
+            {
+                QString name = vm->getPathRRDir() + "/" + executionList->item(i)->text();
+                vm->remove_directory_vm(name);
+            }
+            disconnect(executionList, 0, 0, 0);
+            executionList->clear();
+            
+            executionListConnectSignals();
+            executionListItemSelectionChanged();
+        }
+    }
+}
+
 void RecordReplayTab::setPeriodSnapReplay()
 {
     if (checkPeriodSet())
@@ -437,6 +482,11 @@ void RecordReplayTab::autoSnapshotEnabled(int state)
     periodLineEdit->setEnabled(state);
 }
 
+void RecordReplayTab::setCurrentIcount(int value)
+{
+    currentIcount = value;
+}
+
 void RecordReplayTab::setState(bool state)
 {
     isNotRunning = state;
@@ -454,6 +504,7 @@ void RecordReplayTab::deleteRecordFolder()
     executionList->clearSelection();
     renameAct->setDisabled(true);
     deleteAct->setDisabled(true);
+    deleteAllAct->setDisabled(true);
 }
 
 void RecordReplayTab::enableBtns(bool state)
@@ -482,6 +533,7 @@ void RecordReplayTab::setRRNameDir()
         nameReplay = nameEdit->text();
         icountValue = QString::number(icountSpin->value());
         periodAutoSnap = (periodCheckBox->isChecked()) ? periodLineEdit->text() : "";
+        isOverlayChecked = overlayCheck->isChecked();
 
         setCurrentDir(name);
         QListWidgetItem *it = new QListWidgetItem();
