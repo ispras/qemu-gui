@@ -460,6 +460,7 @@ void QemuGUI::play_machine()
         {
             VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
             runOptionPrepare();
+            listVM->setDisabled(true);
 
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
                 vm, runOptions, launchMode, consoleTab,
@@ -525,6 +526,7 @@ void QemuGUI::finish_qemu(int exitCode)
 {
     if (exitCode != 0)
         emit monitor_abort();
+    listVM->setDisabled(false);
     vmToolBar->setEnabled(true);
     vm_state = VMState::None;
     launchMode = LaunchMode::NORMAL;

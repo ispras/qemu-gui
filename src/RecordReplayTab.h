@@ -46,6 +46,7 @@ private:
     QPushButton *rpl_btn;
     QAction *renameAct;
     QAction *deleteAct;
+    QAction *deleteAllAct;
 
     QDialog *replayDialog;
     QLineEdit *nameEdit;
@@ -61,17 +62,21 @@ private:
     QString qemuHash;
     QString periodAutoSnap;
     bool isNotRunning;
+    bool isOverlayChecked;
+    int currentIcount;
 
 private slots:
     void record_execution();
     void replay_execution();
     void rename_ctxmenu();
     void delete_ctxmenu();
+    void deleteAllCtxmenu();
     void setRRNameDir();
     void setPeriodSnapReplay();
     void renameRRRecord();
     void executionListItemClicked(QListWidgetItem *item);
     void autoSnapshotEnabled(int state);
+    void setCurrentIcount(int value);
 
 public slots:
     void enableBtns(bool state);
