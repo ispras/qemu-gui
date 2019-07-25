@@ -20,7 +20,7 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
         dirRR = rr->getCurrentDirRR();
         icount = rr->getICountValue();
         overlayRR = rr->isOverlayEnabled();
-        period = (overlayRR) ? rr->getSnapshotPeriod() : "";
+        period = overlayRR ? rr->getSnapshotPeriod() : "";
     }
 }
 
