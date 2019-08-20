@@ -139,9 +139,7 @@ private slots:
     void overlayFailed();
 
 signals:
-    void qmp_resume_qemu();
-    void qmp_stop_qemu();
-    void qmp_shutdown_qemu();
+    void qmpSendCommand(const QString &);
     void monitor_connect(int);
     void monitor_abort();
     void recordReplayEnableBtns(bool);

@@ -12,10 +12,12 @@ public:
 
     QStringList getMachines() const { return machines; }
     QStringList getCpus() const { return cpus; }
+    QStringList getNetdev() const { return netdev; }
 
 private:
     QStringList machines;
     QStringList cpus;
+    QStringList netdev;
 
 };
 

@@ -21,6 +21,10 @@ PlatformInfo::PlatformInfo(const QString &path)
             {
                 cpus.append(xmlReader.readElementText());
             }
+            else if (xmlReader.name() == "Netdev")
+            {
+                netdev.append(xmlReader.readElementText());
+            }
         }
     }
 }

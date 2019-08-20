@@ -60,11 +60,10 @@ void PlatformInformationReader::launchQemu()
         result.clear();
         result.append(platforms.first());
         qmp = new QMPInteractionSettings(nullptr, qmpPort.toInt());
-        connect(this, SIGNAL(qmpRequestMachineInfo()), qmp, SLOT(commandMachineInfo()));
-        connect(this, SIGNAL(qmpRequestCpuInfo()), qmp, SLOT(commandCpuInfo()));
         connect(qmp, SIGNAL(qmpConnected()), this, SLOT(qmpConnectOk()));
-        connect(qmp, SIGNAL(readyInfo(const QStringList&)),
-            this, SLOT(nextRequest(const QStringList&)));
+        connect(qmp, SIGNAL(readyInfo(const QStringList&, bool)),
+            this, SLOT(nextRequest(const QStringList&, bool)));
+        connect(this, SIGNAL(qmpSendCommand()), qmp, SLOT(commandQmp()));
         connect(this, SIGNAL(qmpShutdownQemu()), qmp, SLOT(commandShutdownQemu()));
         connect(this, SIGNAL(qemuMustDie()), qemu, SLOT(terminateQemu()));
 
@@ -108,16 +107,15 @@ void PlatformInformationReader::timeIsOut()
 
 void PlatformInformationReader::qmpConnectOk()
 {
-    emit qmpRequestMachineInfo();
+    emit qmpSendCommand();
 }
 
-void PlatformInformationReader::nextRequest(const QStringList &list)
+void PlatformInformationReader::nextRequest(const QStringList &list, bool isReady)
 {
     result.append(list);
-    if (!allInfoReady)
+    if (isReady)
     {
-        emit qmpRequestCpuInfo();
-        allInfoReady = true;
+        emit qmpSendCommand();
     }
     else
     {
@@ -157,19 +155,17 @@ void PlatformInformationReader::createXml()
             xmlWriter.setAutoFormatting(true);
             xmlWriter.writeStartDocument();
             xmlWriter.writeStartElement(result.first().first());
-
             result.removeFirst();
-            foreach(QString machine, result.first())
+
+            QStringList xmlNames = { "Machine", "Cpu", "Netdev" };
+            for (int i = 0; i < xmlNames.count(); i++)
             {
-                xmlWriter.writeStartElement("Machine");
-                xmlWriter.writeCharacters(machine);
-                xmlWriter.writeEndElement();
-            }
-            foreach(QString cpu, result.back())
-            {
-                xmlWriter.writeStartElement("Cpu");
-                xmlWriter.writeCharacters(cpu);
-                xmlWriter.writeEndElement();
+                foreach(QString name, result[i])
+                {
+                    xmlWriter.writeStartElement(xmlNames[i]);
+                    xmlWriter.writeCharacters(name);
+                    xmlWriter.writeEndElement();
+                }
             }
 
             xmlWriter.writeEndElement();

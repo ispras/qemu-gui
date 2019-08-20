@@ -5,7 +5,6 @@
 #include <QtWidgets>
 #include "QemuSocket.h"
 
-
 class QMPInteraction : public QObject
 {
     Q_OBJECT
@@ -15,27 +14,39 @@ public:
     QMPInteraction(QObject *parent, int port);
     ~QMPInteraction();
 
-private:
-    QemuSocket socket;
-    bool isQmpConnect;
+    struct QmpCommand
+    {
+        QString command;
+        QString params;
+        void (QMPInteraction::*callback)(QJsonObject);
+    };
 
 protected:
-    QByteArray init();
-    QByteArray cmd_stop();
-    QByteArray cmd_continue();
-    QByteArray cmd_shutdown();
-    QByteArray cmdQueryStatus();
-    void what_said_qmp(QByteArray message);
+    QemuSocket socket;
+    QList<QmpCommand> commands;
+    QList<void (QMPInteraction::*)(QJsonObject)> cbQueue;
+
+private:
+    bool isEvent(QJsonObject object);
+    void queryStatus_cb(QJsonObject object);
+    void stop_cb(QJsonObject object);
+    void continue_cb(QJsonObject object);
+    
+protected:
+    void prepareCommands();
+    void whatSaidQmp(QByteArray message);
+    int getCallbackByCmdName(const QString &cmd);
+    virtual void machine_cb(QJsonObject object) {}
+    virtual void cpu_cb(QJsonObject object) {}
+    virtual void listDevices_cb(QJsonObject object) {}
+    virtual void listProperties_cb(QJsonObject object) {}
 
 public slots:
     void read_terminal();
     void connectedSocket();
-    void command_stop_qemu();
-    void command_resume_qemu();
-    void commandShutdownQemu();
+    void commandQmp(const QString &command);
 
 signals :
-    void connectionEstablished();
     void qemu_resumed();
     void qemu_stopped();
     void qemuRunningStatus(bool runStatus);
@@ -51,28 +62,30 @@ public:
     ~QMPInteractionSettings();
 
 private:
-    QemuSocket socket;
     bool isQmpReady;
     QStringList infoList;
+    QStringList netdevList;
     QByteArray messageBegin;
+    QList<QString> commandsQueue;
 
 private:
-    QByteArray cmdMachineInfo();
-    QByteArray cmdCpuInfo();
+    bool whatSaidQmp(QByteArray message);
 
-    bool what_said_qmp(QByteArray message);
+    void readJsonArray(QJsonObject object);
+    virtual void machine_cb(QJsonObject object);
+    virtual void cpu_cb(QJsonObject object);
+    virtual void listDevices_cb(QJsonObject object);
+    virtual void listProperties_cb(QJsonObject object);
 
 public slots:
     void read_terminal();
     void connectedSocket();
 
-    void commandCpuInfo();
-    void commandMachineInfo();
     void commandShutdownQemu();
+    void commandQmp();
 
 signals:
-    void readyInfo(const QStringList &);
-
+    void readyInfo(const QStringList &, bool);
     void qmpConnected();
 
 };
