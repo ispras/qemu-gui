@@ -123,6 +123,7 @@ void TerminalTab::send_monitor_command()
     terminal_text->insertPlainText(terminal_cmd->text() + "\n");
     saved_terminal_cmds.push_front(terminal_cmd->text());
     terminal_cmd->clear();
+    currentCommandIndex = -1;
 }
 
 void TerminalTab::terminalTab_connect(int port)
