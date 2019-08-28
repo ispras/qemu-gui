@@ -50,6 +50,8 @@ public:
     virtual int getMaxCountDevices() const { return std::numeric_limits<int>::max(); }
 
     const QString &getId() const { return id; }
+    void setPathToConfig(const QString &path) { pathToConfig = path; }
+    QString getPathToConfig() const { return pathToConfig; }
     
 protected:
     void setId(const QString &s) { id = s; }
@@ -78,6 +80,7 @@ private:
     QString id;
     bool isCanRemove;
     Devices devices;
+    QString pathToConfig;
 };
 
 #endif // DEVICE_H

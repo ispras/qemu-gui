@@ -1,7 +1,7 @@
 #include "PlatformInfo.h"
 
 
-PlatformInfo::PlatformInfo(const QString &path)
+PlatformInfo::PlatformInfo(const QString &path) : path(path)
 {
     QFile file(path + ".xml");
     if (file.open(QIODevice::ReadOnly))

@@ -220,6 +220,7 @@ void QemuGUI::checkQemuCompatibility()
         if (vm_state == VMState::None)
         {
             qemu_play->setEnabled(qemuIsCompatible);
+            editVMAct->setEnabled(qemuIsCompatible);
             emit recordReplayEnableBtns(qemuIsCompatible);
         }
     }
@@ -591,7 +592,8 @@ void QemuGUI::setRunOptions()
 void QemuGUI::edit_settings()
 {
     VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
-    VMSettingsForm *settingsWindow = new VMSettingsForm(vm);
+    VMSettingsForm *settingsWindow = new VMSettingsForm(vm, global_config,
+        qemu_install_dir_combo->currentText());
     setWindowGeometry(settingsWindow, this);
     settingsWindow->setAttribute(Qt::WA_DeleteOnClose);
     connect(settingsWindow, SIGNAL(settingsDeleteRecords()),

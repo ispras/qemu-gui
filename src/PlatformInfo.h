@@ -15,6 +15,7 @@ public:
     QStringList getNetdev() const { return netdev; }
 
 private:
+    QString path;
     QStringList machines;
     QStringList cpus;
     QStringList netdev;
