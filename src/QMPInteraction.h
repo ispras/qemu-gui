@@ -36,7 +36,6 @@ public:
 
 protected:
     QemuSocket socket;
-    QList<QmpCommand> commands;
     QList<void (QMPInteraction::*)(QJsonObject)> cbQueue;
     QMap<QMPCommands, QmpCommand> cmdMap;
 

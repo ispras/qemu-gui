@@ -17,7 +17,7 @@ public:
     virtual BusType needsBus() const { return BusType::PCI; }
     virtual QWidget *getEditorForm();
 
-    const QStringList &getControllers();
+    const QStringList getControllers() const;
     const QStringList &getNetdevBackend() const;
     void setController(const QString &name) { controller = name; }
     void setNetdev(const QString &name) { netdev = name; }
@@ -38,7 +38,6 @@ private:
     QString controller;
     QString netdev;
     QString tapIfName;
-    QStringList controllers;
 
 };
 

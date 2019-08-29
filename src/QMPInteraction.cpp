@@ -22,24 +22,16 @@ QMPInteraction::~QMPInteraction()
 
 void QMPInteraction::prepareCommands()
 {
-    commands.append({ "cont", "", &QMPInteraction::continue_cb });
-    commands.append({ "stop", "", &QMPInteraction::stop_cb });
-    commands.append({ "quit", "", NULL });
-    commands.append({ "qmp_capabilities", "", NULL });
-    commands.append({ "query-status", "", &QMPInteraction::queryStatus_cb });
-    commands.append({ "query-machines", "", &QMPInteraction::machine_cb });
-    commands.append({ "query-cpu-definitions", "", &QMPInteraction::cpu_cb });
-    commands.append({ "qom-list-types", ",\"arguments\":{\"abstract\":true}",
+    cmdMap.insert(QMPCommands::Continue, { "cont", "", &QMPInteraction::continue_cb });
+    cmdMap.insert(QMPCommands::Stop, { "stop", "", &QMPInteraction::stop_cb });
+    cmdMap.insert(QMPCommands::Quit, { "quit", "", NULL });
+    cmdMap.insert(QMPCommands::QmpCapabilities, { "qmp_capabilities", "", NULL });
+    cmdMap.insert(QMPCommands::QueryStatus,{ "query-status", "", &QMPInteraction::queryStatus_cb });
+    cmdMap.insert(QMPCommands::QueryMachines, { "query-machines", "", &QMPInteraction::machine_cb });
+    cmdMap.insert(QMPCommands::QueryCpuDefinitions, { "query-cpu-definitions", "", &QMPInteraction::cpu_cb });
+    cmdMap.insert(QMPCommands::QomListTypes, { "qom-list-types", ",\"arguments\":{\"abstract\":true}",
         &QMPInteraction::listDevices_cb });
-    commands.append({ "device-list-properties", "?", &QMPInteraction::listProperties_cb });
-
-    int i = 0;
-    QMPCommands cmdEnum;
-    foreach(QmpCommand cmd, commands)
-    {
-        cmdEnum = static_cast<QMPCommands>(i++);
-        cmdMap.insert(cmdEnum, cmd);
-    }
+    cmdMap.insert(QMPCommands::DeviceListProperties, { "device-list-properties", "?", &QMPInteraction::listProperties_cb });
 }
 
 bool QMPInteraction::isEvent(QJsonObject object)

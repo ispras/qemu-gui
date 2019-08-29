@@ -39,11 +39,10 @@ QWidget *DeviceNetworkController::getEditorForm()
     return new DeviceNetworkForm(this);
 }
 
-const QStringList &DeviceNetworkController::getControllers()
+const QStringList DeviceNetworkController::getControllers() const
 {
     PlatformInfo pi(getPathToConfig());
-    controllers = pi.getNetdev();
-    return controllers;
+    return pi.getNetdev();
 }
 
 const QStringList &DeviceNetworkController::getNetdevBackend() const
