@@ -205,7 +205,6 @@ void QemuGUI::fill_qemu_install_dir_from_config()
     }
     if (global_config->get_current_qemu_dir() != "")
         qemu_install_dir_combo->setCurrentText(global_config->get_current_qemu_dir());
-    checkQemuCompatibility();
 }
 
 void QemuGUI::checkQemuCompatibility()
@@ -685,6 +684,7 @@ void QemuGUI::platformInfoReady()
 {
     delete platformInfo;
     qemu_install_dir_settings->close();
+    checkQemuCompatibility();
 }
 
 void QemuGUI::del_qemu_install_dir_btn()
@@ -725,6 +725,7 @@ void QemuGUI::qemu_install_dir_combo_activated(int index)
         qemu_install_dir_settings->show();
         setWindowGeometry(qemu_install_dir_settings, this);
         qemu_play->setEnabled(false);
+        editVMAct->setEnabled(false);
         emit recordReplayEnableBtns(false);
     }
     else
