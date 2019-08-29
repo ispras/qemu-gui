@@ -5,6 +5,19 @@
 #include <QtWidgets>
 #include "QemuSocket.h"
 
+enum class QMPCommands : int 
+{ 
+    Continue,
+    Stop,
+    Quit,
+    QmpCapabilities,
+    QueryStatus,
+    QueryMachines,
+    QueryCpuDefinitions,
+    QomListTypes,
+    DeviceListProperties
+};
+
 class QMPInteraction : public QObject
 {
     Q_OBJECT
@@ -25,6 +38,7 @@ protected:
     QemuSocket socket;
     QList<QmpCommand> commands;
     QList<void (QMPInteraction::*)(QJsonObject)> cbQueue;
+    QMap<QMPCommands, QmpCommand> cmdMap;
 
 private:
     bool isEvent(QJsonObject object);
@@ -35,7 +49,6 @@ private:
 protected:
     void prepareCommands();
     void whatSaidQmp(QByteArray message);
-    int getCallbackByCmdName(const QString &cmd);
     virtual void machine_cb(QJsonObject object) {}
     virtual void cpu_cb(QJsonObject object) {}
     virtual void listDevices_cb(QJsonObject object) {}
@@ -44,7 +57,7 @@ protected:
 public slots:
     void read_terminal();
     void connectedSocket();
-    void commandQmp(const QString &command);
+    void commandQmp(QMPCommands cmd);
 
 signals :
     void qemu_resumed();
@@ -66,7 +79,7 @@ private:
     QStringList infoList;
     QStringList netdevList;
     QByteArray messageBegin;
-    QList<QString> commandsQueue;
+    QList<QMPCommands> commandsQueue;
 
 private:
     bool whatSaidQmp(QByteArray message);

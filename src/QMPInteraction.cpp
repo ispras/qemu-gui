@@ -22,26 +22,24 @@ QMPInteraction::~QMPInteraction()
 
 void QMPInteraction::prepareCommands()
 {
-    commands.append({ "query-status", "", &QMPInteraction::queryStatus_cb });
-    commands.append({ "stop", "", &QMPInteraction::stop_cb });
     commands.append({ "cont", "", &QMPInteraction::continue_cb });
+    commands.append({ "stop", "", &QMPInteraction::stop_cb });
+    commands.append({ "quit", "", NULL });
+    commands.append({ "qmp_capabilities", "", NULL });
+    commands.append({ "query-status", "", &QMPInteraction::queryStatus_cb });
     commands.append({ "query-machines", "", &QMPInteraction::machine_cb });
     commands.append({ "query-cpu-definitions", "", &QMPInteraction::cpu_cb });
     commands.append({ "qom-list-types", ",\"arguments\":{\"abstract\":true}",
         &QMPInteraction::listDevices_cb });
     commands.append({ "device-list-properties", "?", &QMPInteraction::listProperties_cb });
-}
 
-int QMPInteraction::getCallbackByCmdName(const QString &cmd)
-{
-    for (int i = 0; i < commands.count(); i++)
+    int i = 0;
+    QMPCommands cmdEnum;
+    foreach(QmpCommand cmd, commands)
     {
-        if (commands.at(i).command.compare(cmd) == 0)
-        {
-            return i;
-        }
+        cmdEnum = static_cast<QMPCommands>(i++);
+        cmdMap.insert(cmdEnum, cmd);
     }
-    return -1;
 }
 
 bool QMPInteraction::isEvent(QJsonObject object)
@@ -107,23 +105,23 @@ void QMPInteraction::read_terminal()
 
 void QMPInteraction::connectedSocket()
 {
-    commandQmp("qmp_capabilities");
-    commandQmp("query-status");
+    commandQmp(QMPCommands::QmpCapabilities);
+    commandQmp(QMPCommands::QueryStatus);
 }
 
-void QMPInteraction::commandQmp(const QString &cmd)
+void QMPInteraction::commandQmp(QMPCommands cmd)
 {
-    int indexCmd = getCallbackByCmdName(cmd);
+    QmpCommand command = cmdMap.value(cmd);
     QString params = "";
-    if (indexCmd != -1)
+    if (command.callback)
     {
-        cbQueue.append(commands.at(indexCmd).callback);
-        params = commands.at(indexCmd).params;
+        cbQueue.append(command.callback);
+        params = command.params;
     }
 
-    QByteArray command = "{ \"execute\":\"" + cmd.toLocal8Bit() + "\""
-        + params.toLocal8Bit() + "}";
-    socket.write(command);
+    QByteArray commandAll = "{ \"execute\":\"" + command.command.toLocal8Bit()
+        + "\"" + params.toLocal8Bit() + "}";
+    socket.write(commandAll);
 }
 
 
@@ -143,9 +141,9 @@ QMPInteractionSettings::QMPInteractionSettings(QObject *parent, int port)
     socket.connectPort(port);
     messageBegin = "";
 
-    commandsQueue.append({ "query-machines",
-                        "query-cpu-definitions",
-                        "qom-list-types",
+    commandsQueue.append({ QMPCommands::QueryMachines,
+                        QMPCommands::QueryCpuDefinitions,
+                        QMPCommands::QomListTypes,
     });
     prepareCommands();
 }
@@ -201,7 +199,7 @@ void QMPInteractionSettings::listDevices_cb(QJsonObject object)
             }
         }
         cbQueue.pop_front();
-        commandsQueue.append("device-list-properties");
+        commandsQueue.append(QMPCommands::DeviceListProperties);
         commandQmp();
     }
 }
@@ -226,7 +224,7 @@ void QMPInteractionSettings::listProperties_cb(QJsonObject object)
         infoList.removeFirst();
         if (infoList.count())
         {
-            commandsQueue.append("device-list-properties");
+            commandsQueue.append(QMPCommands::DeviceListProperties);
             commandQmp();
         }
         else
@@ -273,31 +271,30 @@ void QMPInteractionSettings::read_terminal()
 
 void QMPInteractionSettings::connectedSocket()
 {
-    QMPInteraction::commandQmp("qmp_capabilities");
+    QMPInteraction::commandQmp(QMPCommands::QmpCapabilities);
 }
 
 void QMPInteractionSettings::commandShutdownQemu()
 {
-    QMPInteraction::commandQmp("quit");
+    QMPInteraction::commandQmp(QMPCommands::Quit);
 }
 
 void QMPInteractionSettings::commandQmp()
 {
-    QString cmd = commandsQueue.first();
-    int indexCmd = getCallbackByCmdName(cmd);
+    QmpCommand command = cmdMap.value(commandsQueue.first());
     QString params = "";
-    if (indexCmd != -1)
+    if (command.callback)
     {
-        params = commands.at(indexCmd).params;
-        cbQueue.append(commands.at(indexCmd).callback);
+        params = command.params;
+        cbQueue.append(command.callback);
         if (params.compare("?") == 0)
         {
             params = ",\"arguments\":{\"typename\":\"" + infoList.first() + "\"}";
         }
     }
-    QByteArray command = "{ \"execute\":\"" + cmd.toLocal8Bit() + "\""
+    QByteArray commandAll = "{ \"execute\":\"" + command.command.toLocal8Bit() + "\""
         + params.toLocal8Bit() + "}";
-    socket.write(command);
+    socket.write(commandAll);
     commandsQueue.removeFirst();
 }
 

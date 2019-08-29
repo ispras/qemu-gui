@@ -139,7 +139,7 @@ private slots:
     void overlayFailed();
 
 signals:
-    void qmpSendCommand(const QString &);
+    void qmpSendCommand(QMPCommands);
     void monitor_connect(int);
     void monitor_abort();
     void recordReplayEnableBtns(bool);
