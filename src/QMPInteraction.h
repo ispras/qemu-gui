@@ -56,7 +56,7 @@ protected:
 public slots:
     void read_terminal();
     void connectedSocket();
-    void commandQmp(QMPCommands cmd);
+    void commandQmp(QMPCommands cmd, const QString &specParams = "");
 
 signals :
     void qemu_resumed();
@@ -88,6 +88,8 @@ private:
     virtual void cpu_cb(QJsonObject object);
     virtual void listDevices_cb(QJsonObject object);
     virtual void listProperties_cb(QJsonObject object);
+
+    QString getParamDevListProperties(const QString &name) const;
 
 public slots:
     void read_terminal();
