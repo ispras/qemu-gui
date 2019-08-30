@@ -47,20 +47,20 @@ private:
     
 protected:
     void prepareCommands();
-    void whatSaidQmp(QByteArray message);
+    bool whatSaidQmp(QByteArray message);
     virtual void machine_cb(QJsonObject object) {}
     virtual void cpu_cb(QJsonObject object) {}
     virtual void listDevices_cb(QJsonObject object) {}
     virtual void listProperties_cb(QJsonObject object) {}
 
 public slots:
-    void read_terminal();
+    void readTerminal();
     void connectedSocket();
     void commandQmp(QMPCommands cmd, const QString &specParams = "");
 
 signals :
-    void qemu_resumed();
-    void qemu_stopped();
+    void qemuResumed();
+    void qemuStopped();
     void qemuRunningStatus(bool runStatus);
 };
 
@@ -81,8 +81,6 @@ private:
     QList<QMPCommands> commandsQueue;
 
 private:
-    bool whatSaidQmp(QByteArray message);
-
     void readJsonArray(QJsonObject object);
     virtual void machine_cb(QJsonObject object);
     virtual void cpu_cb(QJsonObject object);
@@ -92,7 +90,7 @@ private:
     QString getParamDevListProperties(const QString &name) const;
 
 public slots:
-    void read_terminal();
+    void readTerminal();
     void connectedSocket();
 
     void commandShutdownQemu();

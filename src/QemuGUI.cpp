@@ -497,8 +497,8 @@ void QemuGUI::play_machine()
                 connect(this, SIGNAL(qmpSendCommand(QMPCommands)),
                     qmp, SLOT(commandQmp(QMPCommands)));
 
-                connect(qmp, SIGNAL(qemu_resumed()), this, SLOT(resume_qemu_btn_state()));
-                connect(qmp, SIGNAL(qemu_stopped()), this, SLOT(stop_qemu_btn_state()));
+                connect(qmp, SIGNAL(qemuResumed()), this, SLOT(resume_qemu_btn_state()));
+                connect(qmp, SIGNAL(qemuStopped()), this, SLOT(stop_qemu_btn_state()));
 
                 connect(launch_qemu, SIGNAL(creatingOverlayFailed()), this, SLOT(overlayFailed()));
 
@@ -743,7 +743,7 @@ void QemuGUI::qemu_install_dir_combo_index_changed(int index)
 
 void QemuGUI::set_terminal_settings()
 {
-    TerminalSettingsForm *terminal_settings = new TerminalSettingsForm(terminal_tab->get_terminal_text());
+    TerminalSettingsForm *terminal_settings = new TerminalSettingsForm(terminal_tab->getTerminalText());
     setWindowGeometry(terminal_settings, this);
     terminal_settings->setAttribute(Qt::WA_DeleteOnClose);
 

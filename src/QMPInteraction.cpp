@@ -3,16 +3,16 @@
 QMPInteraction::QMPInteraction(QObject *parent)
     : QObject(parent)
 {
+    prepareCommands();
 }
 
 QMPInteraction::QMPInteraction(QObject *parent, int port)
-    : QObject(parent)
+    : QMPInteraction(parent)
 {
-    connect(&socket, SIGNAL(readyRead()), this, SLOT(read_terminal()));
+    connect(&socket, SIGNAL(readyRead()), this, SLOT(readTerminal()));
     connect(&socket, SIGNAL(connected()), this, SLOT(connectedSocket()));
 
     socket.connectPort(port);
-    prepareCommands();
 }
 
 QMPInteraction::~QMPInteraction()
@@ -61,7 +61,7 @@ void QMPInteraction::stop_cb(QJsonObject object)
 {
     if (isEvent(object))
     {
-        emit qemu_stopped();
+        emit qemuStopped();
     }
 }
 
@@ -69,23 +69,28 @@ void QMPInteraction::continue_cb(QJsonObject object)
 {
     if (isEvent(object))
     {
-        emit qemu_resumed();
+        emit qemuResumed();
     }
 }
 
-void QMPInteraction::whatSaidQmp(QByteArray message)
+bool QMPInteraction::whatSaidQmp(QByteArray message)
 {
-    qDebug() << "QMP: " << message;
     QJsonDocument qmp_message = QJsonDocument::fromJson(message);
+    qDebug() << qmp_message;
+    if (qmp_message.isNull())
+    {
+        return false;
+    }
     QJsonObject obj = qmp_message.object();
 
     if (cbQueue.count())
     {
         (this->*(cbQueue.first()))(obj);
     }
+    return true;
 }
 
-void QMPInteraction::read_terminal()
+void QMPInteraction::readTerminal()
 {
     QByteArray message = socket.readAll();
     QList<QByteArray> messageBuffer = message.split('\n');
@@ -123,7 +128,7 @@ void QMPInteraction::commandQmp(QMPCommands cmd, const QString &specParams)
 QMPInteractionSettings::QMPInteractionSettings(QObject *parent, int port)
     : QMPInteraction(parent)
 {
-    connect(&socket, SIGNAL(readyRead()), this, SLOT(read_terminal()));
+    connect(&socket, SIGNAL(readyRead()), this, SLOT(readTerminal()));
     connect(&socket, SIGNAL(connected()), this, SLOT(connectedSocket()));
 
     isQmpReady = false;
@@ -131,7 +136,6 @@ QMPInteractionSettings::QMPInteractionSettings(QObject *parent, int port)
     socket.connectPort(port);
     messageBegin = "";
 
-    prepareCommands();
     commandsQueue.append({ QMPCommands::QueryMachines,
                         QMPCommands::QueryCpuDefinitions,
                         QMPCommands::QomListTypes,
@@ -229,24 +233,7 @@ QString QMPInteractionSettings::getParamDevListProperties(const QString &name) c
     return ",\"arguments\":{\"typename\":\"" + name + "\"}";
 }
 
-bool QMPInteractionSettings::whatSaidQmp(QByteArray message)
-{
-    QJsonDocument qmp_message = QJsonDocument::fromJson(message);
-    qDebug() << qmp_message;
-    if (qmp_message.isNull())
-    {
-        return false;
-    }
-    QJsonObject obj = qmp_message.object();
-
-    if (cbQueue.count())
-    {
-        (this->*(cbQueue.first()))(obj);
-    }
-    return true;
-}
-
-void QMPInteractionSettings::read_terminal()
+void QMPInteractionSettings::readTerminal()
 {
     QByteArray message = messageBegin + socket.readAll();
     if (!whatSaidQmp(message))
