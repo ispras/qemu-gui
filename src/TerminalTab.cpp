@@ -3,31 +3,31 @@
 TerminalTab::TerminalTab(GlobalConfig *global_config, QWidget *parent)
     : QWidget(parent)
 {
-    this->global_config = global_config;
+    this->globalConfig = global_config;
 
-    terminal_text = new QTextEdit();
-    welcome_lbl = new QLabel(" >> ");
-    terminal_cmd = new QLineEdit();
-    terminal_cmd->installEventFilter(this);
+    terminalText = new QTextEdit();
+    welcomeLbl = new QLabel(" >> ");
+    terminalCmd = new QLineEdit();
+    terminalCmd->installEventFilter(this);
 
-    set_terminal_interface(global_config->get_terminal_backgroud(),
+    setTerminalInterface(global_config->get_terminal_backgroud(),
         global_config->get_terminal_text_color(),
         global_config->get_terminal_font_family(),
         global_config->get_terminal_font_size());
 
     QHBoxLayout *cmd_lay = new QHBoxLayout();
     cmd_lay->setSpacing(0);
-    cmd_lay->addWidget(welcome_lbl);
-    cmd_lay->addWidget(terminal_cmd);
+    cmd_lay->addWidget(welcomeLbl);
+    cmd_lay->addWidget(terminalCmd);
 
     QVBoxLayout *terminal_lay = new QVBoxLayout();
     terminal_lay->setSpacing(1);
-    terminal_lay->addWidget(terminal_text);
+    terminal_lay->addWidget(terminalText);
     terminal_lay->addLayout(cmd_lay);
     setLayout(terminal_lay);
 
-    connect(terminal_cmd, SIGNAL(returnPressed()), this, SLOT(send_monitor_command()));
-    connect(&monitor_socket, SIGNAL(readyRead()), this, SLOT(read_terminal()));
+    connect(terminalCmd, SIGNAL(returnPressed()), this, SLOT(sendMonitorCommand()));
+    connect(&monitorSocket, SIGNAL(readyRead()), this, SLOT(readTerminal()));
 
     currentCommandIndex = -1;
 }
@@ -38,60 +38,60 @@ TerminalTab::~TerminalTab()
 }
 
 
-void TerminalTab::set_terminal_interface(QColor bckgrnd_color, QColor text_color,
+void TerminalTab::setTerminalInterface(QColor bckgrnd_color, QColor text_color,
     const QString &font_family, int font_size)
 {
     QString color = text_color.name();
 
-    terminal_text->setReadOnly(true);
-    terminal_text->setFontPointSize(font_size);
-    terminal_text->setFontFamily(font_family);
-    terminal_text->setStyleSheet("background-color: " + bckgrnd_color.name()
+    terminalText->setReadOnly(true);
+    terminalText->setFontPointSize(font_size);
+    terminalText->setFontFamily(font_family);
+    terminalText->setStyleSheet("background-color: " + bckgrnd_color.name()
         + "; border: 1px");
-    terminal_text->setTextColor(text_color);
+    terminalText->setTextColor(text_color);
 
 
-    QFont cmd_font = terminal_cmd->font();
+    QFont cmd_font = terminalCmd->font();
     cmd_font.setPointSize(font_size);
     cmd_font.setFamily(font_family);
-    terminal_cmd->setFont(cmd_font);
-    terminal_cmd->setStyleSheet("background-color: " + bckgrnd_color.name()
+    terminalCmd->setFont(cmd_font);
+    terminalCmd->setStyleSheet("background-color: " + bckgrnd_color.name()
         + "; border: 1px; color: " + color + "; height: "
         + QString::number(font_size * 2) + "px;");
 
-    welcome_lbl->setStyleSheet("background-color: " + bckgrnd_color.name()
+    welcomeLbl->setStyleSheet("background-color: " + bckgrnd_color.name()
         + "; color: " + color + "; border: 1px; height: "
         + QString::number(font_size * 2) + "px; font: bold;");
-    welcome_lbl->setFont(cmd_font);
+    welcomeLbl->setFont(cmd_font);
 
-    QString text = terminal_text->toPlainText();
-    terminal_text->clear();
-    terminal_text->insertPlainText(text);
-    terminal_text->ensureCursorVisible();
+    QString text = terminalText->toPlainText();
+    terminalText->clear();
+    terminalText->insertPlainText(text);
+    terminalText->ensureCursorVisible();
 }
 
-QTextEdit *TerminalTab::get_terminal_text()
+QTextEdit *TerminalTab::getTerminalText()
 {
-    return terminal_text;
+    return terminalText;
 }
 
 void TerminalTab::setCommmandLineFocus()
 {
-    terminal_cmd->setFocus();
+    terminalCmd->setFocus();
 }
 
 bool TerminalTab::eventFilter(QObject *obj, QEvent *event)
 {
-    if (obj == terminal_cmd)
+    if (obj == terminalCmd)
     {
         if (event->type() == QEvent::KeyPress)
         {
             QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
             if (keyEvent->key() == Qt::Key_Up)
             {
-                if (currentCommandIndex + 1 < saved_terminal_cmds.size())
+                if (currentCommandIndex + 1 < savedTerminalCmds.size())
                 {
-                    terminal_cmd->setText(saved_terminal_cmds.at(++currentCommandIndex));
+                    terminalCmd->setText(savedTerminalCmds.at(++currentCommandIndex));
                 }
                 return true;
             }
@@ -99,12 +99,12 @@ bool TerminalTab::eventFilter(QObject *obj, QEvent *event)
             {
                 if (currentCommandIndex - 1 >= 0)
                 {
-                    terminal_cmd->setText(saved_terminal_cmds.at(--currentCommandIndex));
+                    terminalCmd->setText(savedTerminalCmds.at(--currentCommandIndex));
                 }
                 else
                 {
                     currentCommandIndex = -1;
-                    terminal_cmd->setText("");
+                    terminalCmd->setText("");
                 }
                 return true;
             }
@@ -114,40 +114,41 @@ bool TerminalTab::eventFilter(QObject *obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
-void TerminalTab::send_monitor_command()
+void TerminalTab::sendMonitorCommand()
 {
-    monitor_socket.write(terminal_cmd->text().toLocal8Bit() + "\n");
-    QTextCursor cursor(terminal_text->textCursor());
+    monitorSocket.write(terminalCmd->text().toLocal8Bit() + "\n");
+    QTextCursor cursor(terminalText->textCursor());
     cursor.movePosition(QTextCursor::End);
-    terminal_text->setTextCursor(cursor);
-    terminal_text->insertPlainText(terminal_cmd->text() + "\n");
-    saved_terminal_cmds.push_front(terminal_cmd->text());
-    terminal_cmd->clear();
+    terminalText->setTextCursor(cursor);
+    terminalText->insertPlainText(terminalCmd->text() + "\n");
+    savedTerminalCmds.push_front(terminalCmd->text());
+    terminalCmd->clear();
+    currentCommandIndex = -1;
 }
 
 void TerminalTab::terminalTab_connect(int port)
 {
-    terminal_text->clear();
-    monitor_socket.connectPort(port);
+    terminalText->clear();
+    monitorSocket.connectPort(port);
 }
 
-void TerminalTab::read_terminal()
+void TerminalTab::readTerminal()
 {
-    QStringList terminal_answer = (QString::fromLocal8Bit(monitor_socket.readAll())).split('\n');
+    QStringList terminal_answer = (QString::fromLocal8Bit(monitorSocket.readAll())).split('\n');
     foreach(QString line, terminal_answer)
     {
         if (!line.contains("[D") && !line.contains("[K"))
         {
-            terminal_text->insertPlainText(line);
+            terminalText->insertPlainText(line);
         }
     }
-    terminal_text->ensureCursorVisible();
+    terminalText->ensureCursorVisible();
 }
 
 
 void TerminalTab::terminalTab_abort()
 {
-    monitor_socket.abort();
+    monitorSocket.abort();
 }
 
 void TerminalTab::save_terminal_interface_changes(QTextEdit *test_text)
@@ -156,8 +157,8 @@ void TerminalTab::save_terminal_interface_changes(QTextEdit *test_text)
     QStringList style_list = style.split(QRegExp("\\W+"), QString::SkipEmptyParts);
     int index = style_list.indexOf("background");
 
-    set_terminal_interface(QColor("#" + style_list.at(index + 2)), test_text->textColor(), 
+    setTerminalInterface(QColor("#" + style_list.at(index + 2)), test_text->textColor(), 
         test_text->fontFamily(), test_text->fontPointSize());
-    global_config->set_terminal_parameters(QColor("#" + style_list.at(index + 2)),
+    globalConfig->set_terminal_parameters(QColor("#" + style_list.at(index + 2)),
         test_text->textColor(), test_text->fontFamily(), test_text->fontPointSize());
 }

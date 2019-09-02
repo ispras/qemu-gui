@@ -1,7 +1,7 @@
 #include "PlatformInfo.h"
 
 
-PlatformInfo::PlatformInfo(const QString &path)
+PlatformInfo::PlatformInfo(const QString &path) : path(path)
 {
     QFile file(path + ".xml");
     if (file.open(QIODevice::ReadOnly))
@@ -20,6 +20,10 @@ PlatformInfo::PlatformInfo(const QString &path)
             else if (xmlReader.name() == "Cpu")
             {
                 cpus.append(xmlReader.readElementText());
+            }
+            else if (xmlReader.name() == "Netdev")
+            {
+                netdev.append(xmlReader.readElementText());
             }
         }
     }

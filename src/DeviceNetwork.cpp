@@ -2,6 +2,7 @@
 #include "DeviceFactory.h"
 #include "DeviceForm.h"
 #include "CommandLineParameters.h"
+#include "PlatformInfo.h"
 
 
 const char DeviceNetworkController::typeName[] = "DeviceNetworkController";
@@ -29,7 +30,7 @@ DeviceNetworkController::DeviceNetworkController(const QString &n, Device *paren
 
 void DeviceNetworkController::initDefault()
 {
-    controller = getControllers().first();
+    controller = "";
     netdev = getNetdevBackend().first();
 }
 
@@ -38,11 +39,10 @@ QWidget *DeviceNetworkController::getEditorForm()
     return new DeviceNetworkForm(this);
 }
 
-const QStringList &DeviceNetworkController::getControllers() const
+const QStringList DeviceNetworkController::getControllers() const
 {
-    static QStringList controllers = { "rtl8139", "e1000", "i82550", "ne2k_pci",
-                                       "pcnet", "virtio-net-pci", "vmxnet3" };
-    return controllers;
+    PlatformInfo pi(getPathToConfig());
+    return pi.getNetdev();
 }
 
 const QStringList &DeviceNetworkController::getNetdevBackend() const

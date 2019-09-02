@@ -224,7 +224,6 @@ DeviceNetworkForm::DeviceNetworkForm(DeviceNetworkController *dev)
     tapIfNameEdit = new QLineEdit();
     tapIfNameLbl = new QLabel("Tap interface");
 
-
     controllersCombo->addItems(device->getControllers());
     controllersCombo->setCurrentText(device->getCurrentController());
     netdevCombo->addItems(device->getNetdevBackend());

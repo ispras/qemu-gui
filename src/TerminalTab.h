@@ -19,29 +19,29 @@ protected:
     bool eventFilter(QObject *target, QEvent *event);
 
 private:
-    GlobalConfig *global_config;
+    GlobalConfig *globalConfig;
 
-    QTextEdit *terminal_text;
-    QLabel *welcome_lbl;
-    QLineEdit *terminal_cmd;
+    QTextEdit *terminalText;
+    QLabel *welcomeLbl;
+    QLineEdit *terminalCmd;
 
-    QStringList saved_terminal_cmds;
+    QStringList savedTerminalCmds;
 
-    QemuSocket monitor_socket;
+    QemuSocket monitorSocket;
 
     int currentCommandIndex;
 
 private:
-    void set_terminal_interface(QColor bckgrnd_color, QColor text_color,
+    void setTerminalInterface(QColor bckgrnd_color, QColor text_color,
         const QString &font_family, int font_size);
 
 public:
-    QTextEdit *get_terminal_text();
+    QTextEdit *getTerminalText();
     void setCommmandLineFocus();
 
 private slots:
-    void send_monitor_command();
-    void read_terminal();
+    void sendMonitorCommand();
+    void readTerminal();
 
 public slots:
     void terminalTab_connect(int port);

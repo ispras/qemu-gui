@@ -39,16 +39,16 @@ private:
 
 private slots:
     void qmpConnectOk();
-    void nextRequest(const QStringList &list);
+    void nextRequest(const QStringList &list, bool isReady);
 
 public slots:
     void timeIsOut();
     void finishQemu(int exitCode);
 
 signals:
-    void qmpRequestMachineInfo();
-    void qmpRequestCpuInfo();
     void qmpShutdownQemu();
+
+    void qmpSendCommand();
 
     void workFinish();
     void qemuMustDie();

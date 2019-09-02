@@ -220,6 +220,7 @@ void QemuGUI::checkQemuCompatibility()
         if (vm_state == VMState::None)
         {
             qemu_play->setEnabled(qemuIsCompatible);
+            editVMAct->setEnabled(qemuIsCompatible);
             emit recordReplayEnableBtns(qemuIsCompatible);
         }
     }
@@ -493,11 +494,11 @@ void QemuGUI::play_machine()
                 qmp = new QMPInteraction(nullptr, qmp_port.toInt());
                 connect(qmp, SIGNAL(qemuRunningStatus(bool)), this, SLOT(setButtonsState(bool)));
 
-                connect(this, SIGNAL(qmp_resume_qemu()), qmp, SLOT(command_resume_qemu()));
-                connect(this, SIGNAL(qmp_stop_qemu()), qmp, SLOT(command_stop_qemu()));
-                connect(this, SIGNAL(qmp_shutdown_qemu()), qmp, SLOT(commandShutdownQemu()));
-                connect(qmp, SIGNAL(qemu_resumed()), this, SLOT(resume_qemu_btn_state()));
-                connect(qmp, SIGNAL(qemu_stopped()), this, SLOT(stop_qemu_btn_state()));
+                connect(this, SIGNAL(qmpSendCommand(QMPCommands)),
+                    qmp, SLOT(commandQmp(QMPCommands)));
+
+                connect(qmp, SIGNAL(qemuResumed()), this, SLOT(resume_qemu_btn_state()));
+                connect(qmp, SIGNAL(qemuStopped()), this, SLOT(stop_qemu_btn_state()));
 
                 connect(launch_qemu, SIGNAL(creatingOverlayFailed()), this, SLOT(overlayFailed()));
 
@@ -511,7 +512,7 @@ void QemuGUI::play_machine()
         }
         else if (vm_state == VMState::Stopped)
         {
-            emit qmp_resume_qemu();
+            emit qmpSendCommand(QMPCommands::Continue);
         }
     }
 }
@@ -543,12 +544,12 @@ void QemuGUI::finish_qemu(int exitCode)
 
 void QemuGUI::pause_machine()
 {
-    emit qmp_stop_qemu();
+    emit qmpSendCommand(QMPCommands::Stop);
 }
 
 void QemuGUI::stop_machine()
 {
-    emit qmp_shutdown_qemu();
+    emit qmpSendCommand(QMPCommands::Quit);
 }
 
 void QemuGUI::create_machine()
@@ -591,7 +592,8 @@ void QemuGUI::setRunOptions()
 void QemuGUI::edit_settings()
 {
     VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
-    VMSettingsForm *settingsWindow = new VMSettingsForm(vm);
+    VMSettingsForm *settingsWindow = new VMSettingsForm(vm, global_config,
+        qemu_install_dir_combo->currentText());
     setWindowGeometry(settingsWindow, this);
     settingsWindow->setAttribute(Qt::WA_DeleteOnClose);
     connect(settingsWindow, SIGNAL(settingsDeleteRecords()),
@@ -682,6 +684,7 @@ void QemuGUI::platformInfoReady()
 {
     delete platformInfo;
     qemu_install_dir_settings->close();
+    checkQemuCompatibility();
 }
 
 void QemuGUI::del_qemu_install_dir_btn()
@@ -722,6 +725,7 @@ void QemuGUI::qemu_install_dir_combo_activated(int index)
         qemu_install_dir_settings->show();
         setWindowGeometry(qemu_install_dir_settings, this);
         qemu_play->setEnabled(false);
+        editVMAct->setEnabled(false);
         emit recordReplayEnableBtns(false);
     }
     else
@@ -739,7 +743,7 @@ void QemuGUI::qemu_install_dir_combo_index_changed(int index)
 
 void QemuGUI::set_terminal_settings()
 {
-    TerminalSettingsForm *terminal_settings = new TerminalSettingsForm(terminal_tab->get_terminal_text());
+    TerminalSettingsForm *terminal_settings = new TerminalSettingsForm(terminal_tab->getTerminalText());
     setWindowGeometry(terminal_settings, this);
     terminal_settings->setAttribute(Qt::WA_DeleteOnClose);
 

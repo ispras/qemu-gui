@@ -1,8 +1,11 @@
 #include "VMSettingsForm.h"
 #include "DeviceFactory.h"
+#include "PlatformInformationReader.h"
+#include "PlatformInfo.h"
 
-VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
-    : QWidget(parent), vm(vmconf)
+VMSettingsForm::VMSettingsForm(VMConfig *vmconf, GlobalConfig *globalConfig,
+    const QString &qemuDir, QWidget *parent)
+    : QWidget(parent), vm(vmconf), gConfig(globalConfig), qemuDir(qemuDir)
 {
     if (VMSettingsForm::objectName().isEmpty())
         VMSettingsForm::setObjectName(QStringLiteral("VMSettingsForm"));
@@ -30,11 +33,15 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf, QWidget *parent)
     deviceTree->setHeaderHidden(1);
     deviceTree->setColumnCount(1);
 
+    pathToPlatformInfo = gConfig->get_home_dir() + PlatformInformationReader::getQemuProfilePath(
+        qemuDir) + "/" + vm->getPlatform();
+
     addDev = NULL;
     addedDevices.clear();
 
     foreach(Device *dev, vm->getSystemDevice()->getDevices())
     {
+        dev->setPathToConfig(pathToPlatformInfo);
         DeviceTreeItem *it = new DeviceTreeItem(dev);
         if (dev->isDeviceInvisible())
         {
@@ -279,6 +286,7 @@ void VMSettingsForm::addNewDevice(Device *newDevice)
     DeviceTreeItem *devItem = dynamic_cast<DeviceTreeItem*>(deviceTree->currentItem());
     Q_ASSERT(devItem);
     Device *dev = devItem->getDevice();
+    newDevice->setPathToConfig(dev->getPathToConfig());
     if (devItem->childCount() < dev->getMaxCountDevices())
     {
         addedDevices.append(newDevice);
@@ -357,6 +365,7 @@ void DeviceTreeItem::initDevice(Device *dev)
     setText(0, device->getDescription());
     foreach(Device *dev, device->getDevices())
     {
+        dev->setPathToConfig(device->getPathToConfig());
         DeviceTreeItem *it = new DeviceTreeItem(dev);
         addChild(it);
     }

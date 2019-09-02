@@ -10,12 +10,15 @@ public:
     explicit PlatformInfo(const QString &path);
     ~PlatformInfo() {}
 
-    QStringList getMachines() const { return machines; }
-    QStringList getCpus() const { return cpus; }
+    const QStringList &getMachines() const { return machines; }
+    const QStringList &getCpus() const { return cpus; }
+    const QStringList &getNetdev() const { return netdev; }
 
 private:
+    QString path;
     QStringList machines;
     QStringList cpus;
+    QStringList netdev;
 
 };
 

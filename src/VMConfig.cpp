@@ -218,7 +218,7 @@ QString VMConfig::get_vm_info()
     return info;
 }
 
-void VMConfig::setPlatform(const QString & platformVM)
+void VMConfig::setPlatform(const QString &platformVM)
 {
     platform = platformVM;
 }

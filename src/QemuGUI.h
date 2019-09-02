@@ -39,7 +39,7 @@ private:
     QemuRunOptions *runOptions;
 
     VMState vm_state;
-    QTcpSocket monitor_socket;
+    QTcpSocket monitorSocket;
     
     QDialog *qemu_install_dir_settings;
     QListWidget *qemu_install_dir_list;
@@ -139,9 +139,7 @@ private slots:
     void overlayFailed();
 
 signals:
-    void qmp_resume_qemu();
-    void qmp_stop_qemu();
-    void qmp_shutdown_qemu();
+    void qmpSendCommand(QMPCommands);
     void monitor_connect(int);
     void monitor_abort();
     void recordReplayEnableBtns(bool);
