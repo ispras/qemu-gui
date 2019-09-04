@@ -29,7 +29,8 @@ void QMPInteraction::prepareCommands()
     cmdMap.insert(QMPCommands::QueryStatus,{ "query-status", "", &QMPInteraction::queryStatus_cb });
     cmdMap.insert(QMPCommands::QueryMachines, { "query-machines", "", &QMPInteraction::machine_cb });
     cmdMap.insert(QMPCommands::QueryCpuDefinitions, { "query-cpu-definitions", "", &QMPInteraction::cpu_cb });
-    cmdMap.insert(QMPCommands::QomListTypes, { "qom-list-types", ",\"arguments\":{\"abstract\":true}",
+    cmdMap.insert(QMPCommands::QomListTypes, { "qom-list-types",
+        ",\"arguments\":{\"abstract\":true, \"implements\":\"device\"}",
         &QMPInteraction::listDevices_cb });
     cmdMap.insert(QMPCommands::DeviceListProperties, { "device-list-properties", "?", &QMPInteraction::listProperties_cb });
 }
@@ -187,7 +188,7 @@ void QMPInteractionSettings::listDevices_cb(QJsonObject object)
             bool isAbstract = v.toObject()["abstract"].toBool();
             QString deviceName = v.toObject()["name"].toString();
             QString parentName = v.toObject()["parent"].toString();
-            if (!isAbstract && parentName.compare("pci-device") == 0)
+            if (!isAbstract)
             {
                 infoList.append(deviceName);
             }
