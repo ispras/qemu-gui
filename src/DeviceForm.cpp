@@ -281,3 +281,32 @@ void DeviceNetworkForm::setTapIfName()
     getCmdWidget()->updateCmd();
 }
 
+/******************************************************************************
+* Device Cpu                                                                  *
+******************************************************************************/
+
+DeviceCpuForm::DeviceCpuForm(DeviceCpu *dev)
+    : DeviceForm(dev), device(dev)
+{
+    QLabel *cpuLbl = new QLabel("Model");
+    QComboBox *cpuCombo = new QComboBox();
+
+    cpuLbl->setFixedWidth(30);
+    cpuCombo->addItems(device->getCpuModels());
+    cpuCombo->setCurrentText(device->getName());
+
+    QHBoxLayout *topLay = new QHBoxLayout();
+    topLay->addWidget(cpuLbl);
+    topLay->addWidget(cpuCombo);
+
+    devFormAddLayout(topLay);
+
+    connect(cpuCombo, QOverload<const QString &>::of(&QComboBox::activated),
+        [=](const QString &text) 
+    {
+        device->setCpuModel(text);
+    }
+    );
+}
+
+

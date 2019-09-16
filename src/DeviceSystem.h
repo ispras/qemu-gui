@@ -76,7 +76,12 @@ public:
     DeviceCpu() {}
     DeviceCpu(const QString &cpuName, Device *parent);
 
+    virtual QWidget *getEditorForm();
     virtual QString getDeviceTypeName() const { return typeName; }
+    virtual bool isDeviceInvisible() { return false; }
+
+    const QStringList getCpuModels() const;
+    void setCpuModel(const QString &name) { setName(name); }
 
 protected:
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams);
