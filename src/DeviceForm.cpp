@@ -282,7 +282,7 @@ void DeviceNetworkForm::setTapIfName()
 }
 
 /******************************************************************************
-* Device Memory                                                               *
+* Device Cpu                                                                  *
 ******************************************************************************/
 
 DeviceCpuForm::DeviceCpuForm(DeviceCpu *dev)
