@@ -1,6 +1,7 @@
 #include "DeviceSystem.h"
 #include "DeviceFactory.h"
 #include "DeviceForm.h"
+#include "PlatformInfo.h"
 
 /******************************************************************************
 * MEMORY                                                                   *
@@ -117,4 +118,14 @@ QString DeviceCpu::getDeviceInfo()
     return "CPU: " + getName() + "\n";
 }
 
+QWidget *DeviceCpu::getEditorForm()
+{
+    return new DeviceCpuForm(this);
+}
+
+const QStringList DeviceCpu::getCpuModels() const
+{
+    PlatformInfo pi(getPathToConfig());
+    return pi.getCpus();
+}
 

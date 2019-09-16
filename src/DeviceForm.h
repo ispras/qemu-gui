@@ -118,4 +118,16 @@ private slots:
     void setTapIfName();
 
 };
+
+class DeviceCpuForm : public DeviceForm
+{
+    Q_OBJECT
+
+public:
+    DeviceCpuForm(DeviceCpu *dev);
+
+private:
+    DeviceCpu *device;
+};
+
 #endif // DEVICEFORM_H

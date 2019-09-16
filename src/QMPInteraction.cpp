@@ -187,7 +187,6 @@ void QMPInteractionSettings::listDevices_cb(QJsonObject object)
         {
             bool isAbstract = v.toObject()["abstract"].toBool();
             QString deviceName = v.toObject()["name"].toString();
-            QString parentName = v.toObject()["parent"].toString();
             if (!isAbstract)
             {
                 infoList.append(deviceName);
