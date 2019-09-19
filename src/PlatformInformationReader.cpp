@@ -158,6 +158,7 @@ void PlatformInformationReader::createXml()
             result.removeFirst();
 
             QStringList xmlNames = { "Machine", "Cpu", "Netdev" };
+            result[xmlNames.indexOf("Cpu")].push_front("default");
             for (int i = 0; i < xmlNames.count(); i++)
             {
                 foreach(QString name, result[i])

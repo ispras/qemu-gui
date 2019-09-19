@@ -245,8 +245,6 @@ void CreateVMForm::changePlatform(const QString &text)
     PlatformInfo platformInfo(platformDirPath + "/" + text);
     machineCombo->addItems(platformInfo.getMachines());
     cpuCombo->addItems(platformInfo.getCpus());
-    cpuCombo->insertItem(0, "default");
-    cpuCombo->setCurrentIndex(0);
 }
 
 void CreateVMForm::connect_signals()

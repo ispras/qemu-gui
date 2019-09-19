@@ -7,8 +7,10 @@
 class CommandLineParameters
 {
 public:
-    CommandLineParameters(LaunchMode mode) : mode(mode), diskID(0) {}
-    CommandLineParameters() : mode(LaunchMode::NORMAL), diskID(0) {}
+    CommandLineParameters(LaunchMode mode) : mode(mode), diskID(0),
+        overlayEnabled(false) {}
+    CommandLineParameters() : mode(LaunchMode::NORMAL), diskID(0),
+        overlayEnabled(false) {}
     
     LaunchMode getLaunchMode();
 
