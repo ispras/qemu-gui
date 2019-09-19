@@ -110,7 +110,7 @@ DeviceCpu::DeviceCpu(const QString &cpuName, Device *parent) :
 
 QString DeviceCpu::getCommandLineOption(CommandLineParameters &cmdParams)
 {
-    return " -cpu " + getName();
+    return getName() == "default" ? "" : " -cpu " + getName();
 }
 
 QString DeviceCpu::getDeviceInfo()
