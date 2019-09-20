@@ -158,7 +158,15 @@ void QMPInteractionSettings::readJsonArray(QJsonObject object)
         for (const QJsonValue &v : arrMessage)
         {
             QString name = v.toObject()["name"].toString();
-            infoList.append(name);
+            bool isDefault = v.toObject()["is-default"].toBool();
+            if (isDefault)
+            {
+                infoList.push_front(name);
+            }
+            else
+            {
+                infoList.append(name);
+            }
         }
         emit readyInfo(infoList, commandsQueue.count());
         messageBegin = "";

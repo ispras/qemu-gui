@@ -3,7 +3,7 @@
 
 QemuRunOptions::QemuRunOptions() :
     logfileName(""), logOptionList({}), additionalCmdLine(""),
-    isDebugEnable(false), isSnapshotEnable(false)
+    isDebugEnable(false), isSnapshotEnable(false), isQemuRunStopped(false)
 {
 
 }

@@ -22,7 +22,7 @@ private:
     QLineEdit *pathtovm_edit;
     QPushButton *pathtovm_btn;
     QComboBox *typeOS_combo;
-    QComboBox *verOS_combo;
+    //QComboBox *verOS_combo;
     QSlider *ram_slider;
     QSpinBox *ram_spin;
     QComboBox *format_combo;

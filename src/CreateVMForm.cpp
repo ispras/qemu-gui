@@ -26,7 +26,7 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     pathtovm_edit = new QLineEdit(this);
     pathtovm_btn = new QPushButton("...");
     typeOS_combo = new QComboBox(this);
-    verOS_combo = new QComboBox(this);
+    //verOS_combo = new QComboBox(this);
     ram_slider = new QSlider(Qt::Orientation::Horizontal, this);
     ram_spin = new QSpinBox(this);
     format_combo = new QComboBox(this);
@@ -70,7 +70,7 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     imageplace_edit->setReadOnly(true);
     name_edit->setFixedWidth(330);
     typeOS_combo->setFixedWidth(330);
-    verOS_combo->setFixedWidth(330);
+    //verOS_combo->setFixedWidth(330);
     platformCombo->setFixedWidth(330);
     typeOS_combo->addItems(os_type);
     
@@ -135,8 +135,8 @@ void CreateVMForm::widget_placement()
     commonLay->addLayout(dirLay, 1, 1);
     commonLay->addWidget(new QLabel("OS type"), 2, 0, Qt::AlignmentFlag::AlignLeft);
     commonLay->addWidget(typeOS_combo, 2, 1, Qt::AlignmentFlag::AlignLeft);
-    commonLay->addWidget(new QLabel("OS version"), 3, 0, Qt::AlignmentFlag::AlignLeft);
-    commonLay->addWidget(verOS_combo, 3, 1, Qt::AlignmentFlag::AlignLeft);
+    //commonLay->addWidget(new QLabel("OS version"), 3, 0, Qt::AlignmentFlag::AlignLeft);
+    //commonLay->addWidget(verOS_combo, 3, 1, Qt::AlignmentFlag::AlignLeft);
     commonLay->setColumnStretch(1, 100);
 
     commonGroup->setLayout(commonLay);

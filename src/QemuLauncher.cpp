@@ -26,7 +26,8 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
 
 QemuLauncher::QemuLauncher(const QString &qemuPath, QemuRunOptions *runOptions,
     const QString &platform, const QString &machine)
-    : mode(LaunchMode::NORMAL), con(NULL), runOptions(runOptions)
+    : mode(LaunchMode::NORMAL), con(NULL), runOptions(runOptions),
+    overlayRR(false)
 {
     createQemuPath(qemuPath, platform);
     cmd = "-machine " + machine + " ";
