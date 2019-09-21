@@ -1,6 +1,8 @@
 #include "RecordReplayTab.h"
 #include "PlatformInformationReader.h"
 #include "QemuGUI.h"
+#include "QemuImgLauncher.h"
+#include "CommandLineParameters.h"
 
 static const char regExpForName[] = "[A-Za-z0-9_-][A-Za-z0-9_-\\s]+";
 const QString constXmlName = "replay.xml";
@@ -91,6 +93,11 @@ QString RecordReplayTab::getICountValue()
 QString RecordReplayTab::getSnapshotPeriod()
 {
     return periodAutoSnap;
+}
+
+QString RecordReplayTab::getInitSnapshot()
+{
+    return initSnapshot;
 }
 
 bool RecordReplayTab::isOverlayEnabled()
@@ -262,6 +269,32 @@ QHBoxLayout *RecordReplayTab::overlayLayout()
     return overlayLay;
 }
 
+QStringList RecordReplayTab::getSnapshotInfo()
+{
+    CommandLineParameters cmdParam;
+    cmdParam.setOverlayDir(currentDirRR);
+    QemuImgLauncher lauch(globalConfig->get_current_qemu_dir(), "", cmdParam.getOverlayPath());
+    QList<QString> info = lauch.getSnapshotInformation();
+    QStringList snapshotNames;
+    snapshotTips.clear();
+    foreach(QString str, info)
+    {
+        QStringList line = str.split(' ', QString::SkipEmptyParts);
+        if (line.first().toInt())
+        {
+            if (line.at(2).compare("0"))
+            {
+                QString tip = " Size: " + line.at(2) + " Date: " + line.at(3)
+                    + " Time: " + line.at(4);
+                snapshotTips.append(tip);
+                snapshotNames.append(line.at(1));
+            }
+        }
+    }
+    return snapshotNames;
+    // TODO what about several disks?
+}
+
 void RecordReplayTab::record_execution()
 {
     QDir rrDir(vm->getPathRRDir());
@@ -321,14 +354,26 @@ void RecordReplayTab::replay_execution()
             createDialog("Auto snapshotting");
             QDialogButtonBox *okCancelBtn = new QDialogButtonBox(QDialogButtonBox::Ok
                 | QDialogButtonBox::Cancel);
+            
+            snapshotCombo = new QComboBox();
+            snapshotCombo->addItems(getSnapshotInfo());
+            snapshotCombo->setFixedWidth(130);
+            for (int i = 0; i < snapshotCombo->count(); i++)
+            {
+                snapshotCombo->setItemData(i, snapshotTips.at(i), Qt::ToolTipRole);
+            }
+            initSnapshot = snapshotCombo->currentText();
+            
+            QHBoxLayout *snapshotLay = new QHBoxLayout();
+            snapshotLay->addWidget(new QLabel("Init snapshot"));
+            snapshotLay->addWidget(snapshotCombo);
 
             QVBoxLayout *mainLay = new QVBoxLayout();
+            mainLay->addLayout(snapshotLay);
             mainLay->addLayout(periodLayout(40));
             periodLineEdit->setText(periodAutoSnap);
-            connect(okCancelBtn, &QDialogButtonBox::accepted,
-                this, &RecordReplayTab::setPeriodSnapReplay);
-
             mainLay->addWidget(okCancelBtn);
+            
             replayDialog->setLayout(mainLay);
             replayDialog->show();
             QemuGUI::setWindowGeometry(replayDialog, pWidget);
@@ -337,6 +382,13 @@ void RecordReplayTab::replay_execution()
                 this, &RecordReplayTab::setPeriodSnapReplay);
             connect(okCancelBtn, &QDialogButtonBox::rejected,
                 replayDialog, &QDialog::close);
+            connect(snapshotCombo, QOverload<int>::of(&QComboBox::activated),
+                [=](int index)
+            {
+                initSnapshot = snapshotCombo->itemText(index);
+                periodCheckBox->setDisabled(index);
+            }
+            );
         }
     }
 }

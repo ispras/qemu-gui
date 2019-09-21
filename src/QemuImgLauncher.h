@@ -15,9 +15,9 @@ public:
         const QString &imageName, int imageSize, QObject *parent = 0);
     QemuImgLauncher(const QString &qemuImg, const QString &imageFormat,
         const QString &imageName, const QString &path, QObject *parent = 0);
-
     ~QemuImgLauncher();
 
+    QStringList getSnapshotInformation();
     
 private:
     QString qemuImg;
@@ -27,7 +27,7 @@ private:
     QString overlayName;
 
 private:
-    void startQemuImg(const QString &cmd);
+    void startQemuImg(QProcess &qemuImgProc, const QString &cmd);
 
 public slots:
     void startQemuImgCreateDisk();

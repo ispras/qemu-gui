@@ -51,6 +51,7 @@ private:
     QString icount;
     QString period;
     bool overlayRR;
+    QString initSnapshot;
 
 private:
     void createQemuPath(const QString &qemuPath, const QString &platform);

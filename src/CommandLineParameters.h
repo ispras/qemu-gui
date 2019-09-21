@@ -25,6 +25,9 @@ public:
 private:
     QString getNextOverlayName();
 
+public:
+    QString getOverlayPath();
+
 private:
     LaunchMode mode; /* normal, record, replay */
     QStringList images;
