@@ -8,7 +8,7 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
     RecordReplayTab *rr, QObject *parent)
     : QObject(parent), virtual_machine(vm), mode(mode), dirRR(""),
     qemuDirPath(qemu_install_dir_path), icount(""), period(""),
-    con(console), runOptions(runOptions)
+    con(console), runOptions(runOptions), initSnapshot("init")
 {
     createQemuPath(qemu_install_dir_path, virtual_machine->getPlatform());
     qemu = NULL;
@@ -21,13 +21,18 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
         icount = rr->getICountValue();
         overlayRR = rr->isOverlayEnabled();
         period = overlayRR ? rr->getSnapshotPeriod() : "";
+        if (mode == LaunchMode::REPLAY)
+        {
+            initSnapshot = rr->getInitSnapshot();
+        }
+        connect(this, SIGNAL(noDiskVM()), rr, SLOT(noDiskVM()));
     }
 }
 
 QemuLauncher::QemuLauncher(const QString &qemuPath, QemuRunOptions *runOptions,
     const QString &platform, const QString &machine)
     : mode(LaunchMode::NORMAL), con(NULL), runOptions(runOptions),
-    overlayRR(false)
+    overlayRR(false), initSnapshot("")
 {
     createQemuPath(qemuPath, platform);
     cmd = "-machine " + machine + " ";
@@ -70,16 +75,24 @@ void QemuLauncher::start_qemu()
     {
         cmdParams.setOverlayDir(dirRR);
         cmdParams.setOverlayEnabled(overlayRR);
-        QString initSnapshot = overlayRR ? ",rrsnapshot=init" : "";
+        QString initSnapshotCmd = overlayRR ? ",rrsnapshot=" + initSnapshot : "";
         QString rr = mode == LaunchMode::RECORD ? "record" : "replay";
         recordReplay += "-icount shift=" + icount + ",rr=" + rr + ",rrfile=" +
-            "\"" + dirRR + "/replay.bin\"" + initSnapshot;
+            "\"" + dirRR + "/replay.bin\"" + initSnapshotCmd;
         if (mode == LaunchMode::RECORD)
         {
             cmd = virtual_machine->getCommandLine(cmdParams);
             images = cmdParams.getImages();
-            overlays = cmdParams.getOverlays();
-            createOverlays();
+            if (images.size() == 0)
+            {
+                emit noDiskVM();
+                launchQemu();
+            }
+            else
+            {
+                overlays = cmdParams.getOverlays();
+                createOverlays();
+            }
         }
         if (!period.isEmpty())
         {

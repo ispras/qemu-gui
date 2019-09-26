@@ -18,6 +18,7 @@ public:
     QString getCurrentDirRR();
     QString getICountValue();
     QString getSnapshotPeriod();
+    QString getInitSnapshot();
     bool isOverlayEnabled();
     void setSnapshotPeriod(QString val);
     void clearExecutionList();
@@ -39,6 +40,7 @@ private:
     bool checkReplayForm();
     QHBoxLayout *periodLayout(int width);
     QHBoxLayout *overlayLayout();
+    QStringList getSnapshotInfo();
 
 private:
     QListWidget *executionList;
@@ -54,6 +56,7 @@ private:
     QCheckBox *periodCheckBox;
     QLineEdit *periodLineEdit;
     QCheckBox *overlayCheck;
+    QComboBox *snapshotCombo;
     QString commonDirRR;
     QString currentDirRR;
     QString oldRRName;
@@ -61,6 +64,8 @@ private:
     QString icountValue;
     QString qemuHash;
     QString periodAutoSnap;
+    QString initSnapshot;
+    QStringList snapshotTips;
     bool isNotRunning;
     bool isOverlayChecked;
     int currentIcount;
@@ -88,6 +93,7 @@ public slots:
     void executionListItemRowChanged(int currentRow);
     void replayCurrentQemuChanged();
     bool isExecutionsExist();
+    void noDiskVM();
 
 signals:
     void startRR(LaunchMode mode);

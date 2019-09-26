@@ -33,14 +33,13 @@ QemuImgLauncher::~QemuImgLauncher()
 
 }
 
-void QemuImgLauncher::startQemuImg(const QString & cmd)
+void QemuImgLauncher::startQemuImg(QProcess &qemuImgProc, const QString &cmd)
 {
-    QProcess *qemuImgProc = new QProcess();
     qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
-    connect(qemuImgProc, SIGNAL(finished(int, QProcess::ExitStatus)),
+    connect(&qemuImgProc, SIGNAL(finished(int, QProcess::ExitStatus)),
         this, SLOT(finish_qemu_img(int, QProcess::ExitStatus)));
-    qemuImgProc->start(cmd);
-    qemuImgProc->waitForFinished(-1);
+    qemuImgProc.start(cmd);
+    qemuImgProc.waitForFinished(-1);
 }
 
 void QemuImgLauncher::startQemuImgCreateOverlay()
@@ -48,7 +47,25 @@ void QemuImgLauncher::startQemuImgCreateOverlay()
     QString cmd = "\"" + qemuImg + "\"" + " create -f qcow2 -b " +
         "\"" + imageName + "\" " + "\"" + overlayName + "\"";
     qDebug() << "create overlay: " << cmd << "----";
-    startQemuImg(cmd);
+    QProcess qemuImgProc;
+    startQemuImg(qemuImgProc, cmd);
+}
+
+QStringList QemuImgLauncher::getSnapshotInformation()
+{
+    QStringList info;
+    QString cmd = "\"" + qemuImg + "\"" + " info " + "\"" + imageName + "\"";
+    QProcess qemuImgProc;
+    startQemuImg(qemuImgProc, cmd);
+    while (!qemuImgProc.atEnd())
+    {
+        info.append(qemuImgProc.readLine());
+    }
+    if (qemuImgProc.exitCode() != 0)
+    {
+        qDebug() << "Cannot get information" << qemuImgProc.exitCode();
+    }
+    return info;
 }
 
 void QemuImgLauncher::finish_qemu_img(int exitCode, QProcess::ExitStatus ExitStatus)
@@ -61,7 +78,8 @@ void QemuImgLauncher::startQemuImgCreateDisk()
 {
     QString cmd = "\"" + qemuImg + "\"" + " create -f " + imageFormat + " " +
         imageName + " " + QString().number(imageSize) + "M";
-    startQemuImg(cmd);
+    QProcess qemuImgProc;
+    startQemuImg(qemuImgProc, cmd);
 }
 
 

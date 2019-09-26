@@ -51,6 +51,7 @@ private:
     QString icount;
     QString period;
     bool overlayRR;
+    QString initSnapshot;
 
 private:
     void createQemuPath(const QString &qemuPath, const QString &platform);
@@ -68,6 +69,7 @@ public slots:
 signals:
     void qemu_laucher_finished(int exitCode);
     void creatingOverlayFailed();
+    void noDiskVM();
 
 };
 
