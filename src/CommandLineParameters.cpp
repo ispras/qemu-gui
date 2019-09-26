@@ -12,7 +12,7 @@ QString CommandLineParameters::getNextOverlayName()
 
 QString CommandLineParameters::getOverlayPath()
 {
-    return getNextOverlayName();
+    return overlayPath + "/overlay0.ovl";
 }
 
 QString CommandLineParameters::getOverlayForImage(const QString &image)

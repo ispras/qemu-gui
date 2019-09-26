@@ -303,9 +303,9 @@ DeviceCpuForm::DeviceCpuForm(DeviceCpu *dev)
 
     connect(cpuCombo, QOverload<const QString &>::of(&QComboBox::activated),
         [=](const QString &text) 
-    {
-        device->setCpuModel(text);
-    }
+        {
+            device->setCpuModel(text);
+        }
     );
 }
 

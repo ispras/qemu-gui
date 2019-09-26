@@ -167,7 +167,7 @@ void RecordReplayTab::createXml(const QString &path, const QString &name)
         xmlWriter.writeEndElement();
 
         xmlWriter.writeStartElement(xml_overlay);
-        xmlWriter.writeCharacters(overlayCheck->isChecked() ? "true" : "");
+        xmlWriter.writeCharacters(isOverlayChecked ? "true" : "");
         xmlWriter.writeEndElement();
 
         xmlWriter.writeEndElement();
@@ -262,10 +262,14 @@ QHBoxLayout *RecordReplayTab::overlayLayout()
 {
     overlayCheck = new QCheckBox();
     overlayCheck->setChecked(true);
-
+    
     QHBoxLayout *overlayLay = new QHBoxLayout();
     overlayLay->addWidget(new QLabel("Create overlay and RR snapshot"));
     overlayLay->addWidget(overlayCheck);
+
+    connect(overlayCheck, &QCheckBox::stateChanged,
+        [=](bool state) { isOverlayChecked = state; });
+
     return overlayLay;
 }
 
@@ -274,7 +278,7 @@ QStringList RecordReplayTab::getSnapshotInfo()
     CommandLineParameters cmdParam;
     cmdParam.setOverlayDir(currentDirRR);
     QemuImgLauncher lauch(globalConfig->get_current_qemu_dir(), "", cmdParam.getOverlayPath());
-    QList<QString> info = lauch.getSnapshotInformation();
+    QStringList info = lauch.getSnapshotInformation();
     QStringList snapshotNames;
     snapshotTips.clear();
     foreach(QString str, info)
@@ -292,7 +296,6 @@ QStringList RecordReplayTab::getSnapshotInfo()
         }
     }
     return snapshotNames;
-    // TODO what about several disks?
 }
 
 void RecordReplayTab::record_execution()
@@ -384,10 +387,10 @@ void RecordReplayTab::replay_execution()
                 replayDialog, &QDialog::close);
             connect(snapshotCombo, QOverload<int>::of(&QComboBox::activated),
                 [=](int index)
-            {
-                initSnapshot = snapshotCombo->itemText(index);
-                periodCheckBox->setDisabled(index);
-            }
+                {
+                    initSnapshot = snapshotCombo->itemText(index);
+                    periodCheckBox->setDisabled(index);
+                }
             );
         }
     }
@@ -436,6 +439,12 @@ void RecordReplayTab::replayCurrentQemuChanged()
 bool RecordReplayTab::isExecutionsExist()
 {
     return executionList->count();
+}
+
+void RecordReplayTab::noDiskVM()
+{
+    isOverlayChecked = false;
+    createXml(currentDirRR, executionList->currentItem()->text());
 }
 
 void RecordReplayTab::rename_ctxmenu()

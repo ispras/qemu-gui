@@ -69,6 +69,7 @@ public slots:
 signals:
     void qemu_laucher_finished(int exitCode);
     void creatingOverlayFailed();
+    void noDiskVM();
 
 };
 

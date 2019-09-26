@@ -25,6 +25,7 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
         {
             initSnapshot = rr->getInitSnapshot();
         }
+        connect(this, SIGNAL(noDiskVM()), rr, SLOT(noDiskVM()));
     }
 }
 
@@ -82,6 +83,10 @@ void QemuLauncher::start_qemu()
         {
             cmd = virtual_machine->getCommandLine(cmdParams);
             images = cmdParams.getImages();
+            if (images.size() == 0)
+            {
+                emit noDiskVM();
+            }
             overlays = cmdParams.getOverlays();
             createOverlays();
         }
