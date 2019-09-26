@@ -86,9 +86,13 @@ void QemuLauncher::start_qemu()
             if (images.size() == 0)
             {
                 emit noDiskVM();
+                launchQemu();
             }
-            overlays = cmdParams.getOverlays();
-            createOverlays();
+            else
+            {
+                overlays = cmdParams.getOverlays();
+                createOverlays();
+            }
         }
         if (!period.isEmpty())
         {
