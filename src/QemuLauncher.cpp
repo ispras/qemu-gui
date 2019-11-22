@@ -57,7 +57,7 @@ void QemuLauncher::createQemuPath(const QString &qemuPath, const QString &platfo
 {
     qemuExePath = qemuPath
 #ifdef Q_OS_WIN
-        + "/" + "qemu-system-" + platform + ".exe";
+        + "/" + "qemu-system-" + platform + "w.exe";
 #else
         + "/" + "qemu-system-" + platform;
 #endif
