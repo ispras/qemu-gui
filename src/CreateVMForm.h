@@ -54,6 +54,7 @@ private:
 
 
 private:
+    void setDefaultItemColor(QComboBox *widget);
     void connect_signals();
     void widget_placement();
     void set_visible_widgets_for_new_hdd(bool isVisible);
