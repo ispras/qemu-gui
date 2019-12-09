@@ -245,6 +245,15 @@ void CreateVMForm::changePlatform(const QString &text)
     PlatformInfo platformInfo(platformDirPath + "/" + text);
     machineCombo->addItems(platformInfo.getMachines());
     cpuCombo->addItems(platformInfo.getCpus());
+    
+    setDefaultItemColor(machineCombo);
+    setDefaultItemColor(cpuCombo);
+}
+
+void CreateVMForm::setDefaultItemColor(QComboBox *widget)
+{
+    QColor defaultColor(190, 250, 180);
+    widget->setItemData(0, QVariant(QBrush(defaultColor)), Qt::BackgroundRole);
 }
 
 void CreateVMForm::connect_signals()
