@@ -1,7 +1,5 @@
-#include "QemuGUI.h"
-
+#include <QColor>
 #include "GlobalConfig.h"
-#include <QtWidgets/QApplication>
 
 const QString xml_vm_directory = "VMDirectory";
 const QString xml_vm_directory_item = "Dir";

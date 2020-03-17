@@ -15,6 +15,8 @@ endif()
 find_package(Qt5Widgets)
 find_package(Qt5Network)
 
+include_directories(src)
+
 add_executable(qemu-gui src/main.cpp src/CreateVMForm.cpp src/QemuGUI.cpp
     src/RecordReplayTab.cpp src/VMSettingsForm.cpp src/QemuGUI.qrc
     src/GlobalConfig.cpp src/VMConfig.cpp src/QemuLauncher.cpp
@@ -30,9 +32,18 @@ add_executable(qemu-gui src/main.cpp src/CreateVMForm.cpp src/QemuGUI.cpp
     src/CommandLineParameters.cpp
     src/DeviceForm.cpp)
 
-# Use the Widgets module from Qt 5.
-target_link_libraries(qemu-gui Qt5::Widgets)
-target_link_libraries(qemu-gui Qt5::Network)
+target_link_libraries(qemu-gui Qt5::Widgets Qt5::Network)
+target_compile_definitions(qemu-gui PUBLIC GUI)
+
+
+add_executable(qemu-cli cli/main.cpp src/GlobalConfig.cpp src/VMConfig.cpp src/Device.cpp
+    src/DeviceBus.cpp src/DeviceStorage.cpp src/DeviceSystem.cpp src/DeviceUsb.cpp
+    src/CommandLineParameters.cpp src/DeviceFactory.cpp src/PlatformInfo.cpp)
+target_link_libraries(qemu-cli Qt5::Core Qt5::Gui)
+
+
 
 install(TARGETS qemu-gui
+        RUNTIME DESTINATION bin)
+install(TARGETS qemu-cli
         RUNTIME DESTINATION bin)

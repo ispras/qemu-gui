@@ -13,7 +13,6 @@ namespace DeviceFactory
     {
         typedef Device * (*CreateDeviceFunc)();
         typedef QMap<QString, CreateDeviceFunc> DeviceRegistry;
-
         DeviceRegistry &getDeviceRegistry();
 
         template<class T>

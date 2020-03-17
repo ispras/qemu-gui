@@ -1,8 +1,10 @@
 #ifndef DEVICE_H
 #define DEVICE_H
 
-#include <QWidget>
+#include <QtCore/QtCore>
+#ifdef GUI
 #include <QtWidgets>
+#endif
 
 class Device;
 class CommandLineParameters;
@@ -38,7 +40,9 @@ public:
     void read(QXmlStreamReader &xml);
 
     virtual QString getDeviceTypeName() const { return "Device"; }
+#ifdef GUI
     virtual QWidget *getEditorForm() { return NULL; }
+#endif
     virtual bool isDeviceValid() { return true; }
     virtual bool isRemovable() { return isCanRemove; }
     void setRemovable(bool isRemove) { isCanRemove = isRemove; }

@@ -8,9 +8,9 @@
 #include "VMConfig.h"
 #include "ConsoleTab.h"
 #include "QemuRunOptions.h"
+#include "CommandLineParameters.h"
 
 class RecordReplayTab;
-enum class LaunchMode : int { NORMAL, RECORD, REPLAY };
 
 class QemuLauncher : public QObject
 {

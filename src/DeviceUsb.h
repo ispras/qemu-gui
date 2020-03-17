@@ -2,8 +2,6 @@
 #define DEVICEUSB_H
 
 #include "Device.h"
-#include "QemuGUICommon.h"
-
 
 class DeviceUsb : public Device
 {
@@ -14,26 +12,12 @@ public:
     DeviceUsb(Device *parent);
 
     virtual QString getDeviceTypeName() const { return typeName; }
+#ifdef GUI
     virtual QWidget *getEditorForm();
+#endif
 
 protected:
     virtual QString getCommandLineOption();
-};
-
-
-class DeviceUsbForm : public QGroupBox
-{
-    Q_OBJECT
-
-public:
-    DeviceUsbForm(DeviceUsb *dev);
-
-private:
-    DeviceUsb *device;
-
-    private slots:
-
-
 };
 
 class DeviceUsbEhci : public Device
@@ -45,8 +29,9 @@ public:
     DeviceUsbEhci(Device *parent);
 
     virtual QString getDeviceTypeName() const { return typeName; }
+#ifdef GUI
     virtual QWidget *getEditorForm();
-
+#endif
 
 protected:
     virtual QString getCommandLineOption();
@@ -61,8 +46,9 @@ public:
     DeviceUsbXhci(Device *parent);
 
     virtual QString getDeviceTypeName() const { return typeName; }
+#ifdef GUI
     virtual QWidget *getEditorForm();
-
+#endif
 
 protected:
     virtual QString getCommandLineOption();

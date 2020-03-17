@@ -1,10 +1,9 @@
 #ifndef VMCONFIG_H
 #define VMCONFIG_H
 
-#include <QWidget>
-#include <QtWidgets>
+#include <QtCore/QtCore>
+
 #include "Device.h"
-#include "DeviceUsb.h"
 
 class CommandLineParameters;
 

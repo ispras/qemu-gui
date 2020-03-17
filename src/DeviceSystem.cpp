@@ -1,7 +1,9 @@
 #include "DeviceSystem.h"
 #include "DeviceFactory.h"
-#include "DeviceForm.h"
 #include "PlatformInfo.h"
+#ifdef GUI
+#include "DeviceForm.h"
+#endif
 
 /******************************************************************************
 * MEMORY                                                                   *
@@ -17,10 +19,12 @@ DeviceMemory::DeviceMemory(const QString &memSize, Device *parent) :
 {
 }
 
+#ifdef GUI
 QWidget *DeviceMemory::getEditorForm()
 {
     return new DeviceMemoryForm(this);
 }
+#endif
 
 void DeviceMemory::saveParameters(QXmlStreamWriter &xml) const
 {
@@ -118,10 +122,12 @@ QString DeviceCpu::getDeviceInfo()
     return "CPU: " + getName() + "\n";
 }
 
+#ifdef GUI
 QWidget *DeviceCpu::getEditorForm()
 {
     return new DeviceCpuForm(this);
 }
+#endif
 
 const QStringList DeviceCpu::getCpuModels() const
 {

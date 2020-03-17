@@ -2,8 +2,6 @@
 #define DEVICESYSTEM_H
 
 #include "Device.h"
-#include "QemuGUICommon.h"
-
 
 class DeviceMemory : public Device
 {
@@ -14,8 +12,9 @@ public:
     DeviceMemory(const QString &memSize, Device *parent);
 
     virtual QString getDeviceTypeName() const { return typeName; }
+#ifdef GUI
     virtual QWidget *getEditorForm();
-
+#endif
     void setSize(const QString &newSize) { size = newSize; }
     int getSize() const { return size.toInt(); }
 
@@ -76,7 +75,9 @@ public:
     DeviceCpu() {}
     DeviceCpu(const QString &cpuName, Device *parent);
 
+#ifdef GUI
     virtual QWidget *getEditorForm();
+#endif
     virtual QString getDeviceTypeName() const { return typeName; }
     virtual bool isDeviceInvisible() { return false; }
 
@@ -87,8 +88,6 @@ protected:
     virtual QString getCommandLineOption(CommandLineParameters &cmdParams);
     virtual QString getDeviceInfo();
 };
-
-
 
 
 #endif // DEVICESYSTEM_H

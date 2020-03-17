@@ -2,7 +2,9 @@
 #include "DeviceBus.h"
 #include "DeviceFactory.h"
 #include "CommandLineParameters.h"
+#ifdef GUI
 #include "DeviceForm.h"
+#endif
 
 DeviceStorageController::DeviceStorageController(const QString &n, Device *parent)
     : Device(n, parent)
@@ -74,10 +76,12 @@ DeviceScsiController::DeviceScsiController(Device *parent)
     initDefault();
 }
 
+#ifdef GUI
 QWidget *DeviceScsiController::getEditorForm()
 {
     return new DeviceScsiControllerForm(this);
 }
+#endif
 
 const QStringList &DeviceScsiController::getControllers() const
 {
@@ -139,10 +143,12 @@ void DeviceStorage::readParameters(QXmlStreamReader &xml)
     setImage(xml.readElementText());
 }
 
+#ifdef GUI
 QWidget *DeviceStorage::getEditorForm()
 {
     return new DeviceStorageForm(this);
 }
+#endif
 
 /******************************************************************************
  * IDE HDD                                                                    *

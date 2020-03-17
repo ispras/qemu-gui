@@ -1,11 +1,10 @@
 #ifndef PLATFORMINFORMATION_H
 #define PLATFORMINFORMATION_H
 
-#include <QtWidgets>
+#include <QtCore/QtCore>
 
 class PlatformInfo : public QObject
 {
-
 public:
     explicit PlatformInfo(const QString &path);
     ~PlatformInfo() {}
@@ -19,7 +18,6 @@ private:
     QStringList machines;
     QStringList cpus;
     QStringList netdev;
-
 };
 
 

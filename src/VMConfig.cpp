@@ -1,7 +1,7 @@
 #include "VMConfig.h"
-#include "CreateVMForm.h"
 #include "DeviceStorage.h"
 #include "DeviceSystem.h"
+#include "DeviceUsb.h"
 
 const QString const_xml_name = "vm.xml";
 const QString xml_parameters = "VMParameters";

@@ -67,8 +67,9 @@ public:
 
     virtual QString getDeviceTypeName() const { return typeName; }
     virtual BusType needsBus() const { return BusType::PCI; }
+#ifdef GUI
     virtual QWidget *getEditorForm();
-
+#endif
     const QStringList &getControllers() const;
     void setController(const QString &name) { controller = name; }
     QString getCurrentController() const { return controller; }
@@ -95,8 +96,9 @@ public:
     virtual QString getDeviceTypeName() const = 0;
     virtual void setImage(const QString &img) { image = img; };
     virtual QString getImage() const { return image; };
+#ifdef GUI
     virtual QWidget *getEditorForm();
-
+#endif
 protected:
     virtual void saveParameters(QXmlStreamWriter &xml) const;
     virtual void readParameters(QXmlStreamReader &xml);

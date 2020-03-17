@@ -36,6 +36,12 @@ Devices getDevicesForBus(BusType t)
 }
 
 
+QWidget *getDeviceEditorForm()
+{
+    return NULL;
+}
+
+
 namespace Internal
 {
 

@@ -1,9 +1,9 @@
 #ifndef GLOBALCONFIG_H
 #define GLOBALCONFIG_H
 
-#include "VMConfig.h"
-#include <QtWidgets>
+#include <QtCore/QtCore>
 
+#include "VMConfig.h"
 
 class GlobalConfig : public QObject
 {

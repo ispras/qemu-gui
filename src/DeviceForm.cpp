@@ -1,6 +1,6 @@
 #include "DeviceForm.h"
 #include "CommandLineParameters.h"
-
+#include "QemuGUICommon.h"
 
 DeviceForm::DeviceForm(Device *dev) : device(dev)
 {

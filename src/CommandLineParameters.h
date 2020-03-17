@@ -1,8 +1,9 @@
 #ifndef COMMANDLINEPARAMETERS_H
 #define COMMANDLINEPARAMETERS_H
 
-#include <QtWidgets>
-#include "QemuLauncher.h"
+#include <QtCore/QtCore>
+
+enum class LaunchMode : int { NORMAL, RECORD, REPLAY };
 
 class CommandLineParameters
 {
