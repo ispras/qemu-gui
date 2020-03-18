@@ -8,7 +8,8 @@ PlatformInformationReader::PlatformInformationReader(const QString &qemuPath,
     platforms = { QStringList({ "i386", "pc" }),
         QStringList({ "x86_64", "pc" }),
         QStringList({ "arm", "virt" }),
-        /*QStringList({ "mips", "none" }),*/
+        QStringList({ "mips", "none" }),
+        QStringList({ "mips64", "none" }),
         QStringList({ "ppc", "none" })
     };
 
