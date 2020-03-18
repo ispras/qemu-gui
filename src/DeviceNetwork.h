@@ -15,7 +15,9 @@ public:
 
     virtual QString getDeviceTypeName() const { return typeName; }
     virtual BusType needsBus() const { return BusType::PCI; }
+#ifdef GUI
     virtual QWidget *getEditorForm();
+#endif
 
     const QStringList getControllers() const;
     const QStringList &getNetdevBackend() const;

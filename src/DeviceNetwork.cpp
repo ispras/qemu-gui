@@ -1,6 +1,8 @@
 #include "DeviceNetwork.h"
 #include "DeviceFactory.h"
+#ifdef GUI
 #include "DeviceForm.h"
+#endif
 #include "CommandLineParameters.h"
 #include "PlatformInfo.h"
 
@@ -34,10 +36,12 @@ void DeviceNetworkController::initDefault()
     netdev = getNetdevBackend().first();
 }
 
+#ifdef GUI
 QWidget *DeviceNetworkController::getEditorForm()
 {
     return new DeviceNetworkForm(this);
 }
+#endif
 
 const QStringList DeviceNetworkController::getControllers() const
 {

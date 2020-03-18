@@ -36,8 +36,9 @@ target_link_libraries(qemu-gui Qt5::Widgets Qt5::Network)
 target_compile_definitions(qemu-gui PUBLIC GUI)
 
 
-add_executable(qemu-cli cli/main.cpp src/GlobalConfig.cpp src/VMConfig.cpp src/Device.cpp
-    src/DeviceBus.cpp src/DeviceStorage.cpp src/DeviceSystem.cpp src/DeviceUsb.cpp
+add_executable(qemu-cli cli/main.cpp src/GlobalConfig.cpp src/VMConfig.cpp
+    src/Device.cpp src/DeviceBus.cpp src/DeviceStorage.cpp src/DeviceSystem.cpp
+    src/DeviceUsb.cpp src/DeviceNetwork.cpp
     src/CommandLineParameters.cpp src/DeviceFactory.cpp src/PlatformInfo.cpp)
 target_link_libraries(qemu-cli Qt5::Core Qt5::Gui)
 
