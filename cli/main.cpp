@@ -8,7 +8,7 @@ void usage()
 {
     out << "qemu-cli usage:\n"
         "list - output configured VMs\n"
-        "cmdline <vm>"
+        "cmdline <vm> [record | replay]"
         " - output command line for running specified VM\n";
 }
 
@@ -23,7 +23,7 @@ int vmlist()
     return 0;
 }
 
-int vmcmdline(const char *name)
+int vmcmdline(const char *name, LaunchMode mode)
 {
     GlobalConfig cfg;
     VMConfig *vm = cfg.get_vm_by_name(name);
@@ -32,7 +32,8 @@ int vmcmdline(const char *name)
         out << "VM " << name << " does not exist\n";
         return 1;
     }
-    CommandLineParameters params;
+    CommandLineParameters params(mode);
+    params.setOverlayEnabled(false);
     out << vm->getCommandLine(params) << "\n";
     return 0;
 }
@@ -58,7 +59,26 @@ int main(int argc, char *argv[])
         }
         else
         {
-            return vmcmdline(argv[2]);
+            LaunchMode mode = LaunchMode::NORMAL;
+            char **arg = argv + 3;
+            while (*arg)
+            {
+                if (!strcmp(*arg, "record"))
+                {
+                    mode = LaunchMode::RECORD;
+                }
+                else if (!strcmp(*arg, "replay"))
+                {
+                    mode = LaunchMode::REPLAY;
+                }
+                else
+                {
+                    usage();
+                    return 1;
+                }
+                ++arg;
+            }
+            return vmcmdline(argv[2], mode);
         }
     }
     else
