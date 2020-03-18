@@ -37,9 +37,6 @@ public:
     void setQemuRunStopped(bool value) { isQemuRunStopped = value; }
     bool getQemuRunStopped() { return isQemuRunStopped; }
 
-    QString getKernelCmd(const QString &path) const;
-    QString getInitrdCmd(const QString &path) const;
-
     QString getMonitorCmd();
     QString getQmpCmd();
     QString getAllAdditionalOptionsCmd(LaunchMode mode);

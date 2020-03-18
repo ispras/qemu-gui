@@ -268,7 +268,10 @@ QString VMConfig::get_dir_path()
 
 QString VMConfig::getCommandLine(CommandLineParameters &cmdParams)
 {
-    return " -net none" + system.getCommandLine(cmdParams) + " " + addCmdLine;
+    return QString(" -net none")
+        + (kernel.isEmpty() ? "" : " -kernel " + kernel)
+        + (initrd.isEmpty() ? "" : " -initrd " + initrd)
+        + system.getCommandLine(cmdParams) + " " + addCmdLine;
 }
 
 QString VMConfig::getPathRRDir()
