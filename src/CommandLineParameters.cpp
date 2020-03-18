@@ -17,9 +17,17 @@ QString CommandLineParameters::getOverlayPath()
 
 QString CommandLineParameters::getOverlayForImage(const QString &image)
 {
-    images.append(image);
-    overlays.append(getNextOverlayName());
-    return overlays.back();
+    if (overlayEnabled)
+    {
+        images.append(image);
+        overlays.append(getNextOverlayName());
+        return overlays.back();
+    }
+    else
+    {
+        return image;
+    }
+    
 }
 
 
