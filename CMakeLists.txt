@@ -15,23 +15,27 @@ endif()
 find_package(Qt5Widgets)
 find_package(Qt5Network)
 
-include_directories(gui device config)
+include_directories(gui device config qemu)
 
-add_executable(qemu-gui gui/main.cpp gui/CreateVMForm.cpp gui/QemuGUI.cpp
-    gui/RecordReplayTab.cpp gui/VMSettingsForm.cpp gui/QemuGUI.qrc
+add_executable(qemu-gui
     config/GlobalConfig.cpp config/VMConfig.cpp config/PlatformInfo.cpp 
-    gui/QemuLauncher.cpp
-    gui/QMPInteraction.cpp gui/TerminalSettingsForm.cpp
-    gui/PlatformInformationReader.cpp
-    gui/TerminalTab.cpp gui/ConnectionSettingsForm.cpp gui/QemuSocket.cpp
-    gui/ConsoleTab.cpp gui/QemuRunOptions.cpp
-    gui/VMPropertiesForm.cpp
-    gui/AddDeviceForm.cpp
+
     device/Device.cpp device/DeviceBus.cpp device/DeviceStorage.cpp
     device/DeviceFactory.cpp device/DeviceSystem.cpp
     device/DeviceUsb.cpp device/DeviceNetwork.cpp
+
+    qemu/QemuRunOptions.cpp qemu/QemuLauncher.cpp
+    qemu/CommandLineParameters.cpp
+
+    gui/main.cpp gui/CreateVMForm.cpp gui/QemuGUI.cpp
+    gui/RecordReplayTab.cpp gui/VMSettingsForm.cpp gui/QemuGUI.qrc
+    gui/QMPInteraction.cpp gui/TerminalSettingsForm.cpp
+    gui/PlatformInformationReader.cpp
+    gui/TerminalTab.cpp gui/ConnectionSettingsForm.cpp gui/QemuSocket.cpp
+    gui/ConsoleTab.cpp
+    gui/VMPropertiesForm.cpp
+    gui/AddDeviceForm.cpp
     gui/QemuImgLauncher.cpp
-    gui/CommandLineParameters.cpp
     gui/DeviceForm.cpp)
 
 target_link_libraries(qemu-gui Qt5::Widgets Qt5::Network)
@@ -42,7 +46,7 @@ add_executable(qemu-cli cli/main.cpp
     config/GlobalConfig.cpp config/VMConfig.cpp
     device/Device.cpp device/DeviceBus.cpp device/DeviceStorage.cpp device/DeviceSystem.cpp
     device/DeviceUsb.cpp device/DeviceNetwork.cpp device/DeviceFactory.cpp
-    gui/CommandLineParameters.cpp config/PlatformInfo.cpp)
+    qemu/CommandLineParameters.cpp config/PlatformInfo.cpp)
 target_link_libraries(qemu-cli Qt5::Core Qt5::Gui)
 
 
