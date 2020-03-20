@@ -19,6 +19,7 @@ include_directories(gui device config qemu)
 
 add_executable(qemu-gui
     config/GlobalConfig.cpp config/VMConfig.cpp config/PlatformInfo.cpp 
+    config/RecordReplayParams.cpp
 
     device/Device.cpp device/DeviceBus.cpp device/DeviceStorage.cpp
     device/DeviceFactory.cpp device/DeviceSystem.cpp

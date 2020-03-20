@@ -5,6 +5,7 @@
 #include "VMConfig.h"
 #include "QemuLauncher.h"
 #include "GlobalConfig.h"
+#include "RecordReplayParams.h"
 
 class RecordReplayTab : public QWidget
 {
@@ -15,13 +16,12 @@ public:
     ~RecordReplayTab();
 
     void setRecordReplayList(VMConfig *virtualMachine);
-    QString getCurrentDirRR();
-    QString getICountValue();
     QString getSnapshotPeriod();
     QString getInitSnapshot();
-    bool isOverlayEnabled();
     void setSnapshotPeriod(QString val);
     void clearExecutionList();
+
+    const RecordReplayParams &getParams() const { return rrParams; }
 
 private:
     VMConfig *vm;
@@ -32,7 +32,7 @@ private:
     void connect_signals();
     void executionListConnectSignals();
     void widget_placement();
-    void createXml(const QString &path, const QString &name);
+    void createXml(const QString &name);
     void readXml(const QString &name);
     void setCurrentDir(const QString &name);
     void createDialog(const QString &caption);
@@ -58,17 +58,14 @@ private:
     QCheckBox *overlayCheck;
     QComboBox *snapshotCombo;
     QString commonDirRR;
-    QString currentDirRR;
     QString oldRRName;
     QString nameReplay;
     QString icountValue;
-    QString qemuHash;
     QString periodAutoSnap;
     QString initSnapshot;
     QStringList snapshotTips;
     bool isNotRunning;
-    bool isOverlayChecked;
-    int currentIcount;
+    RecordReplayParams rrParams;
 
 private slots:
     void record_execution();
@@ -81,7 +78,6 @@ private slots:
     void renameRRRecord();
     void executionListItemClicked(QListWidgetItem *item);
     void autoSnapshotEnabled(int state);
-    void setCurrentIcount(int value);
     void setAutoSnapshotEnabled(int value);
 
 public slots:

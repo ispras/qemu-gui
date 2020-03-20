@@ -17,9 +17,10 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
     additionalOptionsCmd = runOptions->getAllAdditionalOptionsCmd(mode);
     if (rr)
     {
-        dirRR = rr->getCurrentDirRR();
-        icount = rr->getICountValue();
-        overlayRR = rr->isOverlayEnabled();
+        const RecordReplayParams &rrParams = rr->getParams();
+        dirRR = rrParams.getCurrentDir();
+        icount = rrParams.getIcount();
+        overlayRR = rrParams.isOverlayEnabled();
         period = overlayRR ? rr->getSnapshotPeriod() : "";
         if (mode == LaunchMode::REPLAY)
         {

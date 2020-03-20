@@ -5,14 +5,9 @@
 #include "CommandLineParameters.h"
 
 static const char regExpForName[] = "[A-Za-z0-9_-][A-Za-z0-9_-\\s]+";
-const QString constXmlName = "replay.xml";
-const QString xml_hash = "QemuHash";
-const QString xml_icount = "icount";
-const QString xml_overlay = "IsOverlay";
-const QString xml_start = "replay_";
 
 RecordReplayTab::RecordReplayTab(GlobalConfig *globalConfig, QWidget *parent)
-    : QWidget(parent), globalConfig(globalConfig), currentIcount(5)
+    : QWidget(parent), globalConfig(globalConfig)
 {
     if (RecordReplayTab::objectName().isEmpty())
         RecordReplayTab::setObjectName(QStringLiteral("RecordReplayTab"));
@@ -80,16 +75,6 @@ void RecordReplayTab::setRecordReplayList(VMConfig *virtualMachine)
     }
 }
 
-QString RecordReplayTab::getCurrentDirRR()
-{
-    return currentDirRR;
-}
-
-QString RecordReplayTab::getICountValue()
-{
-    return icountValue;
-}
-
 QString RecordReplayTab::getSnapshotPeriod()
 {
     return periodAutoSnap;
@@ -98,11 +83,6 @@ QString RecordReplayTab::getSnapshotPeriod()
 QString RecordReplayTab::getInitSnapshot()
 {
     return initSnapshot;
-}
-
-bool RecordReplayTab::isOverlayEnabled()
-{
-    return isOverlayChecked;
 }
 
 void RecordReplayTab::setSnapshotPeriod(QString val)
@@ -147,65 +127,21 @@ void RecordReplayTab::widget_placement()
     main_lay->addLayout(lay_btn);
 }
 
-void RecordReplayTab::createXml(const QString &path, const QString &name)
+void RecordReplayTab::createXml(const QString &name)
 {
-    QFile file(path + "/" + constXmlName);
-    if (file.open(QIODevice::WriteOnly))
-    {
-        QXmlStreamWriter xmlWriter(&file);
-        xmlWriter.setAutoFormatting(true);
-        xmlWriter.writeStartDocument();
-        xmlWriter.writeStartElement(xml_start + name);
-
-        xmlWriter.writeStartElement(xml_hash);
-        xmlWriter.writeCharacters(PlatformInformationReader::getQemuHash(
-            globalConfig->get_current_qemu_dir()));
-        xmlWriter.writeEndElement();
-             
-        xmlWriter.writeStartElement(xml_icount);
-        xmlWriter.writeCharacters(icountValue);
-        xmlWriter.writeEndElement();
-
-        xmlWriter.writeStartElement(xml_overlay);
-        xmlWriter.writeCharacters(isOverlayChecked ? "true" : "");
-        xmlWriter.writeEndElement();
-
-        xmlWriter.writeEndElement();
-        xmlWriter.writeEndDocument();
-        file.close();
-    }
+    rrParams.setQemuHash(PlatformInformationReader::getQemuHash(
+        globalConfig->get_current_qemu_dir()));
+    rrParams.createXml(name);
 }
 
 void RecordReplayTab::readXml(const QString &name)
 {
-    QFile file(currentDirRR + "/" + constXmlName);
-    if (file.open(QIODevice::ReadOnly))
-    {
-        QXmlStreamReader xmlReader(&file);
-        xmlReader.readNextStartElement();
-        Q_ASSERT(xmlReader.name() == xml_start + name);
-
-        while (xmlReader.readNextStartElement())
-        {
-            if (xmlReader.name() == xml_hash)
-            {
-                qemuHash = xmlReader.readElementText();
-            }
-            else if (xmlReader.name() == xml_icount)
-            {
-                icountValue = xmlReader.readElementText();
-            }
-            else if (xmlReader.name() == xml_overlay)
-            {
-                isOverlayChecked = !xmlReader.readElementText().isEmpty();
-            }
-        }
-    }
+    rrParams.readXml(name);
 }
 
 void RecordReplayTab::setCurrentDir(const QString &name)
 {
-    currentDirRR = vm->getPathRRDir() + "/" + name;
+    rrParams.setCurrentDir(vm->getPathRRDir() + "/" + name);
 }
 
 void RecordReplayTab::createDialog(const QString &caption)
@@ -268,7 +204,7 @@ QHBoxLayout *RecordReplayTab::overlayLayout()
     overlayLay->addWidget(overlayCheck);
 
     connect(overlayCheck, &QCheckBox::stateChanged,
-        [=](bool state) { isOverlayChecked = state; });
+        [=](bool state) { rrParams.setOverlayEnabled(state); });
 
     return overlayLay;
 }
@@ -276,7 +212,7 @@ QHBoxLayout *RecordReplayTab::overlayLayout()
 QStringList RecordReplayTab::getSnapshotInfo()
 {
     CommandLineParameters cmdParam;
-    cmdParam.setOverlayDir(currentDirRR);
+    cmdParam.setOverlayDir(rrParams.getCurrentDir());
     QemuImgLauncher lauch(globalConfig->get_current_qemu_dir(), "", cmdParam.getOverlayPath());
     QStringList info = lauch.getSnapshotInformation();
     QStringList snapshotNames;
@@ -311,7 +247,7 @@ void RecordReplayTab::record_execution()
     icountSpin = new QSpinBox();
     icountSpin->setMinimum(1);
     icountSpin->setMaximum(12);
-    icountSpin->setValue(currentIcount);
+    icountSpin->setValue(rrParams.getIcount());
 
     QDialogButtonBox *okCancelBtn = new QDialogButtonBox(QDialogButtonBox::Ok
         | QDialogButtonBox::Cancel);
@@ -339,7 +275,8 @@ void RecordReplayTab::record_execution()
         this, &RecordReplayTab::setRRNameDir);
     connect(okCancelBtn, &QDialogButtonBox::rejected,
         replayDialog, &QDialog::close);
-    connect(icountSpin, SIGNAL(valueChanged(int)), this, SLOT(setCurrentIcount(int)));
+    connect(icountSpin, QOverload<int>::of(&QSpinBox::valueChanged),
+        [=](int value) { this->rrParams.setIcount(value); });
     connect(overlayCheck, SIGNAL(stateChanged(int)), this, SLOT(setAutoSnapshotEnabled(int)));
 }
 
@@ -347,7 +284,7 @@ void RecordReplayTab::replay_execution()
 {
     if (executionList->currentItem())
     {
-        if (!isOverlayEnabled())
+        if (!rrParams.isOverlayEnabled())
         {
             setCurrentDir(executionList->currentItem()->text());
             emit startRR(LaunchMode::REPLAY);
@@ -402,7 +339,7 @@ void RecordReplayTab::executionListItemSelectionChanged()
     {
         setCurrentDir(executionList->currentItem()->text());
         readXml(executionList->currentItem()->text());
-        if (qemuHash.compare(PlatformInformationReader::getQemuHash(globalConfig->get_current_qemu_dir())) == 0)
+        if (rrParams.getQemuHash().compare(PlatformInformationReader::getQemuHash(globalConfig->get_current_qemu_dir())) == 0)
         {
             rpl_btn->setEnabled(true);
         }
@@ -443,8 +380,8 @@ bool RecordReplayTab::isExecutionsExist()
 
 void RecordReplayTab::noDiskVM()
 {
-    isOverlayChecked = false;
-    createXml(currentDirRR, executionList->currentItem()->text());
+    rrParams.setOverlayEnabled(false);
+    createXml(executionList->currentItem()->text());
 }
 
 void RecordReplayTab::rename_ctxmenu()
@@ -469,7 +406,7 @@ void RecordReplayTab::delete_ctxmenu()
             QMessageBox::Yes, QMessageBox::No);
         if (answer == QMessageBox::Yes)
         {
-            vm->remove_directory_vm(currentDirRR);
+            vm->remove_directory_vm(rrParams.getCurrentDir());
             disconnect(executionList, 0, 0, 0);
             QListWidgetItem *it = executionList->takeItem(executionList->currentRow());
             delete it;
@@ -519,8 +456,8 @@ void RecordReplayTab::renameRRRecord()
     if (QString::compare(oldRRName, item->text()) != 0)
     {
         readXml(oldRRName);
-        QDir dir(currentDirRR);
-        if (!dir.rename(currentDirRR, vm->getPathRRDir() + "/" + item->text()))
+        QDir dir(rrParams.getCurrentDir());
+        if (!dir.rename(rrParams.getCurrentDir(), vm->getPathRRDir() + "/" + item->text()))
         {
             QMessageBox::critical((QWidget *) this->parent(),
                 "Error", "Record was not renamed");
@@ -530,7 +467,7 @@ void RecordReplayTab::renameRRRecord()
         oldRRName = item->text();
         item->setFlags(item->flags() & ~Qt::ItemFlag::ItemIsEditable);
         setCurrentDir(item->text());
-        createXml(currentDirRR, item->text());
+        createXml(item->text());
     }
 }
 
@@ -542,11 +479,6 @@ void RecordReplayTab::executionListItemClicked(QListWidgetItem *item)
 void RecordReplayTab::autoSnapshotEnabled(int state)
 {
     periodLineEdit->setEnabled(state);
-}
-
-void RecordReplayTab::setCurrentIcount(int value)
-{
-    currentIcount = value;
 }
 
 void RecordReplayTab::setAutoSnapshotEnabled(int value)
@@ -567,7 +499,7 @@ void RecordReplayTab::recordDeleteRecords()
 
 void RecordReplayTab::deleteRecordFolder()
 {
-    vm->remove_directory_vm(currentDirRR);
+    vm->remove_directory_vm(rrParams.getCurrentDir());
     delete executionList->item(executionList->count() - 1);
     executionList->clearSelection();
     renameAct->setDisabled(true);
@@ -599,21 +531,21 @@ void RecordReplayTab::setRRNameDir()
         }
 
         nameReplay = nameEdit->text();
-        icountValue = QString::number(icountSpin->value());
+        rrParams.setIcount(icountSpin->value());
         periodAutoSnap = (periodCheckBox->isChecked()) ? periodLineEdit->text() : "";
-        isOverlayChecked = overlayCheck->isChecked();
+        rrParams.setOverlayEnabled(overlayCheck->isChecked());
 
         setCurrentDir(name);
         QListWidgetItem *it = new QListWidgetItem();
         it->setText(name);
         executionList->addItem(it);
         executionList->setCurrentItem(it);
-        QDir rrDir(currentDirRR);
+        QDir rrDir(rrParams.getCurrentDir());
         if (!rrDir.exists())
         {
-            rrDir.mkdir(currentDirRR);
+            rrDir.mkdir(rrParams.getCurrentDir());
         }
-        createXml(currentDirRR, name);
+        createXml(name);
 
         replayDialog->close();
         emit startRR(LaunchMode::RECORD);
