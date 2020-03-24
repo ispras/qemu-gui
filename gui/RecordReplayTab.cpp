@@ -364,12 +364,6 @@ bool RecordReplayTab::isExecutionsExist()
     return executionList->count();
 }
 
-void RecordReplayTab::noDiskVM()
-{
-    rrParams.setOverlayEnabled(false);
-    createXml(executionList->currentItem()->text());
-}
-
 void RecordReplayTab::rename_ctxmenu()
 {
     if (executionList->currentItem())

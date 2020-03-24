@@ -84,7 +84,6 @@ public slots:
     void executionListItemRowChanged(int currentRow);
     void replayCurrentQemuChanged();
     bool isExecutionsExist();
-    void noDiskVM();
 
 signals:
     void startRR(LaunchMode mode);
