@@ -16,4 +16,4 @@ before_script:
 script:
   - make
   - cppcheck --version
-  - cppcheck -f -q --enable=all --std=c++11 --error-exitcode=1 ../src
+  - cppcheck -f -q --enable=all --std=c++11 --error-exitcode=1 ../gui ../device ../qemu ../cli ../config
