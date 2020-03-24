@@ -413,7 +413,7 @@ QString QemuGUI::delete_exclude_vm(bool delete_vm)
     QString del_vm_name = listVM->currentItem()->text();
     global_config->delete_exclude_vm(del_vm_name, delete_vm);
     // may be return value if all ok, exclude from list
-    rec_replay_tab->clearExecutionList();
+    rec_replay_tab->clearVM();
 
     delete listVM->currentItem();
 
@@ -613,7 +613,7 @@ void QemuGUI::listVM_item_selection_changed()
             vmInfoTextEdit->setPlainText(vm->get_vm_info());
             vmInfoTextEdit->ensureCursorVisible();
             vm->fillReplayList();
-            rec_replay_tab->setRecordReplayList(vm);
+            rec_replay_tab->setVM(vm);
         }
         checkQemuCompatibility();
         propBox->setVisible(true);

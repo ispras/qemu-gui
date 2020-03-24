@@ -53,7 +53,7 @@ RecordReplayTab::~RecordReplayTab()
 
 }
 
-void RecordReplayTab::setRecordReplayList(VMConfig *virtualMachine)
+void RecordReplayTab::setVM(VMConfig *virtualMachine)
 {
     disconnect(executionList, 0, 0, 0);
 
@@ -74,10 +74,10 @@ void RecordReplayTab::setRecordReplayList(VMConfig *virtualMachine)
     }
 }
 
-void RecordReplayTab::clearExecutionList()
+void RecordReplayTab::clearVM()
 {
-    disconnect(executionList, 0, 0, 0);
-    executionList->clear();
+    vm = NULL;
+    recordDeleteRecords();
 }
 
 void RecordReplayTab::connect_signals()
@@ -479,7 +479,8 @@ void RecordReplayTab::setState(bool state)
 
 void RecordReplayTab::recordDeleteRecords()
 {
-    clearExecutionList();
+    disconnect(executionList, 0, 0, 0);
+    executionList->clear();
 }
 
 void RecordReplayTab::deleteRecordFolder()

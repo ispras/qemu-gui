@@ -15,8 +15,8 @@ public:
     RecordReplayTab(GlobalConfig *globalConfig, QWidget *parent = 0);
     ~RecordReplayTab();
 
-    void setRecordReplayList(VMConfig *virtualMachine);
-    void clearExecutionList();
+    void setVM(VMConfig *virtualMachine);
+    void clearVM();
 
     const RecordReplayParams &getParams() const { return rrParams; }
 
