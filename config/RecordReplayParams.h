@@ -13,6 +13,7 @@ public:
     void readXml(const QString &name);
 
     QString getCommandLine(LaunchMode mode) const;
+    QString getDummyImage() const;
 
     const QString &getCurrentDir() const { return currentDir; }
     void setCurrentDir(const QString &dir) { currentDir = dir; }

@@ -52,11 +52,13 @@ private:
 
 private:
     void createQemuPath(const QString &qemuPath, const QString &platform);
+    void createDummyImage();
     void createOverlays();
     void launchQemu();
 
 private slots:
     void finishCreatingOverlay(int exitCode);
+    void finishCreatingDummy(int exitCode);
 
 public slots:
     void start_qemu();

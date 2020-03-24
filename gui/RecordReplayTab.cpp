@@ -195,9 +195,8 @@ QHBoxLayout *RecordReplayTab::overlayLayout()
 
 QStringList RecordReplayTab::getSnapshotInfo()
 {
-    CommandLineParameters cmdParam;
-    cmdParam.setOverlayDir(rrParams.getCurrentDir());
-    QemuImgLauncher lauch(globalConfig->get_current_qemu_dir(), "", cmdParam.getOverlayPath());
+    QemuImgLauncher lauch(globalConfig->get_current_qemu_dir(), "",
+        rrParams.getDummyImage());
     QStringList info = lauch.getSnapshotInformation();
     QStringList snapshotNames;
     snapshotTips.clear();

@@ -16,7 +16,6 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
     mon = runOptions->getMonitorCmd();
     qmp = runOptions->getQmpCmd();
     additionalOptionsCmd = runOptions->getAllAdditionalOptionsCmd(mode);
-    connect(this, SIGNAL(noDiskVM()), rr, SLOT(noDiskVM()));
 }
 
 QemuLauncher::QemuLauncher(const QString &qemuPath, QemuRunOptions *runOptions,
@@ -70,16 +69,8 @@ void QemuLauncher::start_qemu()
         {
             cmd = virtual_machine->getCommandLine(cmdParams);
             images = cmdParams.getImages();
-            if (images.size() == 0)
-            {
-                emit noDiskVM();
-                launchQemu();
-            }
-            else
-            {
-                overlays = cmdParams.getOverlays();
-                createOverlays();
-            }
+            overlays = cmdParams.getOverlays();
+            createDummyImage();
         }
     }
     if (mode != LaunchMode::RECORD)
@@ -88,6 +79,19 @@ void QemuLauncher::start_qemu()
             cmd = virtual_machine->getCommandLine(cmdParams);
         launchQemu();
     }
+}
+
+void QemuLauncher::createDummyImage()
+{
+    QThread *thread = new QThread();
+    QemuImgLauncher *imgLauncher = new QemuImgLauncher(qemuDirPath, "qcow2",
+        rrParams.getDummyImage(), 20);
+
+    imgLauncher->moveToThread(thread);
+    connect(thread, SIGNAL(started()), imgLauncher, SLOT(startQemuImgCreateDisk()));
+    connect(imgLauncher, SIGNAL(qemu_img_finished(int)),
+         this, SLOT(finishCreatingDummy(int)));
+    thread->start();
 }
 
 void QemuLauncher::createOverlays()
@@ -144,6 +148,19 @@ void QemuLauncher::terminateQemu()
     {
         qDebug() << "Qemu work too long. Terminated. Receiving information is not guaranteed";
         qemu->terminate();
+    }
+}
+
+void QemuLauncher::finishCreatingDummy(int exitCode)
+{
+    if (exitCode == 0)
+    {
+        createOverlays();
+    }
+    else
+    {
+        emit creatingOverlayFailed();
+        qDebug() << "Error with dummy disk image, sorry";
     }
 }
 

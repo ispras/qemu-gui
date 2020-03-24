@@ -3,6 +3,7 @@
 #include "PlatformInformationReader.h"
 
 static const QString constXmlName = "replay.xml";
+static const QString dummyName = "dummy.qcow2";
 static const QString xml_hash = "QemuHash";
 static const QString xml_icount = "icount";
 static const QString xml_overlay = "IsOverlay";
@@ -78,5 +79,15 @@ QString RecordReplayParams::getCommandLine(LaunchMode mode) const
     {
         res += ",rrperiod=" + QString::number(snapshotPeriod);
     }
+    if (mode != LaunchMode::NORMAL)
+    {
+        res += " -drive file=" + currentDir
+            + "/" + dummyName + ",if=none";
+    }
     return res;
+}
+
+QString RecordReplayParams::getDummyImage() const
+{
+    return currentDir + "/" + dummyName;
 }
