@@ -477,7 +477,6 @@ void QemuGUI::play_machine()
                 {
                     vm_state = VMState::Running;
                 }
-                rec_replay_tab->setSnapshotPeriod("");
                 qemu_play->setEnabled(false);
                 qemu_pause->setEnabled(false);
                 qemu_stop->setEnabled(false);

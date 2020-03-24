@@ -16,9 +16,6 @@ public:
     ~RecordReplayTab();
 
     void setRecordReplayList(VMConfig *virtualMachine);
-    QString getSnapshotPeriod();
-    QString getInitSnapshot();
-    void setSnapshotPeriod(QString val);
     void clearExecutionList();
 
     const RecordReplayParams &getParams() const { return rrParams; }
@@ -61,8 +58,6 @@ private:
     QString oldRRName;
     QString nameReplay;
     QString icountValue;
-    QString periodAutoSnap;
-    QString initSnapshot;
     QStringList snapshotTips;
     bool isNotRunning;
     RecordReplayParams rrParams;

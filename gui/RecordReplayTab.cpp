@@ -44,7 +44,6 @@ RecordReplayTab::RecordReplayTab(GlobalConfig *globalConfig, QWidget *parent)
 
     isNotRunning = true;
     oldRRName = "";
-    periodAutoSnap = "";
 
     pWidget = parent;
 }
@@ -73,21 +72,6 @@ void RecordReplayTab::setRecordReplayList(VMConfig *virtualMachine)
     {
         rpl_btn->setEnabled(false);
     }
-}
-
-QString RecordReplayTab::getSnapshotPeriod()
-{
-    return periodAutoSnap;
-}
-
-QString RecordReplayTab::getInitSnapshot()
-{
-    return initSnapshot;
-}
-
-void RecordReplayTab::setSnapshotPeriod(QString val)
-{
-    periodAutoSnap = val;
 }
 
 void RecordReplayTab::clearExecutionList()
@@ -302,7 +286,7 @@ void RecordReplayTab::replay_execution()
             {
                 snapshotCombo->setItemData(i, snapshotTips.at(i), Qt::ToolTipRole);
             }
-            initSnapshot = snapshotCombo->currentText();
+            rrParams.setInitialSnapshot(snapshotCombo->currentText());
             
             QHBoxLayout *snapshotLay = new QHBoxLayout();
             snapshotLay->addWidget(new QLabel("Init snapshot"));
@@ -311,7 +295,8 @@ void RecordReplayTab::replay_execution()
             QVBoxLayout *mainLay = new QVBoxLayout();
             mainLay->addLayout(snapshotLay);
             mainLay->addLayout(periodLayout(40));
-            periodLineEdit->setText(periodAutoSnap);
+            periodLineEdit->setText(rrParams.getSnapshotPeriod()
+                ? QString::number(rrParams.getSnapshotPeriod()) : "");
             mainLay->addWidget(okCancelBtn);
             
             replayDialog->setLayout(mainLay);
@@ -325,7 +310,7 @@ void RecordReplayTab::replay_execution()
             connect(snapshotCombo, QOverload<int>::of(&QComboBox::activated),
                 [=](int index)
                 {
-                    initSnapshot = snapshotCombo->itemText(index);
+                    rrParams.setInitialSnapshot(snapshotCombo->itemText(index));
                     periodCheckBox->setDisabled(index);
                 }
             );
@@ -443,7 +428,7 @@ void RecordReplayTab::setPeriodSnapReplay()
 {
     if (checkPeriodSet())
     {
-        periodAutoSnap = periodLineEdit->text();
+        rrParams.setSnapshotPeriod(periodLineEdit->text().toInt());
         replayDialog->close();
         setCurrentDir(executionList->currentItem()->text());
         emit startRR(LaunchMode::REPLAY);
@@ -532,7 +517,8 @@ void RecordReplayTab::setRRNameDir()
 
         nameReplay = nameEdit->text();
         rrParams.setIcount(icountSpin->value());
-        periodAutoSnap = (periodCheckBox->isChecked()) ? periodLineEdit->text() : "";
+        rrParams.setSnapshotPeriod(periodCheckBox->isChecked()
+            ? periodLineEdit->text().toInt() : 0);
         rrParams.setOverlayEnabled(overlayCheck->isChecked());
 
         setCurrentDir(name);

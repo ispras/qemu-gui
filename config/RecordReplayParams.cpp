@@ -9,7 +9,7 @@ static const QString xml_overlay = "IsOverlay";
 static const QString xml_start = "replay_";
 
 RecordReplayParams::RecordReplayParams(QObject *parent)
-    : QObject(parent), icount(5)
+    : QObject(parent), icount(5), snapshotPeriod(0), initialSnapshot("init")
 {
 }
 

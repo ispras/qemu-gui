@@ -8,7 +8,7 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
     RecordReplayTab *rr, QObject *parent)
     : QObject(parent), virtual_machine(vm), mode(mode), dirRR(""),
     qemuDirPath(qemu_install_dir_path), icount(""), period(""),
-    con(console), runOptions(runOptions), initSnapshot("init")
+    con(console), runOptions(runOptions)
 {
     createQemuPath(qemu_install_dir_path, virtual_machine->getPlatform());
     qemu = NULL;
@@ -21,11 +21,11 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
         dirRR = rrParams.getCurrentDir();
         icount = QString::number(rrParams.getIcount());
         overlayRR = rrParams.isOverlayEnabled();
-        period = overlayRR ? rr->getSnapshotPeriod() : "";
-        if (mode == LaunchMode::REPLAY)
+        if (overlayRR && rrParams.getSnapshotPeriod())
         {
-            initSnapshot = rr->getInitSnapshot();
+            period = QString::number(rrParams.getSnapshotPeriod());
         }
+        initSnapshot = rrParams.getInitialSnapshot();
         connect(this, SIGNAL(noDiskVM()), rr, SLOT(noDiskVM()));
     }
 }
