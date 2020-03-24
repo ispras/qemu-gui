@@ -8,8 +8,8 @@ static const QString xml_icount = "icount";
 static const QString xml_overlay = "IsOverlay";
 static const QString xml_start = "replay_";
 
-RecordReplayParams::RecordReplayParams(QObject *parent)
-    : QObject(parent), icount(5), snapshotPeriod(0), initialSnapshot("init")
+RecordReplayParams::RecordReplayParams()
+    : icount(5), snapshotPeriod(0), initialSnapshot("init")
 {
 }
 
@@ -65,4 +65,18 @@ void RecordReplayParams::readXml(const QString &name)
             }
         }
     }
+}
+
+QString RecordReplayParams::getCommandLine(LaunchMode mode) const
+{
+    QString initSnapshotCmd = overlay ? ",rrsnapshot=" + initialSnapshot : "";
+    QString rr = mode == LaunchMode::RECORD ? "record" : "replay";
+    QString res = "-icount shift=" + QString::number(icount)
+         + ",rr=" + rr + ",rrfile=" +
+        "\"" + currentDir + "/replay.bin\"" + initSnapshotCmd;
+    if (snapshotPeriod)
+    {
+        res += ",rrperiod=" + QString::number(snapshotPeriod);
+    }
+    return res;
 }

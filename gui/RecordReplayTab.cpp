@@ -295,10 +295,8 @@ void RecordReplayTab::replay_execution()
             QVBoxLayout *mainLay = new QVBoxLayout();
             mainLay->addLayout(snapshotLay);
             mainLay->addLayout(periodLayout(40));
-            periodLineEdit->setText(rrParams.getSnapshotPeriod()
-                ? QString::number(rrParams.getSnapshotPeriod()) : "");
             mainLay->addWidget(okCancelBtn);
-            
+
             replayDialog->setLayout(mainLay);
             replayDialog->show();
             QemuGUI::setWindowGeometry(replayDialog, pWidget);
@@ -311,7 +309,11 @@ void RecordReplayTab::replay_execution()
                 [=](int index)
                 {
                     rrParams.setInitialSnapshot(snapshotCombo->itemText(index));
-                    periodCheckBox->setDisabled(index);
+                    periodCheckBox->setDisabled(index != 0);
+                    if (index != 0)
+                    {
+                        periodCheckBox->setCheckState(Qt::Unchecked);
+                    }
                 }
             );
         }
@@ -428,7 +430,8 @@ void RecordReplayTab::setPeriodSnapReplay()
 {
     if (checkPeriodSet())
     {
-        rrParams.setSnapshotPeriod(periodLineEdit->text().toInt());
+        rrParams.setSnapshotPeriod(periodCheckBox->isChecked()
+            ? periodLineEdit->text().toInt() : 0);
         replayDialog->close();
         setCurrentDir(executionList->currentItem()->text());
         emit startRR(LaunchMode::REPLAY);

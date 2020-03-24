@@ -2,15 +2,17 @@
 #define RECORDREPLAYPARAMS_H
 
 #include <QtCore/QtCore>
+#include "CommandLineParameters.h"
 
-class RecordReplayParams : public QObject
+class RecordReplayParams
 {
-    Q_OBJECT
 public:
-    RecordReplayParams(QObject *parent = NULL);
+    RecordReplayParams();
 
     void createXml(const QString &name) const;
     void readXml(const QString &name);
+
+    QString getCommandLine(LaunchMode mode) const;
 
     const QString &getCurrentDir() const { return currentDir; }
     void setCurrentDir(const QString &dir) { currentDir = dir; }

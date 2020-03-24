@@ -6,34 +6,22 @@
 QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
     QemuRunOptions *runOptions, LaunchMode mode, ConsoleTab *console, 
     RecordReplayTab *rr, QObject *parent)
-    : QObject(parent), virtual_machine(vm), mode(mode), dirRR(""),
-    qemuDirPath(qemu_install_dir_path), icount(""), period(""),
-    con(console), runOptions(runOptions)
+    : QObject(parent), virtual_machine(vm), mode(mode),
+    qemuDirPath(qemu_install_dir_path),
+    con(console), runOptions(runOptions),
+    rrParams(rr->getRecordReplayParams())
 {
     createQemuPath(qemu_install_dir_path, virtual_machine->getPlatform());
     qemu = NULL;
     mon = runOptions->getMonitorCmd();
     qmp = runOptions->getQmpCmd();
     additionalOptionsCmd = runOptions->getAllAdditionalOptionsCmd(mode);
-    if (rr)
-    {
-        const RecordReplayParams &rrParams = rr->getParams();
-        dirRR = rrParams.getCurrentDir();
-        icount = QString::number(rrParams.getIcount());
-        overlayRR = rrParams.isOverlayEnabled();
-        if (overlayRR && rrParams.getSnapshotPeriod())
-        {
-            period = QString::number(rrParams.getSnapshotPeriod());
-        }
-        initSnapshot = rrParams.getInitialSnapshot();
-        connect(this, SIGNAL(noDiskVM()), rr, SLOT(noDiskVM()));
-    }
+    connect(this, SIGNAL(noDiskVM()), rr, SLOT(noDiskVM()));
 }
 
 QemuLauncher::QemuLauncher(const QString &qemuPath, QemuRunOptions *runOptions,
     const QString &platform, const QString &machine)
-    : mode(LaunchMode::NORMAL), con(NULL), runOptions(runOptions),
-    overlayRR(false), initSnapshot("")
+    : mode(LaunchMode::NORMAL), con(NULL), runOptions(runOptions)
 {
     createQemuPath(qemuPath, platform);
     cmd = "-machine " + machine + " ";
@@ -74,12 +62,10 @@ void QemuLauncher::start_qemu()
     recordReplay = "";
     if (mode != LaunchMode::NORMAL)
     {
-        cmdParams.setOverlayDir(dirRR);
-        cmdParams.setOverlayEnabled(overlayRR);
-        QString initSnapshotCmd = overlayRR ? ",rrsnapshot=" + initSnapshot : "";
-        QString rr = mode == LaunchMode::RECORD ? "record" : "replay";
-        recordReplay += "-icount shift=" + icount + ",rr=" + rr + ",rrfile=" +
-            "\"" + dirRR + "/replay.bin\"" + initSnapshotCmd;
+        cmdParams.setOverlayDir(rrParams.getCurrentDir());
+        cmdParams.setOverlayEnabled(rrParams.isOverlayEnabled());
+        QString rr = rrParams.getCommandLine(mode);
+        recordReplay += rr;
         if (mode == LaunchMode::RECORD)
         {
             cmd = virtual_machine->getCommandLine(cmdParams);
@@ -94,10 +80,6 @@ void QemuLauncher::start_qemu()
                 overlays = cmdParams.getOverlays();
                 createOverlays();
             }
-        }
-        if (!period.isEmpty())
-        {
-            recordReplay += ",rrperiod=" + period;
         }
     }
     if (mode != LaunchMode::RECORD)

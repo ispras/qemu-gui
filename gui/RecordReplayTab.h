@@ -18,7 +18,7 @@ public:
     void setVM(VMConfig *virtualMachine);
     void clearVM();
 
-    const RecordReplayParams &getParams() const { return rrParams; }
+    const RecordReplayParams &getRecordReplayParams() const { return rrParams; }
 
 private:
     VMConfig *vm;

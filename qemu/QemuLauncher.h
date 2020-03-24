@@ -9,6 +9,7 @@
 #include "ConsoleTab.h"
 #include "QemuRunOptions.h"
 #include "CommandLineParameters.h"
+#include "RecordReplayParams.h"
 
 class RecordReplayTab;
 
@@ -37,7 +38,6 @@ private:
     QString port_qmp;
     QString port_monitor;
     LaunchMode mode;
-    QString dirRR;
 
     QString mon;
     QString qmp;
@@ -48,10 +48,7 @@ private:
     QStringList images;
     QStringList overlays;
 
-    QString icount;
-    QString period;
-    bool overlayRR;
-    QString initSnapshot;
+    RecordReplayParams rrParams;
 
 private:
     void createQemuPath(const QString &qemuPath, const QString &platform);
