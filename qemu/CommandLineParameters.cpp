@@ -10,11 +10,6 @@ QString CommandLineParameters::getNextOverlayName()
     return overlayPath + "/overlay" + QString::number(diskID++) + ".ovl";
 }
 
-QString CommandLineParameters::getOverlayPath()
-{
-    return overlayPath + "/overlay0.ovl";
-}
-
 QString CommandLineParameters::getOverlayForImage(const QString &image)
 {
     if (overlayEnabled)
