@@ -1,8 +1,7 @@
 #ifndef QEMULAUNCHER_H
 #define QEMULAUNCHER_H
 
-#include <QWidget>
-#include <QtWidgets>
+#include <QtCore/QtCore>
 #include <QTcpSocket>
 
 #include "VMConfig.h"
@@ -20,7 +19,7 @@ class QemuLauncher : public QObject
 public:
     QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm, 
         QemuRunOptions *runOptions, LaunchMode mode, ConsoleTab *console,
-        RecordReplayTab *rr, QObject *parent = 0);
+        const RecordReplayParams &rr, QObject *parent = 0);
     QemuLauncher(const QString &qemuPath, QemuRunOptions *runOptions,
         const QString &platform, const QString &machine);
     ~QemuLauncher();

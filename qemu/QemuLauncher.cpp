@@ -5,11 +5,11 @@
 
 QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
     QemuRunOptions *runOptions, LaunchMode mode, ConsoleTab *console, 
-    RecordReplayTab *rr, QObject *parent)
+    const RecordReplayParams &rr, QObject *parent)
     : QObject(parent), virtual_machine(vm), mode(mode),
     qemuDirPath(qemu_install_dir_path),
     con(console), runOptions(runOptions),
-    rrParams(rr->getRecordReplayParams())
+    rrParams(rr)
 {
     createQemuPath(qemu_install_dir_path, virtual_machine->getPlatform());
     qemu = NULL;
