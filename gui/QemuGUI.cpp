@@ -464,7 +464,10 @@ void QemuGUI::play_machine()
             listVM->setDisabled(true);
 
             launch_qemu = new QemuLauncher(qemu_install_dir_combo->currentText(),
-                vm, runOptions, launchMode, consoleTab, rec_replay_tab->getRecordReplayParams());
+                vm, runOptions, launchMode, rec_replay_tab->getRecordReplayParams());
+            connect(launch_qemu, &QemuLauncher::qemuStarted,
+                [=](const QString &cmdLine) { consoleTab->addConsoleText(cmdLine); }
+            );
             if (launch_qemu->isQemuExist())
             {
                 vmToolBar->setEnabled(false);

@@ -4,12 +4,11 @@
 #include "RecordReplayTab.h"
 
 QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
-    QemuRunOptions *runOptions, LaunchMode mode, ConsoleTab *console, 
+    QemuRunOptions *runOptions, LaunchMode mode,
     const RecordReplayParams &rr, QObject *parent)
     : QObject(parent), virtual_machine(vm), mode(mode),
     qemuDirPath(qemu_install_dir_path),
-    con(console), runOptions(runOptions),
-    rrParams(rr)
+    runOptions(runOptions), rrParams(rr)
 {
     createQemuPath(qemu_install_dir_path, virtual_machine->getPlatform());
     qemu = NULL;
@@ -20,7 +19,7 @@ QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
 
 QemuLauncher::QemuLauncher(const QString &qemuPath, QemuRunOptions *runOptions,
     const QString &platform, const QString &machine)
-    : mode(LaunchMode::NORMAL), con(NULL), runOptions(runOptions)
+    : mode(LaunchMode::NORMAL), runOptions(runOptions)
 {
     createQemuPath(qemuPath, platform);
     cmd = "-machine " + machine + " ";
@@ -121,10 +120,7 @@ void QemuLauncher::launchQemu()
     QString cmdLine = "\"" + qemuExePath + "\" " + recordReplay
         + cmd + mon + runOptions->getQmpCmd() + additionalOptionsCmd;
     qDebug() << cmdLine;
-    if (con)
-    {
-        con->addConsoleText(cmdLine);
-    }
+    emit qemuStarted(cmdLine);
     qemu->start(cmdLine);
     if (virtual_machine)
     {

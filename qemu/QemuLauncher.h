@@ -5,7 +5,6 @@
 #include <QTcpSocket>
 
 #include "VMConfig.h"
-#include "ConsoleTab.h"
 #include "QemuRunOptions.h"
 #include "CommandLineParameters.h"
 #include "RecordReplayParams.h"
@@ -18,7 +17,7 @@ class QemuLauncher : public QObject
 
 public:
     QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm, 
-        QemuRunOptions *runOptions, LaunchMode mode, ConsoleTab *console,
+        QemuRunOptions *runOptions, LaunchMode mode,
         const RecordReplayParams &rr, QObject *parent = 0);
     QemuLauncher(const QString &qemuPath, QemuRunOptions *runOptions,
         const QString &platform, const QString &machine);
@@ -32,7 +31,6 @@ private:
     VMConfig *virtual_machine;
     QProcess *qemu;
 
-    ConsoleTab *con;
     QTcpSocket monitor;
     QString port_qmp;
     QString port_monitor;
@@ -67,7 +65,7 @@ public slots:
 signals:
     void qemu_laucher_finished(int exitCode);
     void creatingOverlayFailed();
-
+    void qemuStarted(const QString &cmdline);
 };
 
 
