@@ -1,6 +1,6 @@
 #include "ConnectionSettingsForm.h"
 
-ConnectionSettingsForm::ConnectionSettingsForm(GlobalConfig *global_config, QWidget *parent)
+ConnectionSettingsForm::ConnectionSettingsForm(QWidget *parent)
     : QWidget(parent)
 {
     if (ConnectionSettingsForm::objectName().isEmpty())
@@ -12,8 +12,6 @@ ConnectionSettingsForm::ConnectionSettingsForm(GlobalConfig *global_config, QWid
     setWindowModality(Qt::ApplicationModal);
     //setWindowFlags(Qt::MSWindowsFixedSizeDialogHint);
 
-    this->global_config = global_config;
-
     qmp_line = new QLineEdit();
     monitor_line = new QLineEdit();
     QDialogButtonBox *savecancel_btn = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
@@ -22,8 +20,8 @@ ConnectionSettingsForm::ConnectionSettingsForm(GlobalConfig *global_config, QWid
     monitor_line->setFixedWidth(50);
     qmp_line->setValidator(new QRegExpValidator(QRegExp("[1-9][0-9]*"), this));
     monitor_line->setValidator(new QRegExpValidator(QRegExp("[1-9][0-9]*"), this));
-    qmp_line->setText(global_config->get_port_qmp());
-    monitor_line->setText(global_config->get_port_monitor());
+    qmp_line->setText(GlobalConfig::get_port_qmp());
+    monitor_line->setText(GlobalConfig::get_port_monitor());
 
     QGridLayout *ports_lay = new QGridLayout();
     ports_lay->addWidget(new QLabel("QMP port"), 0, 0, Qt::AlignmentFlag::AlignLeft);
@@ -54,8 +52,8 @@ void ConnectionSettingsForm::save_connection_settings()
     }
     else
     {
-        global_config->set_port_qmp(qmp_line->text());
-        global_config->set_port_monitor(monitor_line->text());
+        GlobalConfig::set_port_qmp(qmp_line->text());
+        GlobalConfig::set_port_monitor(monitor_line->text());
         emit done_connection_settings(qmp_line->text(), monitor_line->text());
         close();
     }

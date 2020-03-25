@@ -9,11 +9,10 @@ class ConnectionSettingsForm : public QWidget
     Q_OBJECT
 
 public:
-    ConnectionSettingsForm(GlobalConfig *global_config, QWidget *parent = 0);
+    ConnectionSettingsForm(QWidget *parent = 0);
     ~ConnectionSettingsForm();
 
 private:
-    GlobalConfig *global_config;
     QLineEdit *qmp_line;
     QLineEdit *monitor_line;
     

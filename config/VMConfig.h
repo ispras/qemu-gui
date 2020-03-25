@@ -7,12 +7,10 @@
 
 class CommandLineParameters;
 
-class VMConfig : public QObject
+class VMConfig
 {
-    Q_OBJECT
-
 public:
-    VMConfig(QObject *parent, const QString &path);
+    VMConfig(const QString &path);
     ~VMConfig();
 
 public:

@@ -16,8 +16,8 @@ const QString xml_initrd = "InitialRamDisk";
 static bool remove_directory(QDir dir);
 
 
-VMConfig::VMConfig(QObject *parent, const QString &path_vm)
-    : QObject(parent), system("System")
+VMConfig::VMConfig(const QString &path_vm)
+    : system("System")
 {
     list_of_vm_file = NULL;
     system.setRemovable(false);

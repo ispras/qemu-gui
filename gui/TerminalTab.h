@@ -3,7 +3,6 @@
 
 #include <QtWidgets>
 #include <QTcpSocket>
-#include "GlobalConfig.h"
 #include "QemuSocket.h"
 
 
@@ -12,15 +11,13 @@ class TerminalTab : public QWidget
     Q_OBJECT
 
 public:
-    TerminalTab(GlobalConfig *global_config, QWidget *parent = 0);
+    TerminalTab(QWidget *parent = 0);
     ~TerminalTab();
 
 protected:
     bool eventFilter(QObject *target, QEvent *event);
 
 private:
-    GlobalConfig *globalConfig;
-
     QTextEdit *terminalText;
     QLabel *welcomeLbl;
     QLineEdit *terminalCmd;

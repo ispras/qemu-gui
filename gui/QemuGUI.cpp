@@ -33,11 +33,10 @@ QemuGUI::QemuGUI(QWidget *parent)
     statusBar->setObjectName(QStringLiteral("statusBar"));
     setStatusBar(statusBar);
 
-    global_config = new GlobalConfig(this);
     vm_state = VMState::None;
 
-    qmp_port = global_config->get_port_qmp();
-    monitor_port = global_config->get_port_monitor();
+    qmp_port = GlobalConfig::get_port_qmp();
+    monitor_port = GlobalConfig::get_port_monitor();
     runOptions->setQmpPort(qmp_port);
     runOptions->setMonitorPort(monitor_port);
 
@@ -94,9 +93,9 @@ QemuGUI::QemuGUI(QWidget *parent)
     tab->setMinimumWidth(400);
     tab_info = new QWidget(centralWidget);
     tab->addTab(tab_info, "Information about VM");
-    rec_replay_tab = new RecordReplayTab(global_config, this);
+    rec_replay_tab = new RecordReplayTab(this);
     tab->addTab(rec_replay_tab, "Record/Replay");
-    terminal_tab = new TerminalTab(global_config, this);
+    terminal_tab = new TerminalTab(this);
     terminal_tab->setObjectName("Terminal");
     tab->addTab(terminal_tab, terminal_tab->objectName());
     consoleTab = new ConsoleTab();
@@ -142,7 +141,7 @@ QemuGUI::QemuGUI(QWidget *parent)
 
 QemuGUI::~QemuGUI()
 {
-    global_config->set_current_qemu_dir(qemu_install_dir_combo->currentText());
+    GlobalConfig::set_current_qemu_dir(qemu_install_dir_combo->currentText());
     delete qemu_install_dir_settings;
     delete runOptionsDlg;
 }
@@ -156,7 +155,7 @@ bool QemuGUI::eventFilter(QObject *obj, QEvent *event)
 
 void QemuGUI::fill_listVM_from_config()
 {
-    QList<VMConfig *> exist_vm = global_config->get_exist_vm();
+    QList<VMConfig *> exist_vm = GlobalConfig::get_exist_vm();
 
     foreach(VMConfig *vm, exist_vm)
     {
@@ -197,22 +196,22 @@ void QemuGUI::fill_qemu_install_dir_from_config()
     qemu_install_dir_combo->clear();
     qemu_install_dir_list->clear();
     qemu_install_dir_combo->addItem("Add qemu...");
-    QStringList qemu_list = global_config->get_qemu_installation_dirs();
+    QStringList qemu_list = GlobalConfig::get_qemu_installation_dirs();
     qemu_install_dir_list->addItems(qemu_list);
     for (int i = 0; i < qemu_list.count(); i++)
     {
         qemu_install_dir_combo->insertItem(qemu_install_dir_combo->count() - 1, qemu_list.at(i));
     }
-    if (global_config->get_current_qemu_dir() != "")
-        qemu_install_dir_combo->setCurrentText(global_config->get_current_qemu_dir());
+    if (GlobalConfig::get_current_qemu_dir() != "")
+        qemu_install_dir_combo->setCurrentText(GlobalConfig::get_current_qemu_dir());
 }
 
 void QemuGUI::checkQemuCompatibility()
 {
     if (listVM->currentItem())
     {
-        VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
-        QString path = global_config->get_home_dir() + PlatformInformationReader::getQemuProfilePath(
+        VMConfig *vm = GlobalConfig::get_vm_by_name(listVM->currentItem()->text());
+        QString path = GlobalConfig::get_home_dir() + PlatformInformationReader::getQemuProfilePath(
             qemu_install_dir_combo->currentText()) + "/" + vm->getPlatform();
         PlatformInfo platformInfo(path);
         QStringList machines = platformInfo.getMachines();
@@ -374,9 +373,6 @@ void QemuGUI::connect_signals()
     connect(delete_act, SIGNAL(triggered()), this, SLOT(delete_vm_ctxmenu()));
     /* exclude VM */
     connect(exclude_act, SIGNAL(triggered()), this, SLOT(exclude_vm_ctxmenu()));
-    /* create VM */
-    connect(global_config, SIGNAL(globalConfig_new_vm_is_complete()),
-        this, SLOT(refresh()));
 
     connect(qemu_install_dir_combo, SIGNAL(activated(int)),
         this, SLOT(qemu_install_dir_combo_activated(int)));
@@ -411,7 +407,7 @@ void QemuGUI::currentTabChanged(int index)
 QString QemuGUI::delete_exclude_vm(bool delete_vm)
 {
     QString del_vm_name = listVM->currentItem()->text();
-    global_config->delete_exclude_vm(del_vm_name, delete_vm);
+    GlobalConfig::delete_exclude_vm(del_vm_name, delete_vm);
     // may be return value if all ok, exclude from list
     rec_replay_tab->clearVM();
 
@@ -459,7 +455,7 @@ void QemuGUI::play_machine()
     {
         if (vm_state == VMState::None)
         {
-            VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
+            VMConfig *vm = GlobalConfig::get_vm_by_name(listVM->currentItem()->text());
             runOptionPrepare();
             listVM->setDisabled(true);
 
@@ -558,11 +554,16 @@ void QemuGUI::create_machine()
     if (qemu_install_dir_combo->count() > 1 &&
         qemu_install_dir_combo->currentIndex() != qemu_install_dir_combo->count() - 1)
     {
-        createVMWindow = new CreateVMForm(global_config->get_home_dir(),
+        createVMWindow = new CreateVMForm(GlobalConfig::get_home_dir(),
             qemu_install_dir_combo->currentText());
         setWindowGeometry(createVMWindow, this);
-        connect(createVMWindow, SIGNAL(createVM_new_vm_is_complete(VMConfig *)),
-            global_config, SLOT(vm_is_created(VMConfig *)));
+        connect(createVMWindow, &CreateVMForm::createVM_new_vm_is_complete,
+            [=](VMConfig *vm)
+            {
+                GlobalConfig::vm_is_created(vm);
+                refresh();
+            }
+        );
     }
     else
     {
@@ -574,10 +575,10 @@ void QemuGUI::create_machine()
 void QemuGUI::add_machine()
 {
     QString filename = QFileDialog::getOpenFileName(this, "Add exist VM",
-        global_config->get_home_dir(), "*.xml");
+        GlobalConfig::get_home_dir(), "*.xml");
     if (filename != "")
     {
-        if (global_config->add_exist_vm(filename))
+        if (GlobalConfig::add_exist_vm(filename))
             refresh();
         else
             QMessageBox::critical(this, "Error", "Virtual machine cannot be add");
@@ -592,8 +593,8 @@ void QemuGUI::setRunOptions()
 
 void QemuGUI::edit_settings()
 {
-    VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
-    VMSettingsForm *settingsWindow = new VMSettingsForm(vm, global_config,
+    VMConfig *vm = GlobalConfig::get_vm_by_name(listVM->currentItem()->text());
+    VMSettingsForm *settingsWindow = new VMSettingsForm(vm,
         qemu_install_dir_combo->currentText());
     setWindowGeometry(settingsWindow, this);
     settingsWindow->setAttribute(Qt::WA_DeleteOnClose);
@@ -609,7 +610,7 @@ void QemuGUI::listVM_item_selection_changed()
 {
     if (listVM->currentItem())
     {
-        VMConfig *vm = global_config->get_vm_by_name(listVM->currentItem()->text());
+        VMConfig *vm = GlobalConfig::get_vm_by_name(listVM->currentItem()->text());
         if (vm)
         {
             vmInfoTextEdit->setPlainText(vm->get_vm_info());
@@ -671,12 +672,12 @@ void QemuGUI::add_qemu_install_dir_btn()
             return;
         }
 
-        global_config->add_qemu_installation_dir(qemu_install_dir);
-        global_config->set_current_qemu_dir(qemu_install_dir);
+        GlobalConfig::add_qemu_installation_dir(qemu_install_dir);
+        GlobalConfig::set_current_qemu_dir(qemu_install_dir);
         fill_qemu_install_dir_from_config();
 
         platformInfo = new PlatformInformationReader(qemu_install_dir,
-            global_config->get_home_dir(), runOptions);
+            GlobalConfig::get_home_dir(), runOptions);
         connect(platformInfo, SIGNAL(workFinish()), this, SLOT(platformInfoReady()));
     }
 }
@@ -696,9 +697,9 @@ void QemuGUI::del_qemu_install_dir_btn()
             QMessageBox::Yes, QMessageBox::No);
         if (answer == QMessageBox::Yes)
         {
-            VMConfig::remove_directory_vm(global_config->get_home_dir()
+            VMConfig::remove_directory_vm(GlobalConfig::get_home_dir()
                 + PlatformInformationReader::getQemuProfilePath(qemu_install_dir_list->currentItem()->text()));
-            global_config->del_qemu_installation_dir(qemu_install_dir_list->currentItem()->text());
+            GlobalConfig::del_qemu_installation_dir(qemu_install_dir_list->currentItem()->text());
             delete qemu_install_dir_list->currentItem();
             fill_qemu_install_dir_from_config();
         }
@@ -731,7 +732,7 @@ void QemuGUI::qemu_install_dir_combo_activated(int index)
     }
     else
     {
-        global_config->set_current_qemu_dir(qemu_install_dir_combo->itemText(index));
+        GlobalConfig::set_current_qemu_dir(qemu_install_dir_combo->itemText(index));
         checkQemuCompatibility();
         emit currentQemuChanged();
     }
@@ -754,7 +755,7 @@ void QemuGUI::set_terminal_settings()
 
 void QemuGUI::launch_settings()
 {
-    ConnectionSettingsForm *connections_settings = new ConnectionSettingsForm(global_config);
+    ConnectionSettingsForm *connections_settings = new ConnectionSettingsForm();
     setWindowGeometry(connections_settings, this);
     connections_settings->setAttribute(Qt::WA_DeleteOnClose);
 

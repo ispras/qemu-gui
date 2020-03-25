@@ -1,11 +1,12 @@
 #include "VMSettingsForm.h"
+#include "GlobalConfig.h"
 #include "DeviceFactory.h"
 #include "PlatformInformationReader.h"
 #include "PlatformInfo.h"
 
-VMSettingsForm::VMSettingsForm(VMConfig *vmconf, GlobalConfig *globalConfig,
+VMSettingsForm::VMSettingsForm(VMConfig *vmconf,
     const QString &qemuDir, QWidget *parent)
-    : QWidget(parent), vm(vmconf), gConfig(globalConfig), qemuDir(qemuDir)
+    : QWidget(parent), vm(vmconf), qemuDir(qemuDir)
 {
     if (VMSettingsForm::objectName().isEmpty())
         VMSettingsForm::setObjectName(QStringLiteral("VMSettingsForm"));
@@ -33,7 +34,7 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf, GlobalConfig *globalConfig,
     deviceTree->setHeaderHidden(1);
     deviceTree->setColumnCount(1);
 
-    pathToPlatformInfo = gConfig->get_home_dir() + PlatformInformationReader::getQemuProfilePath(
+    pathToPlatformInfo = GlobalConfig::get_home_dir() + PlatformInformationReader::getQemuProfilePath(
         qemuDir) + "/" + vm->getPlatform();
 
     addDev = NULL;

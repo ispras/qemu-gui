@@ -14,8 +14,7 @@ void usage()
 
 int vmlist()
 {
-    GlobalConfig cfg;
-    foreach(VMConfig *vm, cfg.get_exist_vm())
+    foreach(VMConfig *vm, GlobalConfig::get_exist_vm())
     {
         out << "===============================\n";
         out << vm->get_vm_info();
@@ -25,8 +24,7 @@ int vmlist()
 
 int vmcmdline(const char *name, LaunchMode mode)
 {
-    GlobalConfig cfg;
-    VMConfig *vm = cfg.get_vm_by_name(name);
+    VMConfig *vm = GlobalConfig::get_vm_by_name(name);
     if (!vm)
     {
         out << "VM " << name << " does not exist\n";

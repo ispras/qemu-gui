@@ -7,14 +7,13 @@
 #include "DeviceStorage.h"
 #include "DeviceUsb.h"
 #include "VMPropertiesForm.h"
-#include "GlobalConfig.h"
 
 class VMSettingsForm : public QWidget
 {
     Q_OBJECT
 
 public:
-    VMSettingsForm(VMConfig *vmconf, GlobalConfig *globalConfig, 
+    VMSettingsForm(VMConfig *vmconf,
         const QString &qemuDir, QWidget *parent = 0);
     ~VMSettingsForm();
 
@@ -22,7 +21,6 @@ public slots:
 
 private:
     VMConfig *vm;
-    GlobalConfig *gConfig;
     AddDeviceForm *addDev;
     QList<Device *> addedDevices;
     QString pathToPlatformInfo;

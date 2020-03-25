@@ -1,19 +1,18 @@
 #include "TerminalTab.h"
+#include "GlobalConfig.h"
 
-TerminalTab::TerminalTab(GlobalConfig *global_config, QWidget *parent)
+TerminalTab::TerminalTab(QWidget *parent)
     : QWidget(parent)
 {
-    this->globalConfig = global_config;
-
     terminalText = new QTextEdit();
     welcomeLbl = new QLabel(" >> ");
     terminalCmd = new QLineEdit();
     terminalCmd->installEventFilter(this);
 
-    setTerminalInterface(global_config->get_terminal_backgroud(),
-        global_config->get_terminal_text_color(),
-        global_config->get_terminal_font_family(),
-        global_config->get_terminal_font_size());
+    setTerminalInterface(GlobalConfig::get_terminal_backgroud(),
+        GlobalConfig::get_terminal_text_color(),
+        GlobalConfig::get_terminal_font_family(),
+        GlobalConfig::get_terminal_font_size());
 
     QHBoxLayout *cmd_lay = new QHBoxLayout();
     cmd_lay->setSpacing(0);
@@ -159,6 +158,6 @@ void TerminalTab::save_terminal_interface_changes(QTextEdit *test_text)
 
     setTerminalInterface(QColor("#" + style_list.at(index + 2)), test_text->textColor(), 
         test_text->fontFamily(), test_text->fontPointSize());
-    globalConfig->set_terminal_parameters(QColor("#" + style_list.at(index + 2)),
+    GlobalConfig::set_terminal_parameters(QColor("#" + style_list.at(index + 2)),
         test_text->textColor(), test_text->fontFamily(), test_text->fontPointSize());
 }

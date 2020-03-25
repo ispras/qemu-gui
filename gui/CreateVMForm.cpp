@@ -467,7 +467,7 @@ void CreateVMForm::create_vm()
     if (!input_verification("", ""))
         return;
 
-    configVM = new VMConfig(nullptr, pathtovm_edit->text());
+    configVM = new VMConfig(pathtovm_edit->text());
 
     configVM->set_name(name_edit->text());
     configVM->addDeviceCpu(cpuCombo->currentText());

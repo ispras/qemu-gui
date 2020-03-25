@@ -34,7 +34,6 @@ protected:
     bool eventFilter(QObject *target, QEvent *event);
 
 private:
-    GlobalConfig *global_config;
     QemuLauncher *launch_qemu;
     QemuRunOptions *runOptions;
 

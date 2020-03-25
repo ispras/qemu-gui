@@ -6,8 +6,8 @@
 
 static const char regExpForName[] = "[A-Za-z0-9_-][A-Za-z0-9_-\\s]+";
 
-RecordReplayTab::RecordReplayTab(GlobalConfig *globalConfig, QWidget *parent)
-    : QWidget(parent), globalConfig(globalConfig)
+RecordReplayTab::RecordReplayTab(QWidget *parent)
+    : QWidget(parent)
 {
     if (RecordReplayTab::objectName().isEmpty())
         RecordReplayTab::setObjectName(QStringLiteral("RecordReplayTab"));
@@ -114,7 +114,7 @@ void RecordReplayTab::widget_placement()
 void RecordReplayTab::createXml(const QString &name)
 {
     rrParams.setQemuHash(PlatformInformationReader::getQemuHash(
-        globalConfig->get_current_qemu_dir()));
+        GlobalConfig::get_current_qemu_dir()));
     rrParams.createXml(name);
 }
 
@@ -195,7 +195,7 @@ QHBoxLayout *RecordReplayTab::overlayLayout()
 
 QStringList RecordReplayTab::getSnapshotInfo()
 {
-    QemuImgLauncher lauch(globalConfig->get_current_qemu_dir(), "",
+    QemuImgLauncher lauch(GlobalConfig::get_current_qemu_dir(), "",
         rrParams.getDummyImage());
     QStringList info = lauch.getSnapshotInformation();
     QStringList snapshotNames;
@@ -325,7 +325,7 @@ void RecordReplayTab::executionListItemSelectionChanged()
     {
         setCurrentDir(executionList->currentItem()->text());
         readXml(executionList->currentItem()->text());
-        if (rrParams.getQemuHash().compare(PlatformInformationReader::getQemuHash(globalConfig->get_current_qemu_dir())) == 0)
+        if (rrParams.getQemuHash().compare(PlatformInformationReader::getQemuHash(GlobalConfig::get_current_qemu_dir())) == 0)
         {
             rpl_btn->setEnabled(true);
         }

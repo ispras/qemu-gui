@@ -4,7 +4,6 @@
 #include <QtWidgets>
 #include "VMConfig.h"
 #include "QemuLauncher.h"
-#include "GlobalConfig.h"
 #include "RecordReplayParams.h"
 
 class RecordReplayTab : public QWidget
@@ -12,7 +11,7 @@ class RecordReplayTab : public QWidget
     Q_OBJECT
 
 public:
-    RecordReplayTab(GlobalConfig *globalConfig, QWidget *parent = 0);
+    RecordReplayTab(QWidget *parent = 0);
     ~RecordReplayTab();
 
     void setVM(VMConfig *virtualMachine);
@@ -22,7 +21,6 @@ public:
 
 private:
     VMConfig *vm;
-    GlobalConfig *globalConfig;
     QWidget *pWidget;
 
 private:
