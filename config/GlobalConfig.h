@@ -21,9 +21,6 @@ public:
     static bool add_exist_vm(const QString &path);
     static void delete_exclude_vm(const QString &del_vm_name, bool delete_vm);
     static void exclude_vm(const QString &del_vm_name);
-    static void add_qemu_installation_dir(const QString &qemu_install_path);
-    static void del_qemu_installation_dir(const QString &qemu_install_path);
-    static QStringList & get_qemu_installation_dirs();
     static void set_current_qemu_dir(const QString &qemu_dir);
     static QString & get_current_qemu_dir();
     
@@ -42,13 +39,11 @@ public:
 
 private:
     QList<VMConfig *> virtual_machines;
-    QStringList qemu_list;
     QString terminal_parameters_background;
     QString terminal_parameters_text_color;
     QString terminal_parameters_font_family;
     QString terminal_parameters_font_size;
     QFile *vm_config_file;
-    QString path_to_home_dir;
     QString current_qemu_dir;
     QString port_qmp;
     QString port_monitor;

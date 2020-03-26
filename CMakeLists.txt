@@ -19,7 +19,7 @@ include_directories(gui device config qemu)
 
 add_executable(qemu-gui
     config/GlobalConfig.cpp config/VMConfig.cpp config/PlatformInfo.cpp 
-    config/RecordReplayParams.cpp
+    config/RecordReplayParams.cpp config/QemuList.cpp
 
     device/Device.cpp device/DeviceBus.cpp device/DeviceStorage.cpp
     device/DeviceFactory.cpp device/DeviceSystem.cpp
@@ -44,7 +44,7 @@ target_compile_definitions(qemu-gui PUBLIC GUI)
 
 
 add_executable(qemu-cli cli/main.cpp
-    config/GlobalConfig.cpp config/VMConfig.cpp
+    config/GlobalConfig.cpp config/VMConfig.cpp config/QemuList.cpp
     device/Device.cpp device/DeviceBus.cpp device/DeviceStorage.cpp device/DeviceSystem.cpp
     device/DeviceUsb.cpp device/DeviceNetwork.cpp device/DeviceFactory.cpp
     qemu/CommandLineParameters.cpp config/PlatformInfo.cpp)

@@ -8,7 +8,6 @@
 #include "CreateVMForm.h"
 #include "RecordReplayTab.h"
 #include "VMConfig.h"
-#include "GlobalConfig.h"
 #include "QemuLauncher.h"
 #include "QMPInteraction.h"
 #include "TerminalSettingsForm.h"

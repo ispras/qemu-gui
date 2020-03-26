@@ -3,8 +3,6 @@
 
 const QString xml_vm_directory = "VMDirectory";
 const QString xml_vm_directory_item = "Dir";
-const QString xml_qemu_intallation = "QEMUInstallation";
-const QString xml_qemu_installation_item = "InstallPath";
 const QString xml_terminal_settings = "TerminalSettings";
 const QString xml_terminal_backgroud = "BackgroundColor";
 const QString xml_terminal_text_color = "TextColor";
@@ -12,6 +10,7 @@ const QString xml_terminal_font_family = "FontFamily";
 const QString xml_terminal_font_size = "FontSize";
 const QString xml_qmp_port = "QMPPort";
 const QString xml_monitor_port = "MonitorPort";
+const QString xml_qemu_installation = "QemuInstallation";
 
 // default values
 const QString qmp_port_default = "2323";
@@ -31,13 +30,12 @@ GlobalConfig::GlobalConfig()
     terminal_parameters_font_family = font_family_default;
     terminal_parameters_font_size = font_size_default;
 
-    path_to_home_dir = QDir::homePath() + "/QemuGUI_VirtualMachines";
-    QDir home_dir(path_to_home_dir);
+    QDir home_dir(get_home_dir());
     if (!home_dir.exists())
     {
-        home_dir.mkdir(path_to_home_dir);
+        home_dir.mkdir(get_home_dir());
     }
-    vm_config_file = new QFile(path_to_home_dir + "/VMconfig.conf");
+    vm_config_file = new QFile(get_home_dir() + "/VMconfig.conf");
     if (!vm_config_file->exists())
     {
         vm_config_file->open(QIODevice::Append);
@@ -66,25 +64,6 @@ GlobalConfig::GlobalConfig()
                             xmlReader.readNextStartElement();
                         }
                     }
-                    if (xmlReader.name() == xml_qemu_intallation)
-                    {
-                        xmlReader.readNextStartElement();
-                        while (xmlReader.name() == xml_qemu_installation_item)
-                        {
-                            QString qemu_list_item;
-                            if (xmlReader.attributes().back().value() == "True")
-                            {
-                                current_qemu_dir = xmlReader.readElementText();
-                                qemu_list_item = current_qemu_dir;
-                            }
-                            else
-                            {
-                                qemu_list_item = xmlReader.readElementText();
-                            }
-                            qemu_list.append(qemu_list_item);
-                            xmlReader.readNextStartElement();
-                        }
-                    }
                     if (xmlReader.name() == xml_terminal_settings)
                     {
                         xmlReader.readNextStartElement();
@@ -108,6 +87,10 @@ GlobalConfig::GlobalConfig()
                             terminal_parameters_font_size = xmlReader.readElementText();
                             xmlReader.readNextStartElement();
                         }
+                    }
+                    if (xmlReader.name() == xml_qemu_installation)
+                    {
+                        current_qemu_dir = xmlReader.readElementText();
                     }
                     if (xmlReader.name() == xml_qmp_port)
                     {
@@ -133,29 +116,12 @@ GlobalConfig &GlobalConfig::instance()
 
 QString GlobalConfig::get_home_dir()
 {
-    return instance().path_to_home_dir;
+    return QDir::homePath() + "/QemuGUI_VirtualMachines";
 }
 
 QList<VMConfig *> GlobalConfig::get_exist_vm()
 {
     return instance().virtual_machines;
-}
-
-void GlobalConfig::add_qemu_installation_dir(const QString & qemu_install_path)
-{
-    instance().qemu_list.append(qemu_install_path);
-    instance().save_config_file();
-}
-
-void GlobalConfig::del_qemu_installation_dir(const QString & qemu_install_path)
-{
-    instance().qemu_list.removeOne(qemu_install_path);
-    instance().save_config_file();
-}
-
-QStringList & GlobalConfig::get_qemu_installation_dirs()
-{
-    return instance().qemu_list;
 }
 
 void GlobalConfig::set_current_qemu_dir(const QString & qemu_dir)
@@ -232,16 +198,16 @@ VMConfig * GlobalConfig::get_vm_by_name(const QString &name)
 
 bool GlobalConfig::save_config_file()
 {
-    if (instance().vm_config_file->open(QIODevice::WriteOnly))
+    if (vm_config_file->open(QIODevice::WriteOnly))
     {
-        QXmlStreamWriter xmlWriter(instance().vm_config_file);
+        QXmlStreamWriter xmlWriter(vm_config_file);
 
         xmlWriter.setAutoFormatting(true);
         xmlWriter.writeStartDocument();
         xmlWriter.writeStartElement("CommonParameters");
 
         xmlWriter.writeStartElement(xml_vm_directory);
-        foreach(VMConfig *vm, instance().virtual_machines)
+        foreach(VMConfig *vm, virtual_machines)
         {
             xmlWriter.writeStartElement(xml_vm_directory_item);
             xmlWriter.writeCharacters(vm->get_dir_path());
@@ -249,54 +215,41 @@ bool GlobalConfig::save_config_file()
         }
         xmlWriter.writeEndElement();
 
-        xmlWriter.writeStartElement(xml_qemu_intallation);
-        foreach(QString dir, instance().qemu_list)
-        {
-            xmlWriter.writeStartElement(xml_qemu_installation_item);
-            if (instance().current_qemu_dir == dir)
-            {
-                xmlWriter.writeAttribute("Current", "True");
-            }
-            else
-            {
-                xmlWriter.writeAttribute("Current", "False");
-            }
-            xmlWriter.writeCharacters(dir);
-            xmlWriter.writeEndElement();
-        }
-        xmlWriter.writeEndElement();
-
         xmlWriter.writeStartElement(xml_terminal_settings);
         {
             xmlWriter.writeStartElement(xml_terminal_backgroud);
-            xmlWriter.writeCharacters(instance().terminal_parameters_background);
+            xmlWriter.writeCharacters(terminal_parameters_background);
             xmlWriter.writeEndElement();
 
             xmlWriter.writeStartElement(xml_terminal_text_color);
-            xmlWriter.writeCharacters(instance().terminal_parameters_text_color);
+            xmlWriter.writeCharacters(terminal_parameters_text_color);
             xmlWriter.writeEndElement();
 
             xmlWriter.writeStartElement(xml_terminal_font_family);
-            xmlWriter.writeCharacters(instance().terminal_parameters_font_family);
+            xmlWriter.writeCharacters(terminal_parameters_font_family);
             xmlWriter.writeEndElement();
 
             xmlWriter.writeStartElement(xml_terminal_font_size);
-            xmlWriter.writeCharacters(instance().terminal_parameters_font_size);
+            xmlWriter.writeCharacters(terminal_parameters_font_size);
             xmlWriter.writeEndElement();
         }
         xmlWriter.writeEndElement();
 
+        xmlWriter.writeStartElement(xml_qemu_installation);
+        xmlWriter.writeCharacters(current_qemu_dir);
+        xmlWriter.writeEndElement();
+
         xmlWriter.writeStartElement(xml_qmp_port);
-        xmlWriter.writeCharacters(instance().port_qmp);
+        xmlWriter.writeCharacters(port_qmp);
         xmlWriter.writeEndElement();
 
         xmlWriter.writeStartElement(xml_monitor_port);
-        xmlWriter.writeCharacters(instance().port_monitor);
+        xmlWriter.writeCharacters(port_monitor);
         xmlWriter.writeEndElement();
         
         xmlWriter.writeEndElement();
         xmlWriter.writeEndDocument();
-        instance().vm_config_file->close();
+        vm_config_file->close();
         return true;
     }
     return false;

@@ -1,6 +1,8 @@
 #include "QemuGUI.h"
 #include "PlatformInformationReader.h"
 #include "PlatformInfo.h"
+#include "QemuList.h"
+#include "GlobalConfig.h"
 
 
 QemuGUI::QemuGUI(QWidget *parent)
@@ -196,7 +198,7 @@ void QemuGUI::fill_qemu_install_dir_from_config()
     qemu_install_dir_combo->clear();
     qemu_install_dir_list->clear();
     qemu_install_dir_combo->addItem("Add qemu...");
-    QStringList qemu_list = GlobalConfig::get_qemu_installation_dirs();
+    QStringList qemu_list = QemuList::getAllQemuInstallations();
     qemu_install_dir_list->addItems(qemu_list);
     for (int i = 0; i < qemu_list.count(); i++)
     {
@@ -672,7 +674,7 @@ void QemuGUI::add_qemu_install_dir_btn()
             return;
         }
 
-        GlobalConfig::add_qemu_installation_dir(qemu_install_dir);
+        QemuList::addQemuInstallation(qemu_install_dir);
         GlobalConfig::set_current_qemu_dir(qemu_install_dir);
         fill_qemu_install_dir_from_config();
 
@@ -699,7 +701,7 @@ void QemuGUI::del_qemu_install_dir_btn()
         {
             VMConfig::remove_directory_vm(GlobalConfig::get_home_dir()
                 + PlatformInformationReader::getQemuProfilePath(qemu_install_dir_list->currentItem()->text()));
-            GlobalConfig::del_qemu_installation_dir(qemu_install_dir_list->currentItem()->text());
+            QemuList::delQemuInstallation(qemu_install_dir_list->currentItem()->text());
             delete qemu_install_dir_list->currentItem();
             fill_qemu_install_dir_from_config();
         }
