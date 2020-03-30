@@ -1,6 +1,7 @@
 #include <QTextStream>
 #include "GlobalConfig.h"
 #include "CommandLineParameters.h"
+#include "QemuList.h"
 
 QTextStream out(stdout);
 
@@ -8,6 +9,7 @@ void usage()
 {
     out << "qemu-cli usage:\n"
         "list - output configured VMs\n"
+        "qemulist - output configured QEMU installations\n"
         "cmdline <vm> [record | replay]"
         " - output command line for running specified VM\n";
 }
@@ -18,6 +20,16 @@ int vmlist()
     {
         out << "===============================\n";
         out << vm->get_vm_info();
+    }
+    return 0;
+}
+
+int qemulist()
+{
+    QemuList::Items q = QemuList::getAllQemuInstallations();
+    foreach(QString name, q.keys())
+    {
+        out << name << " : " << q.value(name) << "\n";
     }
     return 0;
 }
@@ -47,6 +59,10 @@ int main(int argc, char *argv[])
     if (!strcmp(argv[1], "list"))
     {
         return vmlist();
+    }
+    else if (!strcmp(argv[1], "qemulist"))
+    {
+        return qemulist();
     }
     else if (!strcmp(argv[1], "cmdline"))
     {
