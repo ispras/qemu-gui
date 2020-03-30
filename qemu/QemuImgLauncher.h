@@ -1,8 +1,7 @@
 #ifndef QEMUIMGLAUNCHER_H
 #define QEMUIMGLAUNCHER_H
 
-#include <QWidget>
-#include <QtWidgets>
+#include <QtCore/QtCore>
 
 class QemuImgLauncher : public QObject
 {
@@ -18,7 +17,7 @@ public:
     ~QemuImgLauncher();
 
     QStringList getSnapshotInformation();
-    
+
 private:
     QString qemuImg;
     QString imageFormat;

@@ -1,41 +1,40 @@
 #ifndef PLATFORMINFORMATIONREADER_H
 #define PLATFORMINFORMATIONREADER_H
 
-#include <QtWidgets> 
+#include <QtCore/QtCore> 
+#ifdef GUI
+#include <QtWidgets>
+#endif
 #include "QMPInteraction.h"
 #include "QemuLauncher.h"
-#include "QemuRunOptions.h"
 
 class PlatformInformationReader : public QObject
 {
     Q_OBJECT
 
 public:
-    PlatformInformationReader(const QString &qemuPath, const QString &homeDir, 
-        QemuRunOptions *runOptions);
-    ~PlatformInformationReader();
-    static QString getQemuProfilePath(const QString &name);
-    static QString getQemuHash(const QString &name);
+    PlatformInformationReader(const QString &qemu, const QString &profile, bool del = true);
 
 private:
-    QemuRunOptions *runOptions;
     QThread *thread;
-    QProgressDialog *progress;
-    QString qemuDirPath;
-    QString platformDirPath;
-    QString currentPlatformDirPath;
+    QString qemuPath;
+    QString profilePath;
     QList<QStringList> platforms;
     QMPInteractionSettings *qmp;
-    QemuLauncher *qemu;
-    QString qmpPort;
+    QemuLauncher *launcher;
     bool allInfoReady;
     QList<QStringList> result;
     QTimer *timer;
+    bool deleteSelf;
 
 private:
     void launchQemu();
-    void createProgressDialog();
     void createXml();
+    void createProgressDialog();
+
+#ifdef GUI
+    QProgressDialog *progress;
+#endif
 
 private slots:
     void qmpConnectOk();
@@ -52,7 +51,6 @@ signals:
 
     void workFinish();
     void qemuMustDie();
-
 };
 
 #endif // PLATFORM_INFORMATIONREADER_H

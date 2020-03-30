@@ -1,8 +1,7 @@
 #ifndef QMPINTERACTION_H
 #define QMPINTERACTION_H
 
-#include <QWidget>
-#include <QtWidgets>
+#include <QtCore/QtCore>
 #include "QemuSocket.h"
 
 enum class QMPCommands : int 

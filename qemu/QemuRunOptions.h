@@ -1,18 +1,17 @@
 #ifndef QEMURUNOPTIONS_H
 #define QEMURUNOPTIONS_H
 
-#include <QtWidgets>
+#include <QtCore/QtCore>
 
 enum class LaunchMode;
 
-class QemuRunOptions : public QObject
+class QemuRunOptions
 {
-    Q_OBJECT
-
 public:
     QemuRunOptions();
 
-public:
+    static QemuRunOptions getGlobal();
+
     void setQmpPort(const QString &port) { qmpPort = port; }
     QString getQmpPort() const { return qmpPort; }
 

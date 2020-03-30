@@ -1,5 +1,6 @@
 #include <QColor>
 #include "GlobalConfig.h"
+#include "QemuList.h"
 
 const QString xml_vm_directory = "VMDirectory";
 const QString xml_vm_directory_item = "Dir";
@@ -90,7 +91,7 @@ GlobalConfig::GlobalConfig()
                     }
                     if (xmlReader.name() == xml_qemu_installation)
                     {
-                        current_qemu_dir = xmlReader.readElementText();
+                        current_qemu = xmlReader.readElementText();
                     }
                     if (xmlReader.name() == xml_qmp_port)
                     {
@@ -124,15 +125,20 @@ QList<VMConfig *> GlobalConfig::get_exist_vm()
     return instance().virtual_machines;
 }
 
-void GlobalConfig::set_current_qemu_dir(const QString & qemu_dir)
+void GlobalConfig::set_current_qemu(const QString & qemu)
 {
-    instance().current_qemu_dir = qemu_dir;
+    instance().current_qemu = qemu;
     instance().save_config_file();
 }
 
-QString & GlobalConfig::get_current_qemu_dir()
+QString GlobalConfig::get_current_qemu()
 {
-    return instance().current_qemu_dir;
+    return instance().current_qemu;
+}
+
+QString GlobalConfig::get_current_qemu_dir()
+{
+    return QemuList::getQemuDir(get_current_qemu());
 }
 
 void GlobalConfig::set_terminal_parameters(QColor background, QColor text_color, const QString & font_family, int font_size)
@@ -236,7 +242,7 @@ bool GlobalConfig::save_config_file()
         xmlWriter.writeEndElement();
 
         xmlWriter.writeStartElement(xml_qemu_installation);
-        xmlWriter.writeCharacters(current_qemu_dir);
+        xmlWriter.writeCharacters(current_qemu);
         xmlWriter.writeEndElement();
 
         xmlWriter.writeStartElement(xml_qmp_port);

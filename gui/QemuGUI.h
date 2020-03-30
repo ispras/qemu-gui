@@ -14,7 +14,6 @@
 #include "TerminalTab.h"
 #include "ConsoleTab.h"
 #include "ConnectionSettingsForm.h"
-#include "PlatformInformationReader.h"
 #include "QemuRunOptions.h"
 
 enum VMState {None, Running, Stopped};
@@ -38,10 +37,7 @@ private:
 
     VMState vm_state;
     QTcpSocket monitorSocket;
-    
-    QDialog *qemu_install_dir_settings;
-    QListWidget *qemu_install_dir_list;
-    
+
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QToolBar *vmToolBar;
@@ -62,7 +58,7 @@ private:
     QAction *qemu_pause;
     QAction *qemu_stop;
     QAction *editVMAct;
-    
+
     QComboBox *qemu_install_dir_combo;
 
     QListWidget *listVM;
@@ -86,12 +82,9 @@ private:
 
     LaunchMode launchMode = LaunchMode::NORMAL;
 
-    PlatformInformationReader *platformInfo;
-
-
 private:
     QIcon set_button_icon_for_state(const QString &normal_icon, const QString &disable_icon);
-    void create_qemu_install_dir_dialog();
+    void createQemuListEditor();
     void createRunOptionsDialog();
     void connect_signals();
     void widget_placement();
@@ -106,15 +99,9 @@ public slots:
     void resume_qemu_btn_state();
     void set_connection_settings(const QString &qmp, const QString &monitor);
 
-    void platformInfoReady();
-
 private slots:
 
     void currentTabChanged(int index);
-    void set_qemu_install_dir();
-    void setQemuInstallDirFromForm(QListWidgetItem *item);
-    void add_qemu_install_dir_btn();
-    void del_qemu_install_dir_btn();
     void refresh();
     QString delete_exclude_vm(bool delete_vm);
     void delete_vm_ctxmenu();
@@ -131,7 +118,6 @@ private slots:
     void listVM_item_selection_changed();
     void listVM_current_item_changed(QListWidgetItem *current, QListWidgetItem *previous);
     void qemu_install_dir_combo_activated(int index);
-    void qemu_install_dir_combo_index_changed(int index);
     void set_terminal_settings();
     void launch_settings();
     void overlayFailed();

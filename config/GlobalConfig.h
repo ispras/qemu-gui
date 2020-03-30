@@ -21,8 +21,9 @@ public:
     static bool add_exist_vm(const QString &path);
     static void delete_exclude_vm(const QString &del_vm_name, bool delete_vm);
     static void exclude_vm(const QString &del_vm_name);
-    static void set_current_qemu_dir(const QString &qemu_dir);
-    static QString & get_current_qemu_dir();
+    static void set_current_qemu(const QString &qemu);
+    static QString get_current_qemu();
+    static QString get_current_qemu_dir();
     
     static void set_terminal_parameters(QColor background, QColor text_color, const QString &font_family, int font_size);
     static QColor get_terminal_backgroud();
@@ -44,7 +45,7 @@ private:
     QString terminal_parameters_font_family;
     QString terminal_parameters_font_size;
     QFile *vm_config_file;
-    QString current_qemu_dir;
+    QString current_qemu;
     QString port_qmp;
     QString port_monitor;
 

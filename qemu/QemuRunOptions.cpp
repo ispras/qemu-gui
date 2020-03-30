@@ -1,11 +1,19 @@
 #include "QemuRunOptions.h"
-#include "QemuLauncher.h"
+#include "CommandLineParameters.h"
+#include "config/GlobalConfig.h"
 
 QemuRunOptions::QemuRunOptions() :
     logfileName(""), logOptionList({}), additionalCmdLine(""),
     isDebugEnable(false), isSnapshotEnable(false), isQemuRunStopped(false)
 {
+}
 
+QemuRunOptions QemuRunOptions::getGlobal()
+{
+    QemuRunOptions opt;
+    opt.qmpPort = GlobalConfig::get_port_qmp();
+    opt.monitorPort = GlobalConfig::get_port_monitor();
+    return opt;
 }
 
 QString QemuRunOptions::getMonitorCmd()

@@ -17,15 +17,15 @@ class QemuLauncher : public QObject
 
 public:
     QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm, 
-        QemuRunOptions *runOptions, LaunchMode mode,
+        const QemuRunOptions &runOpt, LaunchMode mode,
         const RecordReplayParams &rr, QObject *parent = 0);
-    QemuLauncher(const QString &qemuPath, QemuRunOptions *runOptions,
+    QemuLauncher(const QString &qemuPath, const QemuRunOptions &runOpt,
         const QString &platform, const QString &machine);
     ~QemuLauncher();
     bool isQemuExist();
 
 private:
-    QemuRunOptions *runOptions;
+    QemuRunOptions runOptions;
     QString qemuDirPath;
     QString qemuExePath;
     VMConfig *virtual_machine;

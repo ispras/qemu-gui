@@ -3,6 +3,7 @@
 #include "QemuGUI.h"
 #include "QemuImgLauncher.h"
 #include "CommandLineParameters.h"
+#include "common/FileHelpers.h"
 
 static const char regExpForName[] = "[A-Za-z0-9_-][A-Za-z0-9_-\\s]+";
 
@@ -113,8 +114,7 @@ void RecordReplayTab::widget_placement()
 
 void RecordReplayTab::createXml(const QString &name)
 {
-    rrParams.setQemuHash(PlatformInformationReader::getQemuHash(
-        GlobalConfig::get_current_qemu_dir()));
+    rrParams.setQemu(GlobalConfig::get_current_qemu());
     rrParams.createXml(name);
 }
 
@@ -325,7 +325,7 @@ void RecordReplayTab::executionListItemSelectionChanged()
     {
         setCurrentDir(executionList->currentItem()->text());
         readXml(executionList->currentItem()->text());
-        if (rrParams.getQemuHash().compare(PlatformInformationReader::getQemuHash(GlobalConfig::get_current_qemu_dir())) == 0)
+        if (rrParams.getQemu() == GlobalConfig::get_current_qemu())
         {
             rpl_btn->setEnabled(true);
         }
@@ -386,7 +386,7 @@ void RecordReplayTab::delete_ctxmenu()
             QMessageBox::Yes, QMessageBox::No);
         if (answer == QMessageBox::Yes)
         {
-            vm->remove_directory_vm(rrParams.getCurrentDir());
+            FileHelpers::deleteDirectory(rrParams.getCurrentDir());
             disconnect(executionList, 0, 0, 0);
             QListWidgetItem *it = executionList->takeItem(executionList->currentRow());
             delete it;
@@ -408,7 +408,7 @@ void RecordReplayTab::deleteAllCtxmenu()
             for (int i = 0; i < executionList->count(); i++)
             {
                 QString name = vm->getPathRRDir() + "/" + executionList->item(i)->text();
-                vm->remove_directory_vm(name);
+                FileHelpers::deleteDirectory(name);
             }
             disconnect(executionList, 0, 0, 0);
             executionList->clear();
@@ -481,7 +481,7 @@ void RecordReplayTab::recordDeleteRecords()
 
 void RecordReplayTab::deleteRecordFolder()
 {
-    vm->remove_directory_vm(rrParams.getCurrentDir());
+    FileHelpers::deleteDirectory(rrParams.getCurrentDir());
     delete executionList->item(executionList->count() - 1);
     executionList->clearSelection();
     renameAct->setDisabled(true);

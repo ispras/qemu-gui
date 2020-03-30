@@ -2,12 +2,14 @@
 #include "CreateVMForm.h"
 #include "PlatformInformationReader.h"
 #include "PlatformInfo.h"
+#include "config/QemuList.h"
+#include "config/GlobalConfig.h"
 
 const QString xml_machine = "Machine";
 const QString xml_cpu = "Cpu";
 
-CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
-    : QWidget(), default_path(home_dir), qemu_dir(qemu_dir)
+CreateVMForm::CreateVMForm()
+    : QWidget()
 {
     if (CreateVMForm::objectName().isEmpty())
         CreateVMForm::setObjectName(QStringLiteral("CreateVMForm"));
@@ -20,7 +22,7 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     QStringList format = { "qcow2", "qcow", "cow", "raw" }; // "vmdk", "cloop", "VPC(VHD)?"};
     QStringList os_type = { "Windows", "Linux", "Ubuntu", "MacOS", "Other" };
 
-    platformDirPath = home_dir + PlatformInformationReader::getQemuProfilePath(qemu_dir);
+    platformDirPath = QemuList::getQemuProfilePath(GlobalConfig::get_current_qemu());
 
     name_edit = new QLineEdit(this);
     pathtovm_edit = new QLineEdit(this);
@@ -44,7 +46,7 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     kernelForm = new VMPropertiesForm(this, "System files");
 
     hdd_no_rb = new QRadioButton("No disk");
-    hdd_exist_rb = new QRadioButton("Select exist disk");
+    hdd_exist_rb = new QRadioButton("Select existing disk");
     hdd_new_rb = new QRadioButton("Create new disk");
 
     error_lbl = new QLabel("");
@@ -65,7 +67,7 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
 
     format_combo->addItems(format);
 
-    pathtovm_edit->setText(home_dir + "/");
+    pathtovm_edit->setText(GlobalConfig::get_home_dir() + "/");
     pathtovm_edit->setReadOnly(true);
     imageplace_edit->setReadOnly(true);
     name_edit->setFixedWidth(330);
@@ -73,7 +75,7 @@ CreateVMForm::CreateVMForm(const QString &home_dir, const QString &qemu_dir)
     //verOS_combo->setFixedWidth(330);
     platformCombo->setFixedWidth(330);
     typeOS_combo->addItems(os_type);
-    
+
     QDir platformDir(platformDirPath);
     if (platformDir.exists())
     {
@@ -221,7 +223,7 @@ QStringList CreateVMForm::getInformationFromQemu(const QString &cmd)
 {
     QStringList output;
     QProcess qemuProcess;
-    qemuProcess.start("\"" + qemu_dir + "/qemu-system-"
+    qemuProcess.start("\"" + GlobalConfig::get_current_qemu_dir() + "/qemu-system-"
         + platformCombo->currentText() + "\" -machine " + cmd + " help");
     qemuProcess.waitForFinished(-1);
     
@@ -286,7 +288,7 @@ void CreateVMForm::connect_signals()
 void CreateVMForm::select_dir()
 {
     QString directory_name = QFileDialog::getExistingDirectory(this,
-        "Select directory", default_path);
+        "Select directory", GlobalConfig::get_home_dir());
     if (directory_name != "")
     {
         path_to_vm = directory_name;
@@ -310,7 +312,7 @@ QString CreateVMForm::set_path_to_vm(const QString &home_path)
     }
     else
     {
-        path = default_path + "/" + name_edit->text();
+        path = GlobalConfig::get_home_dir() + "/" + name_edit->text();
     }
     pathtovm_edit->setText(path);
     return path;
@@ -434,18 +436,12 @@ void CreateVMForm::hdd_exist(bool state)
 
 void CreateVMForm::hdd_new(bool state)
 {
-    if (state && QString().compare(qemu_dir, "") != 0)
+    if (state)
     {
         show_error_message("");
         imageplace_edit->clear();
         set_visible_widgets_for_new_hdd(true);
         set_visible_widgets_for_existed_hdd(false);
-    }
-    else if (state)
-    {
-        QMessageBox::critical(this, "Error",
-            "Didn\'t select Qemu installation directory");
-        hdd_no_rb->setChecked(true);
     }
 }
 
@@ -454,7 +450,7 @@ void CreateVMForm::place_disk()
     if (hdd_exist_rb->isChecked())
     {
         QString filename = QFileDialog::getOpenFileName(this, "Select image", 
-            default_path, "*.qcow *.qcow2 *.vdi *.img *.raw"); // and other
+            GlobalConfig::get_home_dir(), "*.qcow *.qcow2 *.vdi *.img *.raw"); // and other
         if (filename != "")
         {
             imageplace_edit->setText(filename);
@@ -499,7 +495,7 @@ void CreateVMForm::create_vm()
             "." + format_combo->currentText();
 
         QThread *thread = new QThread();
-        QemuImgLauncher *imgLauncher = new QemuImgLauncher(qemu_dir, 
+        QemuImgLauncher *imgLauncher = new QemuImgLauncher(GlobalConfig::get_current_qemu_dir(),
             format_combo->currentText(), imageName, hddsize_spin->value());
 
         imgLauncher->moveToThread(thread);

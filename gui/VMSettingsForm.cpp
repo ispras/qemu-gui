@@ -3,10 +3,12 @@
 #include "DeviceFactory.h"
 #include "PlatformInformationReader.h"
 #include "PlatformInfo.h"
+#include "common/FileHelpers.h"
+#include "config/QemuList.h"
 
 VMSettingsForm::VMSettingsForm(VMConfig *vmconf,
-    const QString &qemuDir, QWidget *parent)
-    : QWidget(parent), vm(vmconf), qemuDir(qemuDir)
+    const QString &qemuName, QWidget *parent)
+    : QWidget(parent), vm(vmconf)
 {
     if (VMSettingsForm::objectName().isEmpty())
         VMSettingsForm::setObjectName(QStringLiteral("VMSettingsForm"));
@@ -34,8 +36,8 @@ VMSettingsForm::VMSettingsForm(VMConfig *vmconf,
     deviceTree->setHeaderHidden(1);
     deviceTree->setColumnCount(1);
 
-    pathToPlatformInfo = GlobalConfig::get_home_dir() + PlatformInformationReader::getQemuProfilePath(
-        qemuDir) + "/" + vm->getPlatform();
+    pathToPlatformInfo = QemuList::getQemuProfilePath(qemuName)
+        + "/" + vm->getPlatform();
 
     addDev = NULL;
     addedDevices.clear();
@@ -169,7 +171,7 @@ bool VMSettingsForm::applySettings()
         vm->setKernel(kernelForm->getKernel());
         vm->setInitrd(kernelForm->getInitrd());
         vm->save_vm_config();
-        vm->remove_directory_vm(vm->getPathRRDir());
+        FileHelpers::deleteDirectory(vm->getPathRRDir());
         if (isExecutionList)
         {
             emit settingsDeleteRecords();

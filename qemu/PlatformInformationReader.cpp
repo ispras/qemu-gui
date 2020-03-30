@@ -1,9 +1,10 @@
 #include "PlatformInformationReader.h"
+#include "common/FileHelpers.h"
+#include "config/GlobalConfig.h"
 
-PlatformInformationReader::PlatformInformationReader(const QString &qemuPath,
-    const QString &homeDir, QemuRunOptions *runOptions)
-    : qemuDirPath(qemuPath), platformDirPath(homeDir + "/platforms"),
-    runOptions(runOptions)
+PlatformInformationReader::PlatformInformationReader(const QString &qemu,
+    const QString &profile, bool del)
+    : qemuPath(qemu), profilePath(profile), deleteSelf(del)
 {
     platforms = { QStringList({ "i386", "pc" }),
         QStringList({ "x86_64", "pc" }),
@@ -14,64 +15,38 @@ PlatformInformationReader::PlatformInformationReader(const QString &qemuPath,
     };
 
     qmp = NULL;
-    qemu = NULL;
+    launcher = NULL;
     timer = NULL;
-    qmpPort = runOptions->getQmpPort();
     allInfoReady = false;
 
-    QDir platformDir(platformDirPath);
-    if (!platformDir.exists())
-    {
-        platformDir.mkdir(platformDirPath);
-    }
-    currentPlatformDirPath = homeDir + getQemuProfilePath(qemuDirPath);
-    QDir currentQemuPlatformDir(currentPlatformDirPath);
-    if (!currentQemuPlatformDir.exists())
-    {
-        currentQemuPlatformDir.mkdir(currentPlatformDirPath);
-        createProgressDialog();
-        launchQemu();
-    }
+    FileHelpers::deleteDirectory(profilePath);
+    FileHelpers::createDirectory(profilePath);
+    createProgressDialog();
+    launchQemu();
 }
-
-PlatformInformationReader::~PlatformInformationReader()
-{
-}
-
-QString PlatformInformationReader::getQemuProfilePath(const QString &name)
-{
-    return "/platforms/qemu_" + getQemuHash(name);
-}
-
-QString PlatformInformationReader::getQemuHash(const QString &name)
-{
-    uint hash = qHash(name);
-    return QString::number(hash).setNum(hash, 16);
-}
-
 
 void PlatformInformationReader::launchQemu()
 {
     allInfoReady = false;
 
-    qemu = new QemuLauncher(qemuDirPath, runOptions, platforms.first().at(0),
-        platforms.first().at(1));
-    if (qemu->isQemuExist())
+    launcher = new QemuLauncher(qemuPath, QemuRunOptions::getGlobal(),
+        platforms.first().at(0), platforms.first().at(1));
+    if (launcher->isQemuExist())
     {
         result.clear();
         result.append(platforms.first());
-        qmp = new QMPInteractionSettings(nullptr, qmpPort.toInt());
+        qmp = new QMPInteractionSettings(nullptr, GlobalConfig::get_port_qmp().toInt());
         connect(qmp, SIGNAL(qmpConnected()), this, SLOT(qmpConnectOk()));
         connect(qmp, SIGNAL(readyInfo(const QStringList&, bool)),
             this, SLOT(nextRequest(const QStringList&, bool)));
         connect(this, SIGNAL(qmpSendCommand()), qmp, SLOT(commandQmp()));
         connect(this, SIGNAL(qmpShutdownQemu()), qmp, SLOT(commandShutdownQemu()));
-        connect(this, SIGNAL(qemuMustDie()), qemu, SLOT(terminateQemu()));
+        connect(this, SIGNAL(qemuMustDie()), launcher, SLOT(terminateQemu()));
 
         thread = new QThread();
-        qemu->moveToThread(thread);
-        connect(thread, SIGNAL(started()), qemu, SLOT(start_qemu()));
-        connect(qemu, SIGNAL(qemu_laucher_finished(int)),
+        launcher->moveToThread(thread);
+        connect(thread, SIGNAL(started()), launcher, SLOT(start_qemu()));
+        connect(launcher, SIGNAL(qemu_laucher_finished(int)),
             this, SLOT(finishQemu(int)));
 
         timer = new QTimer();
@@ -85,13 +60,16 @@ void PlatformInformationReader::launchQemu()
     {
         qDebug() << "QEMU for platform " << platforms.first().first() << " doesn't exist";
         platforms.removeFirst();
+#ifdef GUI
         progress->setValue(progress->maximum() - platforms.count());
+#endif
         finishQemu(QProcess::CrashExit);
     }
 }
 
 void PlatformInformationReader::createProgressDialog()
 {
+#ifdef GUI
     progress = new QProgressDialog("Please wait...", "", 0, platforms.count());
     progress->setWindowTitle("Reading information");
     progress->setWindowModality(Qt::ApplicationModal);
@@ -99,6 +77,7 @@ void PlatformInformationReader::createProgressDialog()
     progress->setCancelButton(NULL);
     progress->setRange(0, platforms.count());
     progress->show();
+#endif
 }
 
 void PlatformInformationReader::timeIsOut()
@@ -120,7 +99,9 @@ void PlatformInformationReader::nextRequest(const QStringList &list, bool isRead
     }
     else
     {
+#ifdef GUI
         progress->setValue(progress->maximum() - platforms.count());
+#endif
         createXml();
         emit qmpShutdownQemu();
     }
@@ -130,8 +111,8 @@ void PlatformInformationReader::finishQemu(int exitCode)
 {
     delete timer;
     timer = NULL;
-    delete qemu;
-    qemu = NULL;
+    delete launcher;
+    launcher = NULL;
     delete qmp;
     qmp = NULL;
     if (!platforms.isEmpty())
@@ -140,14 +121,18 @@ void PlatformInformationReader::finishQemu(int exitCode)
     }
     else
     {
+#ifdef GUI
         delete progress;
+#endif
         emit workFinish();
+        if (deleteSelf)
+            delete this;
     }
 }
 
 void PlatformInformationReader::createXml()
 {
-    QFile file(currentPlatformDirPath + "/" + result.first().first() + ".xml");
+    QFile file(profilePath + "/" + result.first().first() + ".xml");
     if (!file.exists())
     {
         if (file.open(QIODevice::WriteOnly))

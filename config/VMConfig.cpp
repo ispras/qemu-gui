@@ -2,6 +2,7 @@
 #include "DeviceStorage.h"
 #include "DeviceSystem.h"
 #include "DeviceUsb.h"
+#include "common/FileHelpers.h"
 
 const QString const_xml_name = "vm.xml";
 const QString xml_parameters = "VMParameters";
@@ -12,8 +13,6 @@ const QString xml_platform = "Platform";
 const QString xml_cmdLine = "AdditionCommandLine";
 const QString xml_kernel = "Kernel";
 const QString xml_initrd = "InitialRamDisk";
-
-static bool remove_directory(QDir dir);
 
 
 VMConfig::VMConfig(const QString &path_vm)
@@ -281,16 +280,8 @@ QString VMConfig::getPathRRDir()
 
 void VMConfig::remove_directory_vm()
 {
-    remove_directory_vm(dir_path);
+    FileHelpers::deleteDirectory(dir_path);
 }
-
-void VMConfig::remove_directory_vm(const QString & dir)
-{
-    QDir del_dir(dir);
-    if (del_dir.exists())
-        remove_directory(del_dir);
-}
-
 void VMConfig::fillReplayList()
 {
     QDir rrDir(getPathRRDir());
@@ -301,29 +292,3 @@ void VMConfig::fillReplayList()
         replayList.append(name);
     }
 }
-
-static bool remove_directory(QDir dir)
-{
-    int res = 0;
-    QStringList dirs = dir.entryList(QDir::Dirs | QDir::AllDirs | QDir::NoDotAndDotDot);
-    QStringList files = dir.entryList(QDir::Files);
-
-    foreach(const QString f_name, files)
-    {
-        QString del_file = dir.absolutePath() + "/" + f_name;
-        if (!QFile::remove(del_file))
-            qDebug() << "File" << del_file << "was not deleted!";
-    }
-
-    foreach(QString d_name, dirs)
-    {
-        remove_directory(QDir(dir.absolutePath() + "/" + d_name));
-    }
-
-    if (!QDir().rmdir(dir.absolutePath()))
-    {
-        res = false;
-    }
-    return res;
-}
-

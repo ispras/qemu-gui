@@ -4,7 +4,7 @@
 
 static const QString constXmlName = "replay.xml";
 static const QString dummyName = "dummy.qcow2";
-static const QString xml_hash = "QemuHash";
+static const QString xml_qemu = "Qemu";
 static const QString xml_icount = "icount";
 static const QString xml_overlay = "IsOverlay";
 static const QString xml_start = "replay_";
@@ -24,8 +24,8 @@ void RecordReplayParams::createXml(const QString &name) const
         xmlWriter.writeStartDocument();
         xmlWriter.writeStartElement(xml_start + name);
 
-        xmlWriter.writeStartElement(xml_hash);
-        xmlWriter.writeCharacters(qemuHash);
+        xmlWriter.writeStartElement(xml_qemu);
+        xmlWriter.writeCharacters(qemu);
         xmlWriter.writeEndElement();
              
         xmlWriter.writeStartElement(xml_icount);
@@ -52,9 +52,9 @@ void RecordReplayParams::readXml(const QString &name)
 
         while (xmlReader.readNextStartElement())
         {
-            if (xmlReader.name() == xml_hash)
+            if (xmlReader.name() == xml_qemu)
             {
-                qemuHash = xmlReader.readElementText();
+                qemu = xmlReader.readElementText();
             }
             else if (xmlReader.name() == xml_icount)
             {

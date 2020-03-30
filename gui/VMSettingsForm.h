@@ -24,7 +24,6 @@ private:
     AddDeviceForm *addDev;
     QList<Device *> addedDevices;
     QString pathToPlatformInfo;
-    QString qemuDir;
 
     QTreeWidget *deviceTree;
     QDialogButtonBox *savecancel_btn;

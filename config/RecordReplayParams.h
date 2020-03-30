@@ -17,8 +17,8 @@ public:
 
     const QString &getCurrentDir() const { return currentDir; }
     void setCurrentDir(const QString &dir) { currentDir = dir; }
-    const QString &getQemuHash() const { return qemuHash; }
-    void setQemuHash(const QString &hash) { qemuHash = hash; }
+    const QString &getQemu() const { return qemu; }
+    void setQemu(const QString &value) { qemu = value; }
     bool isOverlayEnabled() const { return overlay; }
     void setOverlayEnabled(bool value) { overlay = value; }
     int getIcount() const { return icount; }
@@ -30,7 +30,7 @@ public:
 
 private:
     QString currentDir;
-    QString qemuHash;
+    QString qemu;
     bool overlay;
     int icount;
     int snapshotPeriod;

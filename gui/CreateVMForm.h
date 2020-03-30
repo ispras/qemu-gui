@@ -14,7 +14,7 @@ class CreateVMForm : public QWidget
     Q_OBJECT
 
 public:
-    CreateVMForm(const QString &home_dir = "", const QString &qemu_dir = "");
+    CreateVMForm();
     ~CreateVMForm();
 
 private:
@@ -41,9 +41,6 @@ private:
     QComboBox *platformCombo;
     VMPropertiesForm *kernelForm;
 
-
-    QString default_path;
-    QString qemu_dir;
     QString path_to_vm;
     QString platformName;
 

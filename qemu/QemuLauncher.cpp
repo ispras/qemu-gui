@@ -1,32 +1,31 @@
 #include "QemuLauncher.h"
 #include "QemuImgLauncher.h"
 #include "CommandLineParameters.h"
-#include "RecordReplayTab.h"
 
 QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
-    QemuRunOptions *runOptions, LaunchMode mode,
+    const QemuRunOptions &runOpt, LaunchMode mode,
     const RecordReplayParams &rr, QObject *parent)
     : QObject(parent), virtual_machine(vm), mode(mode),
     qemuDirPath(qemu_install_dir_path),
-    runOptions(runOptions), rrParams(rr)
+    runOptions(runOpt), rrParams(rr)
 {
     createQemuPath(qemu_install_dir_path, virtual_machine->getPlatform());
     qemu = NULL;
-    mon = runOptions->getMonitorCmd();
-    qmp = runOptions->getQmpCmd();
-    additionalOptionsCmd = runOptions->getAllAdditionalOptionsCmd(mode);
+    mon = runOptions.getMonitorCmd();
+    qmp = runOptions.getQmpCmd();
+    additionalOptionsCmd = runOptions.getAllAdditionalOptionsCmd(mode);
 }
 
-QemuLauncher::QemuLauncher(const QString &qemuPath, QemuRunOptions *runOptions,
+QemuLauncher::QemuLauncher(const QString &qemuPath, const QemuRunOptions &runOpt,
     const QString &platform, const QString &machine)
-    : mode(LaunchMode::NORMAL), runOptions(runOptions)
+    : mode(LaunchMode::NORMAL), runOptions(runOpt)
 {
     createQemuPath(qemuPath, platform);
     cmd = "-machine " + machine + " ";
     qemu = NULL;
     virtual_machine = NULL;
     mon = "";
-    qmp = runOptions->getQmpCmd();
+    qmp = runOptions.getQmpCmd();
     additionalOptionsCmd = "";
 }
 
@@ -118,7 +117,7 @@ void QemuLauncher::createOverlays()
 void QemuLauncher::launchQemu()
 {
     QString cmdLine = "\"" + qemuExePath + "\" " + recordReplay
-        + cmd + mon + runOptions->getQmpCmd() + additionalOptionsCmd;
+        + cmd + mon + runOptions.getQmpCmd() + additionalOptionsCmd;
     qDebug() << cmdLine;
     emit qemuStarted(cmdLine);
     qemu->start(cmdLine);

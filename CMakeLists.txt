@@ -18,6 +18,8 @@ find_package(Qt5Network)
 include_directories(gui device config qemu)
 
 add_executable(qemu-gui
+    common/FileHelpers.cpp
+
     config/GlobalConfig.cpp config/VMConfig.cpp config/PlatformInfo.cpp 
     config/RecordReplayParams.cpp config/QemuList.cpp
 
@@ -25,30 +27,38 @@ add_executable(qemu-gui
     device/DeviceFactory.cpp device/DeviceSystem.cpp
     device/DeviceUsb.cpp device/DeviceNetwork.cpp
 
-    qemu/QemuRunOptions.cpp qemu/QemuLauncher.cpp
-    qemu/CommandLineParameters.cpp
+    qemu/QemuRunOptions.cpp qemu/QemuLauncher.cpp qemu/QemuImgLauncher.cpp
+    qemu/CommandLineParameters.cpp qemu/QMPInteraction.cpp
+    qemu/PlatformInformationReader.cpp qemu/QemuSocket.cpp
 
     gui/main.cpp gui/CreateVMForm.cpp gui/QemuGUI.cpp
     gui/RecordReplayTab.cpp gui/VMSettingsForm.cpp gui/QemuGUI.qrc
-    gui/QMPInteraction.cpp gui/TerminalSettingsForm.cpp
-    gui/PlatformInformationReader.cpp
-    gui/TerminalTab.cpp gui/ConnectionSettingsForm.cpp gui/QemuSocket.cpp
+    gui/TerminalSettingsForm.cpp
+    gui/TerminalTab.cpp gui/ConnectionSettingsForm.cpp
     gui/ConsoleTab.cpp
     gui/VMPropertiesForm.cpp
     gui/AddDeviceForm.cpp
-    gui/QemuImgLauncher.cpp
-    gui/DeviceForm.cpp)
+    gui/DeviceForm.cpp gui/QemuInstallationsForm.cpp
+    )
 
 target_link_libraries(qemu-gui Qt5::Widgets Qt5::Network)
 target_compile_definitions(qemu-gui PUBLIC GUI)
 
 
 add_executable(qemu-cli cli/main.cpp
+    common/FileHelpers.cpp
+
     config/GlobalConfig.cpp config/VMConfig.cpp config/QemuList.cpp
+    config/PlatformInfo.cpp config/RecordReplayParams.cpp
+
     device/Device.cpp device/DeviceBus.cpp device/DeviceStorage.cpp device/DeviceSystem.cpp
     device/DeviceUsb.cpp device/DeviceNetwork.cpp device/DeviceFactory.cpp
-    qemu/CommandLineParameters.cpp config/PlatformInfo.cpp)
-target_link_libraries(qemu-cli Qt5::Core Qt5::Gui)
+
+    qemu/PlatformInformationReader.cpp qemu/QemuRunOptions.cpp qemu/QemuLauncher.cpp
+    qemu/QemuImgLauncher.cpp qemu/CommandLineParameters.cpp
+    qemu/QMPInteraction.cpp qemu/QemuSocket.cpp
+    )
+target_link_libraries(qemu-cli Qt5::Core Qt5::Gui Qt5::Network)
 
 
 

@@ -12,16 +12,20 @@ private:
     static QemuList &instance();
 
 public:
-    static void addQemuInstallation(const QString &qemu_install_path);
-    static void delQemuInstallation(const QString &qemu_install_path);
-    static const QStringList &getAllQemuInstallations();
+    typedef QMap<QString, QString> Items;
+
+    static void addQemuInstallation(const QString &name, const QString &path);
+    static void delQemuInstallation(const QString &name);
+    static QString getQemuDir(const QString &name);
+    static QString getQemuProfilePath(const QString &name);
+    static const Items &getAllQemuInstallations();
 
 private:
     void loadConfig();
     void saveConfig();
 
 private:
-    QStringList qemuList;
+    Items qemuList;
 };
 
 #endif // QEMULIST_H

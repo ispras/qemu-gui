@@ -1,4 +1,3 @@
-#include "QemuGUICommon.h"
 #include "QemuSocket.h"
 
 QemuSocket::QemuSocket(QObject *parent)
