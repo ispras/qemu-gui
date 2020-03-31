@@ -13,11 +13,11 @@ class PlatformInformationReader : public QObject
     Q_OBJECT
 
 public:
-    PlatformInformationReader(const QString &qemu, const QString &profile, bool del = true);
+    PlatformInformationReader(const QString &qemu, bool del = true);
 
 private:
     QThread *thread;
-    QString qemuPath;
+    QString qemuName;
     QString profilePath;
     QList<QStringList> platforms;
     QMPInteractionSettings *qmp;

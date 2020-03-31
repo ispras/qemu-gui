@@ -1,10 +1,10 @@
 #include "PlatformInformationReader.h"
 #include "common/FileHelpers.h"
 #include "config/GlobalConfig.h"
+#include "config/QemuList.h"
 
-PlatformInformationReader::PlatformInformationReader(const QString &qemu,
-    const QString &profile, bool del)
-    : qemuPath(qemu), profilePath(profile), deleteSelf(del)
+PlatformInformationReader::PlatformInformationReader(const QString &qemu, bool del)
+    : qemuName(qemu), profilePath(QemuList::getQemuProfilePath(qemu)), deleteSelf(del)
 {
     platforms = { QStringList({ "i386", "pc" }),
         QStringList({ "x86_64", "pc" }),
@@ -29,7 +29,7 @@ void PlatformInformationReader::launchQemu()
 {
     allInfoReady = false;
 
-    launcher = new QemuLauncher(qemuPath, QemuRunOptions::getGlobal(),
+    launcher = new QemuLauncher(qemuName, QemuRunOptions::getGlobal(),
         platforms.first().at(0), platforms.first().at(1));
     if (launcher->isQemuExist())
     {

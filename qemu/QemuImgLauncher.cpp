@@ -1,11 +1,11 @@
 #include "QemuImgLauncher.h"
 
-QemuImgLauncher::QemuImgLauncher(const QString &qemuImg, const QString &imageFormat,
+QemuImgLauncher::QemuImgLauncher(const QString &dir, const QString &imageFormat,
     const QString &imageName, QObject *parent) :
     QObject(parent), imageFormat(imageFormat), imageName(imageName), 
     imageSize(0)
 {
-    this->qemuImg = qemuImg
+    this->qemuImg = dir
 #ifdef Q_OS_WIN
         + "/qemu-img.exe";
 #else

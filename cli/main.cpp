@@ -38,13 +38,14 @@ int vmcmdline(VMConfig *vm, LaunchMode mode, const char *execution)
 {
     CommandLineParameters params(mode);
     params.setOverlayEnabled(false);
-    out << vm->getCommandLine(params);
+    QString res = vm->getCommandLine(params);
     if (execution && mode == LaunchMode::REPLAY)
     {
         RecordReplayParams rr = vm->getRRParams(execution);
-        out << rr.getCommandLine(mode);
+        res += rr.getCommandLine(mode);
+        res = QemuList::getQemuExecutablePath(rr.getQemu(), vm->getPlatform()) + " " + res;
     }
-    out << "\n";
+    out << res << "\n";
     return 0;
 }
 

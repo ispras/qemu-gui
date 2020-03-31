@@ -17,6 +17,7 @@ public:
     static void addQemuInstallation(const QString &name, const QString &path);
     static void delQemuInstallation(const QString &name);
     static QString getQemuDir(const QString &name);
+    static QString getQemuExecutablePath(const QString &qemu, const QString &platform);
     static QString getQemuProfilePath(const QString &name);
     static const Items &getAllQemuInstallations();
 

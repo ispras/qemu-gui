@@ -1,28 +1,28 @@
 #include "QemuLauncher.h"
 #include "QemuImgLauncher.h"
 #include "CommandLineParameters.h"
+#include "config/QemuList.h"
 
-QemuLauncher::QemuLauncher(const QString &qemu_install_dir_path, VMConfig *vm,
+QemuLauncher::QemuLauncher(const QString &qemu, VMConfig *vm,
     const QemuRunOptions &runOpt, LaunchMode mode,
     const RecordReplayParams &rr, QObject *parent)
     : QObject(parent), virtual_machine(vm), mode(mode),
-    qemuDirPath(qemu_install_dir_path),
-    runOptions(runOpt), rrParams(rr)
+    qemuName(qemu), runOptions(runOpt), rrParams(rr)
 {
-    createQemuPath(qemu_install_dir_path, virtual_machine->getPlatform());
-    qemu = NULL;
+    createQemuPath(virtual_machine->getPlatform());
+    process = NULL;
     mon = runOptions.getMonitorCmd();
     qmp = runOptions.getQmpCmd();
     additionalOptionsCmd = runOptions.getAllAdditionalOptionsCmd(mode);
 }
 
-QemuLauncher::QemuLauncher(const QString &qemuPath, const QemuRunOptions &runOpt,
+QemuLauncher::QemuLauncher(const QString &qemu, const QemuRunOptions &runOpt,
     const QString &platform, const QString &machine)
     : mode(LaunchMode::NORMAL), runOptions(runOpt)
 {
-    createQemuPath(qemuPath, platform);
+    createQemuPath(platform);
     cmd = "-machine " + machine + " ";
-    qemu = NULL;
+    process = NULL;
     virtual_machine = NULL;
     mon = "";
     qmp = runOptions.getQmpCmd();
@@ -39,22 +39,17 @@ bool QemuLauncher::isQemuExist()
     return qemuFile.exists();
 }
 
-void QemuLauncher::createQemuPath(const QString &qemuPath, const QString &platform)
+void QemuLauncher::createQemuPath(const QString &platform)
 {
-    qemuExePath = qemuPath
-#ifdef Q_OS_WIN
-        + "/" + "qemu-system-" + platform + "w.exe";
-#else
-        + "/" + "qemu-system-" + platform;
-#endif
+    qemuExePath = QemuList::getQemuExecutablePath(qemuName, platform);
 }
 
 void QemuLauncher::start_qemu()
 {
     CommandLineParameters cmdParams(mode);
-    qemu = new QProcess();
+    process = new QProcess();
     qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
-    connect(qemu, SIGNAL(finished(int, QProcess::ExitStatus)),
+    connect(process, SIGNAL(finished(int, QProcess::ExitStatus)),
         this, SLOT(finish_qemu(int, QProcess::ExitStatus)));
     recordReplay = "";
     if (mode != LaunchMode::NORMAL)
@@ -82,7 +77,7 @@ void QemuLauncher::start_qemu()
 void QemuLauncher::createDummyImage()
 {
     QThread *thread = new QThread();
-    QemuImgLauncher *imgLauncher = new QemuImgLauncher(qemuDirPath, "qcow2",
+    QemuImgLauncher *imgLauncher = new QemuImgLauncher(QemuList::getQemuDir(qemuName), "qcow2",
         rrParams.getDummyImage(), 20);
 
     imgLauncher->moveToThread(thread);
@@ -101,7 +96,7 @@ void QemuLauncher::createOverlays()
     else
     {
         QThread *thread = new QThread();
-        QemuImgLauncher *imgLauncher = new QemuImgLauncher(qemuDirPath, "qcow2",
+        QemuImgLauncher *imgLauncher = new QemuImgLauncher(QemuList::getQemuDir(qemuName), "qcow2",
             images.first(), overlays.first());
         images.removeFirst();
         overlays.removeFirst();
@@ -120,14 +115,14 @@ void QemuLauncher::launchQemu()
         + cmd + mon + runOptions.getQmpCmd() + additionalOptionsCmd;
     qDebug() << cmdLine;
     emit qemuStarted(cmdLine);
-    qemu->start(cmdLine);
+    process->start(cmdLine);
     if (virtual_machine)
     {
-        qemu->waitForFinished(-1);
+        process->waitForFinished(-1);
     }
     else
     {
-        qemu->waitForFinished(10000);
+        process->waitForFinished(10000);
     }
 }
 
@@ -139,10 +134,10 @@ void QemuLauncher::finish_qemu(int exitCode, QProcess::ExitStatus ExitStatus)
 
 void QemuLauncher::terminateQemu()
 {
-    if (qemu->state() == QProcess::Running)
+    if (process->state() == QProcess::Running)
     {
         qDebug() << "Qemu work too long. Terminated. Receiving information is not guaranteed";
-        qemu->terminate();
+        process->terminate();
     }
 }
 

@@ -27,7 +27,7 @@ QString QemuList::getQemuProfilePath(const QString &name)
 
 void QemuList::addQemuInstallation(const QString &name, const QString &path)
 {
-    new PlatformInformationReader(path, getQemuProfilePath(name));
+    new PlatformInformationReader(name);
 
     instance().qemuList.insert(name, path);
     instance().saveConfig();
@@ -43,6 +43,16 @@ void QemuList::delQemuInstallation(const QString &name)
 QString QemuList::getQemuDir(const QString &name)
 {
     return instance().qemuList.value(name);
+}
+
+QString QemuList::getQemuExecutablePath(const QString &qemu, const QString &platform)
+{
+    return getQemuDir(qemu)
+#ifdef Q_OS_WIN
+        + "/" + "qemu-system-" + platform + "w.exe";
+#else
+        + "/" + "qemu-system-" + platform;
+#endif
 }
 
 const QemuList::Items &QemuList::getAllQemuInstallations()

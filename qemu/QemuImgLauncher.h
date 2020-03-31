@@ -8,11 +8,11 @@ class QemuImgLauncher : public QObject
     Q_OBJECT
 
 public:
-    QemuImgLauncher(const QString &qemuImg, const QString &imageFormat,
+    QemuImgLauncher(const QString &dir, const QString &imageFormat,
         const QString &imageName, QObject *parent = 0);
-    QemuImgLauncher(const QString &qemuImg, const QString &imageFormat, 
+    QemuImgLauncher(const QString &dir, const QString &imageFormat, 
         const QString &imageName, int imageSize, QObject *parent = 0);
-    QemuImgLauncher(const QString &qemuImg, const QString &imageFormat,
+    QemuImgLauncher(const QString &dir, const QString &imageFormat,
         const QString &imageName, const QString &path, QObject *parent = 0);
     ~QemuImgLauncher();
 

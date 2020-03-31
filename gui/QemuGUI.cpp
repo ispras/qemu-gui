@@ -437,7 +437,7 @@ void QemuGUI::play_machine()
             runOptionPrepare();
             listVM->setDisabled(true);
 
-            launch_qemu = new QemuLauncher(GlobalConfig::get_current_qemu_dir(),
+            launch_qemu = new QemuLauncher(GlobalConfig::get_current_qemu(),
                 vm, *runOptions, launchMode, rec_replay_tab->getRecordReplayParams());
             connect(launch_qemu, &QemuLauncher::qemuStarted,
                 [=](const QString &cmdLine) { consoleTab->addConsoleText(cmdLine); }
