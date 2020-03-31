@@ -66,14 +66,6 @@ void VMConfig::readVMConfig()
             {
                 name_vm = xmlReader.readElementText();
             }
-            else if (xmlReader.name() == xml_field_dir)
-            {
-                //dir_path = xmlReader.readElementText();
-            }
-            else if (xmlReader.name() == xml_field_img)
-            {
-                //image_path = xmlReader.readElementText();
-            }
             else if (xmlReader.name() == xml_platform)
             {
                 platform = xmlReader.readElementText();
