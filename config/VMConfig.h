@@ -41,8 +41,7 @@ public:
     QString getCommandLine(CommandLineParameters &cmdParams);
     Device *getSystemDevice() { return &system; }
     QString getPathRRDir();
-    QStringList getReplayList() { return replayList; }
-    void fillReplayList();
+    QStringList getReplayList();
 
     void remove_directory_vm();
 
@@ -57,8 +56,6 @@ private:
     QString platform;
     QString addCmdLine;
     Device system;
-    QStringList replayList;
-
 };
 
 #endif //VMCONFIG_H

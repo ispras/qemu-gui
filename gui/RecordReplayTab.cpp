@@ -65,7 +65,7 @@ void RecordReplayTab::setVM(VMConfig *virtualMachine)
     executionListConnectSignals();
 
     executionList->addItems(vm->getReplayList());
-    if (vm->getReplayList().count())
+    if (executionList->count())
     {
         executionList->setCurrentRow(0);
     }

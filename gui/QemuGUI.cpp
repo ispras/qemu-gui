@@ -591,7 +591,6 @@ void QemuGUI::listVM_item_selection_changed()
         {
             vmInfoTextEdit->setPlainText(vm->get_vm_info());
             vmInfoTextEdit->ensureCursorVisible();
-            vm->fillReplayList();
             rec_replay_tab->setVM(vm);
         }
         checkQemuCompatibility();

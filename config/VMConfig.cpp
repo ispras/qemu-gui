@@ -282,13 +282,10 @@ void VMConfig::remove_directory_vm()
 {
     FileHelpers::deleteDirectory(dir_path);
 }
-void VMConfig::fillReplayList()
+
+QStringList VMConfig::getReplayList()
 {
     QDir rrDir(getPathRRDir());
     QStringList dirs = rrDir.entryList(QDir::Dirs | QDir::AllDirs | QDir::Filter::NoDotAndDotDot);
-    replayList.clear();
-    foreach (QString name, dirs)
-    {
-        replayList.append(name);
-    }
+    return dirs;
 }

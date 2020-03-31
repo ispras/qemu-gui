@@ -10,7 +10,7 @@ void usage()
     out << "qemu-cli usage:\n"
         "list - output configured VMs\n"
         "qemulist - output configured QEMU installations\n"
-        "cmdline <vm> [record | replay]"
+        "vm <vm> cmdline [record | replay]"
         " - output command line for running specified VM\n";
 }
 
@@ -34,17 +34,22 @@ int qemulist()
     return 0;
 }
 
-int vmcmdline(const char *name, LaunchMode mode)
+int vmcmdline(VMConfig *vm, LaunchMode mode)
 {
-    VMConfig *vm = GlobalConfig::get_vm_by_name(name);
-    if (!vm)
-    {
-        out << "VM " << name << " does not exist\n";
-        return 1;
-    }
     CommandLineParameters params(mode);
     params.setOverlayEnabled(false);
     out << vm->getCommandLine(params) << "\n";
+    return 0;
+}
+
+int replaylist(VMConfig *vm)
+{
+    QStringList rr = vm->getReplayList();
+    out << "Recorded executions for " << vm->get_name() << " VM:\n";
+    foreach(QString s, rr)
+    {
+        out << "\t" << s << "\n";
+    }
     return 0;
 }
 
@@ -64,17 +69,25 @@ int main(int argc, char *argv[])
     {
         return qemulist();
     }
-    else if (!strcmp(argv[1], "cmdline"))
+    else if (!strcmp(argv[1], "vm"))
     {
-        if (argc < 3)
+        if (argc < 4)
         {
             usage();
             return 1;
         }
-        else
+
+        VMConfig *vm = GlobalConfig::get_vm_by_name(argv[2]);
+        if (!vm)
+        {
+            out << "VM " << argv[2] << " does not exist\n";
+            return 1;
+        }
+
+        if (!strcmp(argv[3], "cmdline"))
         {
             LaunchMode mode = LaunchMode::NORMAL;
-            char **arg = argv + 3;
+            char **arg = argv + 4;
             while (*arg)
             {
                 if (!strcmp(*arg, "record"))
@@ -92,14 +105,15 @@ int main(int argc, char *argv[])
                 }
                 ++arg;
             }
-            return vmcmdline(argv[2], mode);
+            return vmcmdline(vm, mode);
+        }
+        else if (!strcmp(argv[3], "executions"))
+        {
+            return replaylist(vm);
         }
     }
-    else
-    {
-        usage();
-        return 1;
-    }    
+
+    usage();
 
     return 0;
 }
