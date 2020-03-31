@@ -112,15 +112,10 @@ void RecordReplayTab::widget_placement()
     main_lay->addLayout(lay_btn);
 }
 
-void RecordReplayTab::createXml(const QString &name)
+void RecordReplayTab::createXml()
 {
     rrParams.setQemu(GlobalConfig::get_current_qemu());
-    rrParams.createXml(name);
-}
-
-void RecordReplayTab::readXml(const QString &name)
-{
-    rrParams.readXml(name);
+    rrParams.createXml();
 }
 
 void RecordReplayTab::setCurrentDir(const QString &name)
@@ -324,7 +319,7 @@ void RecordReplayTab::executionListItemSelectionChanged()
     if (executionList->count() && isNotRunning)
     {
         setCurrentDir(executionList->currentItem()->text());
-        readXml(executionList->currentItem()->text());
+        rrParams = vm->getRRParams(executionList->currentItem()->text());
         if (rrParams.getQemu() == GlobalConfig::get_current_qemu())
         {
             rpl_btn->setEnabled(true);
@@ -436,9 +431,9 @@ void RecordReplayTab::renameRRRecord()
     QListWidgetItem *item = executionList->currentItem();
     if (QString::compare(oldRRName, item->text()) != 0)
     {
-        readXml(oldRRName);
-        QDir dir(rrParams.getCurrentDir());
-        if (!dir.rename(rrParams.getCurrentDir(), vm->getPathRRDir() + "/" + item->text()))
+        rrParams = vm->getRRParams(oldRRName);
+        QDir dir(vm->getPathRRDir());
+        if (!dir.rename(oldRRName, item->text()))
         {
             QMessageBox::critical((QWidget *) this->parent(),
                 "Error", "Record was not renamed");
@@ -448,7 +443,7 @@ void RecordReplayTab::renameRRRecord()
         oldRRName = item->text();
         item->setFlags(item->flags() & ~Qt::ItemFlag::ItemIsEditable);
         setCurrentDir(item->text());
-        createXml(item->text());
+        createXml();
     }
 }
 
@@ -528,7 +523,7 @@ void RecordReplayTab::setRRNameDir()
         {
             rrDir.mkdir(rrParams.getCurrentDir());
         }
-        createXml(name);
+        createXml();
 
         replayDialog->close();
         emit startRR(LaunchMode::RECORD);

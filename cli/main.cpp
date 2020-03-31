@@ -10,7 +10,7 @@ void usage()
     out << "qemu-cli usage:\n"
         "list - output configured VMs\n"
         "qemulist - output configured QEMU installations\n"
-        "vm <vm> cmdline [record | replay]"
+        "vm <vm> cmdline [(record | replay) [<execution>]]"
         " - output command line for running specified VM\n";
 }
 
@@ -34,11 +34,17 @@ int qemulist()
     return 0;
 }
 
-int vmcmdline(VMConfig *vm, LaunchMode mode)
+int vmcmdline(VMConfig *vm, LaunchMode mode, const char *execution)
 {
     CommandLineParameters params(mode);
     params.setOverlayEnabled(false);
-    out << vm->getCommandLine(params) << "\n";
+    out << vm->getCommandLine(params);
+    if (execution && mode == LaunchMode::REPLAY)
+    {
+        RecordReplayParams rr = vm->getRRParams(execution);
+        out << rr.getCommandLine(mode);
+    }
+    out << "\n";
     return 0;
 }
 
@@ -88,6 +94,7 @@ int main(int argc, char *argv[])
         {
             LaunchMode mode = LaunchMode::NORMAL;
             char **arg = argv + 4;
+            const char *exec = nullptr;
             while (*arg)
             {
                 if (!strcmp(*arg, "record"))
@@ -98,6 +105,10 @@ int main(int argc, char *argv[])
                 {
                     mode = LaunchMode::REPLAY;
                 }
+                else if (!exec && mode == LaunchMode::REPLAY)
+                {
+                    exec = *arg;
+                }
                 else
                 {
                     usage();
@@ -105,7 +116,7 @@ int main(int argc, char *argv[])
                 }
                 ++arg;
             }
-            return vmcmdline(vm, mode);
+            return vmcmdline(vm, mode, exec);
         }
         else if (!strcmp(argv[3], "executions"))
         {

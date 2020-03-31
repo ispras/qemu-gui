@@ -7,14 +7,14 @@ static const QString dummyName = "dummy.qcow2";
 static const QString xml_qemu = "Qemu";
 static const QString xml_icount = "icount";
 static const QString xml_overlay = "IsOverlay";
-static const QString xml_start = "replay_";
+static const QString xml_start = "replay";
 
 RecordReplayParams::RecordReplayParams()
     : icount(5), snapshotPeriod(0), initialSnapshot("init")
 {
 }
 
-void RecordReplayParams::createXml(const QString &name) const
+void RecordReplayParams::createXml() const
 {
     QFile file(currentDir + "/" + constXmlName);
     if (file.open(QIODevice::WriteOnly))
@@ -22,7 +22,7 @@ void RecordReplayParams::createXml(const QString &name) const
         QXmlStreamWriter xmlWriter(&file);
         xmlWriter.setAutoFormatting(true);
         xmlWriter.writeStartDocument();
-        xmlWriter.writeStartElement(xml_start + name);
+        xmlWriter.writeStartElement(xml_start);
 
         xmlWriter.writeStartElement(xml_qemu);
         xmlWriter.writeCharacters(qemu);
@@ -41,14 +41,14 @@ void RecordReplayParams::createXml(const QString &name) const
     }
 }
 
-void RecordReplayParams::readXml(const QString &name)
+void RecordReplayParams::readXml()
 {
     QFile file(currentDir + "/" + constXmlName);
     if (file.open(QIODevice::ReadOnly))
     {
         QXmlStreamReader xmlReader(&file);
         xmlReader.readNextStartElement();
-        Q_ASSERT(xmlReader.name() == xml_start + name);
+        Q_ASSERT(xmlReader.name() == xml_start);
 
         while (xmlReader.readNextStartElement())
         {

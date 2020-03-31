@@ -27,8 +27,7 @@ private:
     void connect_signals();
     void executionListConnectSignals();
     void widget_placement();
-    void createXml(const QString &name);
-    void readXml(const QString &name);
+    void createXml();
     void setCurrentDir(const QString &name);
     void createDialog(const QString &caption);
     bool checkPeriodSet();

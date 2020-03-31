@@ -4,6 +4,7 @@
 #include <QtCore/QtCore>
 
 #include "Device.h"
+#include "config/RecordReplayParams.h"
 
 class CommandLineParameters;
 
@@ -41,6 +42,7 @@ public:
     QString getCommandLine(CommandLineParameters &cmdParams);
     Device *getSystemDevice() { return &system; }
     QString getPathRRDir();
+    RecordReplayParams getRRParams(const QString &exec);
     QStringList getReplayList();
 
     void remove_directory_vm();

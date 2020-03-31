@@ -278,6 +278,14 @@ QString VMConfig::getPathRRDir()
     return get_dir_path() + "/RecordReplay";
 }
 
+RecordReplayParams VMConfig::getRRParams(const QString &exec)
+{
+    RecordReplayParams params;
+    params.setCurrentDir(getPathRRDir() + "/" + exec);
+    params.readXml();
+    return params;
+}
+
 void VMConfig::remove_directory_vm()
 {
     FileHelpers::deleteDirectory(dir_path);

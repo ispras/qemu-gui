@@ -9,8 +9,8 @@ class RecordReplayParams
 public:
     RecordReplayParams();
 
-    void createXml(const QString &name) const;
-    void readXml(const QString &name);
+    void createXml() const;
+    void readXml();
 
     QString getCommandLine(LaunchMode mode) const;
     QString getDummyImage() const;
