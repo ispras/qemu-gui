@@ -39,6 +39,7 @@ protected:
     QMap<QMPCommands, QmpCommand> cmdMap;
 
 private:
+    void dummy_cb(QJsonObject object);
     bool isEvent(QJsonObject object);
     void queryStatus_cb(QJsonObject object);
     void stop_cb(QJsonObject object);
@@ -72,6 +73,9 @@ public:
     QMPInteractionSettings(QObject *parent, int port);
     ~QMPInteractionSettings();
 
+    const QStringList &getInfoList() const { return infoList; }
+    const QStringList &getNetdevList() const { return netdevList; }
+
 private:
     bool isQmpReady;
     QStringList infoList;
@@ -90,7 +94,6 @@ private:
 
 public slots:
     void readTerminal();
-    void connectedSocket();
 
     void commandShutdownQemu();
     void commandQmp();

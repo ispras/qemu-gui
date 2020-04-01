@@ -11,7 +11,16 @@ QemuSocket::QemuSocket(QObject *parent)
 
 void QemuSocket::tryConnect()
 {
-    connectToHost("127.0.0.1", port);
+#ifndef GUI
+    while (state() != QAbstractSocket::ConnectedState)
+    {
+#endif
+        connectToHost("127.0.0.1", port);
+#ifndef GUI
+        waitForConnected(-1);
+        connecting = false;
+    }
+#endif
 }
 
 void QemuSocket::connectPort(int port)

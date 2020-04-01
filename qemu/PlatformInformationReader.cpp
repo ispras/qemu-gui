@@ -4,7 +4,11 @@
 #include "config/QemuList.h"
 
 PlatformInformationReader::PlatformInformationReader(const QString &qemu, bool del)
-    : qemuName(qemu), profilePath(QemuList::getQemuProfilePath(qemu)), deleteSelf(del)
+    : qemuName(qemu), profilePath(QemuList::getQemuProfilePath(qemu)), deleteSelf(del),
+      thread(NULL)
+#ifdef GUI
+    , timer(NULL)
+#endif
 {
     platforms = { QStringList({ "i386", "pc" }),
         QStringList({ "x86_64", "pc" }),
@@ -16,7 +20,6 @@ PlatformInformationReader::PlatformInformationReader(const QString &qemu, bool d
 
     qmp = NULL;
     launcher = NULL;
-    timer = NULL;
     allInfoReady = false;
 
     FileHelpers::deleteDirectory(profilePath);
@@ -33,6 +36,7 @@ void PlatformInformationReader::launchQemu()
         platforms.first().at(0), platforms.first().at(1));
     if (launcher->isQemuExist())
     {
+#ifdef GUI
         result.clear();
         result.append(platforms.first());
         qmp = new QMPInteractionSettings(nullptr, GlobalConfig::get_port_qmp().toInt());
@@ -48,13 +52,31 @@ void PlatformInformationReader::launchQemu()
         connect(thread, SIGNAL(started()), launcher, SLOT(start_qemu()));
         connect(launcher, SIGNAL(qemu_laucher_finished(int)),
             this, SLOT(finishQemu(int)));
-
         timer = new QTimer();
         timer->start(10000);
         connect(timer, SIGNAL(timeout()), this, SLOT(timeIsOut()));
-
         platforms.removeFirst();
         thread->start();
+#else
+        result.clear();
+        qDebug() << "Scanning " << platforms.first().first();
+        result.append(platforms.first());
+        launcher->start_qemu();
+        qmp = new QMPInteractionSettings(nullptr, GlobalConfig::get_port_qmp().toInt());
+        qmp->connectedSocket();
+        // TODO: omit order dependency
+        qmp->commandQmp();
+        result.append(qmp->getInfoList());
+        qmp->commandQmp();
+        result.append(qmp->getInfoList());
+        qmp->commandQmp();
+        result.append(qmp->getNetdevList());
+        qmp->commandShutdownQemu();
+        createXml();
+        platforms.removeFirst();
+        /* Recursive */
+        finishQemu(0);
+#endif
     }
     else
     {
@@ -109,8 +131,10 @@ void PlatformInformationReader::nextRequest(const QStringList &list, bool isRead
 
 void PlatformInformationReader::finishQemu(int exitCode)
 {
+#ifdef GUI
     delete timer;
     timer = NULL;
+#endif
     delete launcher;
     launcher = NULL;
     delete qmp;

@@ -17,6 +17,9 @@ public:
 
 private:
     QThread *thread;
+#ifdef GUI
+    QTimer *timer;
+#endif
     QString qemuName;
     QString profilePath;
     QList<QStringList> platforms;
@@ -24,7 +27,6 @@ private:
     QemuLauncher *launcher;
     bool allInfoReady;
     QList<QStringList> result;
-    QTimer *timer;
     bool deleteSelf;
 
 private:

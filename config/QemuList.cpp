@@ -27,9 +27,10 @@ QString QemuList::getQemuProfilePath(const QString &name)
 
 void QemuList::addQemuInstallation(const QString &name, const QString &path)
 {
+    /* Add QEMU to the list to allow other classes request it's path */
+    instance().qemuList.insert(name, path);
     new PlatformInformationReader(name);
 
-    instance().qemuList.insert(name, path);
     instance().saveConfig();
 }
 

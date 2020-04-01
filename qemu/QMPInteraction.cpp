@@ -25,20 +25,30 @@ void QMPInteraction::prepareCommands()
     cmdMap.insert(QMPCommands::Continue, { "cont", "", &QMPInteraction::continue_cb });
     cmdMap.insert(QMPCommands::Stop, { "stop", "", &QMPInteraction::stop_cb });
     cmdMap.insert(QMPCommands::Quit, { "quit", "", NULL });
-    cmdMap.insert(QMPCommands::QmpCapabilities, { "qmp_capabilities", "", NULL });
+    cmdMap.insert(QMPCommands::QmpCapabilities, { "qmp_capabilities", "", &QMPInteraction::dummy_cb });
     cmdMap.insert(QMPCommands::QueryStatus,{ "query-status", "", &QMPInteraction::queryStatus_cb });
-    cmdMap.insert(QMPCommands::QueryMachines, { "query-machines", "", &QMPInteraction::machine_cb });
-    cmdMap.insert(QMPCommands::QueryCpuDefinitions, { "query-cpu-definitions", "", &QMPInteraction::cpu_cb });
+    cmdMap.insert(QMPCommands::QueryMachines, { "query-machines", "",
+        &QMPInteraction::machine_cb });
+    cmdMap.insert(QMPCommands::QueryCpuDefinitions, { "query-cpu-definitions", "",
+        &QMPInteraction::cpu_cb });
     cmdMap.insert(QMPCommands::QomListTypes, { "qom-list-types",
         ",\"arguments\":{\"abstract\":true, \"implements\":\"device\"}",
         &QMPInteraction::listDevices_cb });
-    cmdMap.insert(QMPCommands::DeviceListProperties, { "device-list-properties", "?", &QMPInteraction::listProperties_cb });
+    cmdMap.insert(QMPCommands::DeviceListProperties, { "device-list-properties", "?",
+        &QMPInteraction::listProperties_cb });
+}
+
+void QMPInteraction::dummy_cb(QJsonObject object)
+{
+    if (!isEvent(object))
+    {
+        cbQueue.pop_front();
+    }
 }
 
 bool QMPInteraction::isEvent(QJsonObject object)
 {
     QJsonValue json_command = object["event"];
-    qDebug() << json_command;
     if (!json_command.isNull())
     {
         cbQueue.pop_front();
@@ -76,7 +86,8 @@ void QMPInteraction::continue_cb(QJsonObject object)
 
 bool QMPInteraction::whatSaidQmp(QByteArray message)
 {
-    QJsonDocument qmp_message = QJsonDocument::fromJson(message);
+    QJsonParseError err;
+    QJsonDocument qmp_message = QJsonDocument::fromJson(message, &err);
     qDebug() << qmp_message;
     if (qmp_message.isNull())
     {
@@ -97,7 +108,8 @@ void QMPInteraction::readTerminal()
     QList<QByteArray> messageBuffer = message.split('\n');
     foreach(QByteArray message, messageBuffer)
     {
-        whatSaidQmp(message);
+        if (!message.isEmpty())
+            whatSaidQmp(message);
     }
 }
 
@@ -117,7 +129,16 @@ void QMPInteraction::commandQmp(QMPCommands cmd, const QString &specParams)
     QString params = specParams.isEmpty() ? command.params : specParams;
     QByteArray commandAll = "{ \"execute\":\"" + command.command.toLocal8Bit() + "\""
         + params.toLocal8Bit() + "}";
+    qDebug() << "QMP send " << commandAll;
     socket.write(commandAll);
+#ifndef GUI
+    socket.flush();
+    while (!cbQueue.empty())
+    {
+        socket.waitForReadyRead(-1);
+        readTerminal();
+    }
+#endif
 }
 
 
@@ -244,6 +265,8 @@ QString QMPInteractionSettings::getParamDevListProperties(const QString &name) c
 void QMPInteractionSettings::readTerminal()
 {
     QByteArray message = messageBegin + socket.readAll();
+    if (message == "")
+        return;
     if (!whatSaidQmp(message))
     {
         messageBegin = message;
@@ -257,11 +280,6 @@ void QMPInteractionSettings::readTerminal()
         emit qmpConnected();
         isQmpReady = true;
     }
-}
-
-void QMPInteractionSettings::connectedSocket()
-{
-    QMPInteraction::commandQmp(QMPCommands::QmpCapabilities);
 }
 
 void QMPInteractionSettings::commandShutdownQemu()

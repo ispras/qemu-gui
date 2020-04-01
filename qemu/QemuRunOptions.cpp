@@ -18,12 +18,12 @@ QemuRunOptions QemuRunOptions::getGlobal()
 
 QString QemuRunOptions::getMonitorCmd()
 {
-    return " -monitor \"tcp:127.0.0.1:" + getMonitorPort() + ",server,nowait\"";;
+    return " -monitor \"tcp:127.0.0.1:" + getMonitorPort() + ",server,nowait\"";
 }
 
 QString QemuRunOptions::getQmpCmd()
 {
-    return " -qmp \"tcp:127.0.0.1:" + getQmpPort() + ",server,nowait\"";;
+    return " -qmp \"tcp:127.0.0.1:" + getQmpPort() + ",server,nowait\"";
 }
 
 QString QemuRunOptions::getAllAdditionalOptionsCmd(LaunchMode mode)

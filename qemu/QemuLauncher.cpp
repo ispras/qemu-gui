@@ -18,7 +18,7 @@ QemuLauncher::QemuLauncher(const QString &qemu, VMConfig *vm,
 
 QemuLauncher::QemuLauncher(const QString &qemu, const QemuRunOptions &runOpt,
     const QString &platform, const QString &machine)
-    : mode(LaunchMode::NORMAL), runOptions(runOpt)
+    : qemuName(qemu), mode(LaunchMode::NORMAL), runOptions(runOpt)
 {
     createQemuPath(platform);
     cmd = "-machine " + machine + " ";
@@ -116,6 +116,7 @@ void QemuLauncher::launchQemu()
     qDebug() << cmdLine;
     emit qemuStarted(cmdLine);
     process->start(cmdLine);
+#ifdef GUI
     if (virtual_machine)
     {
         process->waitForFinished(-1);
@@ -124,6 +125,7 @@ void QemuLauncher::launchQemu()
     {
         process->waitForFinished(10000);
     }
+#endif
 }
 
 void QemuLauncher::finish_qemu(int exitCode, QProcess::ExitStatus ExitStatus)

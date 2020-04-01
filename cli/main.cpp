@@ -8,8 +8,10 @@ QTextStream out(stdout);
 void usage()
 {
     out << "qemu-cli usage:\n"
-        "list - output configured VMs\n"
         "qemulist - output configured QEMU installations\n"
+        "qemuadd <name> <path> - add new QEMU installation\n"
+        "qemudel <name> - remove QEMU installation\n"
+        "vmlist - output configured VMs\n"
         "vm <vm> cmdline [(record | replay) [<execution>]]"
         " - output command line for running specified VM\n";
 }
@@ -32,6 +34,22 @@ int qemulist()
         out << name << " : " << q.value(name) << "\n";
     }
     return 0;
+}
+
+int qemuadd(const char *name, const char *path)
+{
+    if (QemuList::getQemuDir(name) != "")
+    {
+        out << "Insallation " << name << " already exists\n";
+        return 1;
+    }
+
+    QemuList::addQemuInstallation(name, path);
+}
+
+int qemudel(const char *name)
+{
+    QemuList::delQemuInstallation(name);
 }
 
 int vmcmdline(VMConfig *vm, LaunchMode mode, const char *execution)
@@ -68,13 +86,31 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    if (!strcmp(argv[1], "list"))
+    if (!strcmp(argv[1], "vmlist"))
     {
         return vmlist();
     }
     else if (!strcmp(argv[1], "qemulist"))
     {
         return qemulist();
+    }
+    else if (!strcmp(argv[1], "qemuadd"))
+    {
+        if (argc < 4)
+        {
+            usage();
+            return 1;
+        }
+        return qemuadd(argv[2], argv[3]);
+    }
+    else if (!strcmp(argv[1], "qemudel"))
+    {
+        if (argc < 3)
+        {
+            usage();
+            return 1;
+        }
+        return qemudel(argv[2]);
     }
     else if (!strcmp(argv[1], "vm"))
     {
