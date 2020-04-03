@@ -5,7 +5,7 @@
 
 PlatformInformationReader::PlatformInformationReader(const QString &qemu, bool del)
     : qemuName(qemu), profilePath(QemuList::getQemuProfilePath(qemu)), deleteSelf(del),
-      thread(NULL)
+      thread(NULL), platformInfo(nullptr)
 #ifdef GUI
     , timer(NULL)
 #endif
@@ -32,18 +32,18 @@ void PlatformInformationReader::launchQemu()
 {
     allInfoReady = false;
 
-    launcher = new QemuLauncher(qemuName, QemuRunOptions::getGlobal(),
+    QemuRunOptions opt = QemuRunOptions::getGlobal();
+    opt.setQemuRunStopped(true);
+    launcher = new QemuLauncher(qemuName, opt,
         platforms.first().at(0), platforms.first().at(1));
     if (launcher->isQemuExist())
     {
+        platformInfo = new PlatformInfo(profilePath + "/" + platforms.first().first());
 #ifdef GUI
-        result.clear();
-        result.append(platforms.first());
-        qmp = new QMPInteractionSettings(nullptr, GlobalConfig::get_port_qmp().toInt());
-        connect(qmp, SIGNAL(qmpConnected()), this, SLOT(qmpConnectOk()));
-        connect(qmp, SIGNAL(readyInfo(const QStringList&, bool)),
-            this, SLOT(nextRequest(const QStringList&, bool)));
-        connect(this, SIGNAL(qmpSendCommand()), qmp, SLOT(commandQmp()));
+        qmp = new QMPInteractionSettings(nullptr,
+            GlobalConfig::get_port_qmp().toInt(), platformInfo);
+        connect(qmp, SIGNAL(ready()),
+            this, SLOT(nextRequest()));
         connect(this, SIGNAL(qmpShutdownQemu()), qmp, SLOT(commandShutdownQemu()));
         connect(this, SIGNAL(qemuMustDie()), launcher, SLOT(terminateQemu()));
 
@@ -58,21 +58,13 @@ void PlatformInformationReader::launchQemu()
         platforms.removeFirst();
         thread->start();
 #else
-        result.clear();
         qDebug() << "Scanning " << platforms.first().first();
-        result.append(platforms.first());
         launcher->start_qemu();
-        qmp = new QMPInteractionSettings(nullptr, GlobalConfig::get_port_qmp().toInt());
+        qmp = new QMPInteractionSettings(nullptr,
+            GlobalConfig::get_port_qmp().toInt(), platformInfo);
         qmp->connectedSocket();
-        // TODO: omit order dependency
-        qmp->commandQmp();
-        result.append(qmp->getInfoList());
-        qmp->commandQmp();
-        result.append(qmp->getInfoList());
-        qmp->commandQmp();
-        result.append(qmp->getNetdevList());
         qmp->commandShutdownQemu();
-        createXml();
+        platformInfo->saveXml();
         platforms.removeFirst();
         /* Recursive */
         finishQemu(0);
@@ -107,26 +99,15 @@ void PlatformInformationReader::timeIsOut()
     emit qemuMustDie();
 }
 
-void PlatformInformationReader::qmpConnectOk()
+void PlatformInformationReader::nextRequest()
 {
-    emit qmpSendCommand();
-}
-
-void PlatformInformationReader::nextRequest(const QStringList &list, bool isReady)
-{
-    result.append(list);
-    if (isReady)
-    {
-        emit qmpSendCommand();
-    }
-    else
-    {
 #ifdef GUI
-        progress->setValue(progress->maximum() - platforms.count());
+    progress->setValue(progress->maximum() - platforms.count());
 #endif
-        createXml();
-        emit qmpShutdownQemu();
-    }
+    platformInfo->saveXml();
+    /* To avoid nextRequest invocation on quit */
+    disconnect(this, SLOT(nextRequest()));
+    emit qmpShutdownQemu();
 }
 
 void PlatformInformationReader::finishQemu(int exitCode)
@@ -139,6 +120,8 @@ void PlatformInformationReader::finishQemu(int exitCode)
     launcher = NULL;
     delete qmp;
     qmp = NULL;
+    delete platformInfo;
+    platformInfo = nullptr;
     if (!platforms.isEmpty())
     {
         launchQemu();
@@ -153,36 +136,3 @@ void PlatformInformationReader::finishQemu(int exitCode)
             delete this;
     }
 }
-
-void PlatformInformationReader::createXml()
-{
-    QFile file(profilePath + "/" + result.first().first() + ".xml");
-    if (!file.exists())
-    {
-        if (file.open(QIODevice::WriteOnly))
-        {
-            QXmlStreamWriter xmlWriter(&file);
-            xmlWriter.setAutoFormatting(true);
-            xmlWriter.writeStartDocument();
-            xmlWriter.writeStartElement(result.first().first());
-            result.removeFirst();
-
-            QStringList xmlNames = { "Machine", "Cpu", "Netdev" };
-            result[xmlNames.indexOf("Cpu")].push_front("default");
-            for (int i = 0; i < xmlNames.count(); i++)
-            {
-                foreach(QString name, result[i])
-                {
-                    xmlWriter.writeStartElement(xmlNames[i]);
-                    xmlWriter.writeCharacters(name);
-                    xmlWriter.writeEndElement();
-                }
-            }
-
-            xmlWriter.writeEndElement();
-            xmlWriter.writeEndDocument();
-            file.close();
-        }
-    }
-}
-

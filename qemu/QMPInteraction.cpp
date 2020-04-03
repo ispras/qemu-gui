@@ -3,13 +3,13 @@
 QMPInteraction::QMPInteraction(QObject *parent)
     : QObject(parent)
 {
+    connect(&socket, SIGNAL(readyRead()), this, SLOT(readTerminal()));
     prepareCommands();
 }
 
 QMPInteraction::QMPInteraction(QObject *parent, int port)
     : QMPInteraction(parent)
 {
-    connect(&socket, SIGNAL(readyRead()), this, SLOT(readTerminal()));
     connect(&socket, SIGNAL(connected()), this, SLOT(connectedSocket()));
 
     socket.connectPort(port);
@@ -88,28 +88,45 @@ bool QMPInteraction::whatSaidQmp(QByteArray message)
 {
     QJsonParseError err;
     QJsonDocument qmp_message = QJsonDocument::fromJson(message, &err);
-    qDebug() << qmp_message;
+    //qDebug() << qmp_message;
     if (qmp_message.isNull())
     {
         return false;
     }
     QJsonObject obj = qmp_message.object();
 
-    if (cbQueue.count())
+    if (!cbQueue.isEmpty())
     {
         (this->*(cbQueue.first()))(obj);
+        if (cbQueue.empty())
+        {
+            emit ready();
+        }
     }
     return true;
 }
 
 void QMPInteraction::readTerminal()
 {
-    QByteArray message = socket.readAll();
+    QByteArray message = messageBegin + socket.readAll();
+    messageBegin.clear();
+    // if (!message.isEmpty())
+    // {
+    //     QByteArray tmp = message;
+    //     tmp.truncate(80);
+    //     qDebug() << "\n\nSocket data:\n\n" << tmp;
+    // }
     QList<QByteArray> messageBuffer = message.split('\n');
+    bool last = false;
     foreach(QByteArray message, messageBuffer)
     {
-        if (!message.isEmpty())
-            whatSaidQmp(message);
+        Q_ASSERT(!last);
+        if (!whatSaidQmp(message))
+        {
+            messageBegin = message;
+            /* is this the last one? */
+            last = true;
+        }
     }
 }
 
@@ -117,6 +134,12 @@ void QMPInteraction::connectedSocket()
 {
     commandQmp(QMPCommands::QmpCapabilities);
     commandQmp(QMPCommands::QueryStatus);
+    // Send everything
+    while (!commandsQueue.isEmpty())
+    {
+        commandQmp(commandsQueue.first());
+        commandsQueue.removeFirst();
+    }
 }
 
 void QMPInteraction::commandQmp(QMPCommands cmd, const QString &specParams)
@@ -147,62 +170,48 @@ void QMPInteraction::commandQmp(QMPCommands cmd, const QString &specParams)
 ******************************************************************************/
 
 
-QMPInteractionSettings::QMPInteractionSettings(QObject *parent, int port)
-    : QMPInteraction(parent)
+QMPInteractionSettings::QMPInteractionSettings(QObject *parent, int port,
+    PlatformInfo *pi)
+    : QMPInteraction(parent), platformInfo(pi)
 {
-    connect(&socket, SIGNAL(readyRead()), this, SLOT(readTerminal()));
-    connect(&socket, SIGNAL(connected()), this, SLOT(connectedSocket()));
-
-    isQmpReady = false;
-
-    socket.connectPort(port);
-    messageBegin = "";
-
     commandsQueue.append({ QMPCommands::QueryMachines,
                         QMPCommands::QueryCpuDefinitions,
                         QMPCommands::QomListTypes,
     });
+
+    connect(&socket, SIGNAL(connected()), this, SLOT(connectedSocket()));
+    socket.connectPort(port);
 }
 
-QMPInteractionSettings::~QMPInteractionSettings()
-{
-}
-
-
-void QMPInteractionSettings::readJsonArray(QJsonObject object)
+void QMPInteractionSettings::machine_cb(QJsonObject object)
 {
     QJsonValue jv = object.value("return");
     if (jv.isArray())
     {
-        infoList.clear();
         QJsonArray arrMessage = jv.toArray();
         for (const QJsonValue &v : arrMessage)
         {
             QString name = v.toObject()["name"].toString();
             bool isDefault = v.toObject()["is-default"].toBool();
-            if (isDefault)
-            {
-                infoList.push_front(name);
-            }
-            else
-            {
-                infoList.append(name);
-            }
+            platformInfo->addMachine(name, isDefault);
         }
-        emit readyInfo(infoList, commandsQueue.count());
-        messageBegin = "";
         cbQueue.pop_front();
     }
 }
 
-void QMPInteractionSettings::machine_cb(QJsonObject object)
-{
-    readJsonArray(object);
-}
-
 void QMPInteractionSettings::cpu_cb(QJsonObject object)
 {
-    readJsonArray(object);
+    QJsonValue jv = object.value("return");
+    if (jv.isArray())
+    {
+        QJsonArray arrMessage = jv.toArray();
+        for (const QJsonValue &v : arrMessage)
+        {
+            QString name = v.toObject()["name"].toString();
+            platformInfo->addCpu(name);
+        }
+        cbQueue.pop_front();
+    }
 }
 
 void QMPInteractionSettings::listDevices_cb(QJsonObject object)
@@ -210,7 +219,8 @@ void QMPInteractionSettings::listDevices_cb(QJsonObject object)
     QJsonValue jv = object.value("return");
     if (jv.isArray())
     {
-        infoList.clear();
+        // Remove it, because we continue sending commands
+        cbQueue.pop_front();
         QJsonArray arrMessage = jv.toArray();
         for (const QJsonValue &v : arrMessage)
         {
@@ -218,12 +228,11 @@ void QMPInteractionSettings::listDevices_cb(QJsonObject object)
             QString deviceName = v.toObject()["name"].toString();
             if (!isAbstract)
             {
-                infoList.append(deviceName);
+                devices.append(deviceName);
+                QMPInteraction::commandQmp(QMPCommands::DeviceListProperties,
+                    getParamDevListProperties(deviceName));
             }
         }
-        cbQueue.pop_front();
-        QMPInteraction::commandQmp(QMPCommands::DeviceListProperties,
-            getParamDevListProperties(infoList.first()));
     }
 }
 
@@ -233,27 +242,16 @@ void QMPInteractionSettings::listProperties_cb(QJsonObject object)
     if (jv.isArray())
     {
         QJsonArray arrMessage = jv.toArray();
-        QStringList parentList;
         for (const QJsonValue &v : arrMessage)
         {
-            QString deviceName = v.toObject()["name"].toString();
-            if (deviceName.compare("netdev") == 0)
+            QString name = v.toObject()["name"].toString();
+            if (name == "netdev")
             {
-                netdevList.append(infoList.first());
+                platformInfo->addNetdev(devices.first());
             }
         }
+        devices.pop_front();
         cbQueue.pop_front();
-
-        infoList.removeFirst();
-        if (infoList.count())
-        {
-            QMPInteraction::commandQmp(QMPCommands::DeviceListProperties,
-                getParamDevListProperties(infoList.first()));
-        }
-        else
-        {
-            emit readyInfo(netdevList, commandsQueue.count());
-        }
     }
 }
 
@@ -262,35 +260,7 @@ QString QMPInteractionSettings::getParamDevListProperties(const QString &name) c
     return ",\"arguments\":{\"typename\":\"" + name + "\"}";
 }
 
-void QMPInteractionSettings::readTerminal()
-{
-    QByteArray message = messageBegin + socket.readAll();
-    if (message == "")
-        return;
-    if (!whatSaidQmp(message))
-    {
-        messageBegin = message;
-    }
-    else
-    {
-        messageBegin = "";
-    }
-    if (!isQmpReady)
-    {
-        emit qmpConnected();
-        isQmpReady = true;
-    }
-}
-
 void QMPInteractionSettings::commandShutdownQemu()
 {
     QMPInteraction::commandQmp(QMPCommands::Quit);
 }
-
-void QMPInteractionSettings::commandQmp()
-{
-    QMPInteraction::commandQmp(commandsQueue.first());
-    commandsQueue.removeFirst();
-}
-
-

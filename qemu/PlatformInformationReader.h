@@ -7,6 +7,7 @@
 #endif
 #include "QMPInteraction.h"
 #include "QemuLauncher.h"
+#include "config/PlatformInfo.h"
 
 class PlatformInformationReader : public QObject
 {
@@ -26,8 +27,9 @@ private:
     QMPInteractionSettings *qmp;
     QemuLauncher *launcher;
     bool allInfoReady;
-    QList<QStringList> result;
     bool deleteSelf;
+
+    PlatformInfo *platformInfo;
 
 private:
     void launchQemu();
@@ -39,8 +41,7 @@ private:
 #endif
 
 private slots:
-    void qmpConnectOk();
-    void nextRequest(const QStringList &list, bool isReady);
+    void nextRequest();
 
 public slots:
     void timeIsOut();

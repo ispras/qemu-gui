@@ -14,6 +14,7 @@ void QemuSocket::tryConnect()
 #ifndef GUI
     while (state() != QAbstractSocket::ConnectedState)
     {
+        connecting = true;
 #endif
         connectToHost("127.0.0.1", port);
 #ifndef GUI
@@ -51,8 +52,10 @@ void QemuSocket::processError(QAbstractSocket::SocketError socketError)
     {
         disconnect();
     }
+#ifdef GUI
     if (connecting)
     {
         tryConnect();
     }
+#endif
 }

@@ -3,6 +3,7 @@
 
 #include <QtCore/QtCore>
 #include "QemuSocket.h"
+#include "config/PlatformInfo.h"
 
 enum class QMPCommands : int 
 { 
@@ -35,8 +36,10 @@ public:
 
 protected:
     QemuSocket socket;
+    QByteArray messageBegin;
     QList<void (QMPInteraction::*)(QJsonObject)> cbQueue;
     QMap<QMPCommands, QmpCommand> cmdMap;
+    QList<QMPCommands> commandsQueue;
 
 private:
     void dummy_cb(QJsonObject object);
@@ -62,6 +65,7 @@ signals :
     void qemuResumed();
     void qemuStopped();
     void qemuRunningStatus(bool runStatus);
+    void ready();
 };
 
 
@@ -70,21 +74,13 @@ class QMPInteractionSettings : public QMPInteraction
     Q_OBJECT
 
 public:
-    QMPInteractionSettings(QObject *parent, int port);
-    ~QMPInteractionSettings();
-
-    const QStringList &getInfoList() const { return infoList; }
-    const QStringList &getNetdevList() const { return netdevList; }
+    QMPInteractionSettings(QObject *parent, int port, PlatformInfo *pi);
 
 private:
-    bool isQmpReady;
-    QStringList infoList;
-    QStringList netdevList;
-    QByteArray messageBegin;
-    QList<QMPCommands> commandsQueue;
+    PlatformInfo *platformInfo;
+    QStringList devices;
 
 private:
-    void readJsonArray(QJsonObject object);
     virtual void machine_cb(QJsonObject object);
     virtual void cpu_cb(QJsonObject object);
     virtual void listDevices_cb(QJsonObject object);
@@ -93,15 +89,7 @@ private:
     QString getParamDevListProperties(const QString &name) const;
 
 public slots:
-    void readTerminal();
-
     void commandShutdownQemu();
-    void commandQmp();
-
-signals:
-    void readyInfo(const QStringList &, bool);
-    void qmpConnected();
-
 };
 
 
