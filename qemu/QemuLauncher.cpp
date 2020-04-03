@@ -26,7 +26,7 @@ QemuLauncher::QemuLauncher(const QString &qemu, const QemuRunOptions &runOpt,
     virtual_machine = NULL;
     mon = "";
     qmp = runOptions.getQmpCmd();
-    additionalOptionsCmd = "";
+    additionalOptionsCmd = runOptions.getAllAdditionalOptionsCmd(mode);
 }
 
 QemuLauncher::~QemuLauncher()
