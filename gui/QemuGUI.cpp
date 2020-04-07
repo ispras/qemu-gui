@@ -131,7 +131,6 @@ QemuGUI::QemuGUI(QWidget *parent)
     connect_signals();
     fill_listVM_from_config();
     fill_qemu_install_dir_from_config();
-    checkQemuCompatibility();
 
     widget_placement();
 
@@ -196,7 +195,7 @@ void QemuGUI::fill_qemu_install_dir_from_config()
     QemuList::Items qemu_list = QemuList::getAllQemuInstallations();
     qemu_install_dir_combo->addItems(qemu_list.keys());
     qemu_install_dir_combo->addItem("Edit qemu list...");
-    if (GlobalConfig::get_current_qemu() != "")
+    if (GlobalConfig::get_current_qemu_dir() != "")
     {
         qemu_install_dir_combo->setCurrentText(GlobalConfig::get_current_qemu());
     }
@@ -204,6 +203,13 @@ void QemuGUI::fill_qemu_install_dir_from_config()
     {
         GlobalConfig::set_current_qemu(qemu_install_dir_combo->currentText());
     }
+    else
+    {
+        GlobalConfig::set_current_qemu("");
+    }
+
+    checkQemuCompatibility();
+    emit currentQemuChanged();
 }
 
 void QemuGUI::checkQemuCompatibility()
