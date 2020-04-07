@@ -34,6 +34,8 @@ public:
         void (QMPInteraction::*callback)(QJsonObject);
     };
 
+    void commandQmp(QMPCommands cmd, const QString &specParams = "");
+
 protected:
     QemuSocket socket;
     QByteArray messageBegin;
@@ -59,7 +61,6 @@ protected:
 public slots:
     void readTerminal();
     void connectedSocket();
-    void commandQmp(QMPCommands cmd, const QString &specParams = "");
 
 signals :
     void qemuResumed();

@@ -469,9 +469,6 @@ void QemuGUI::play_machine()
                 qmp = new QMPInteraction(nullptr, qmp_port.toInt());
                 connect(qmp, SIGNAL(qemuRunningStatus(bool)), this, SLOT(setButtonsState(bool)));
 
-                connect(this, SIGNAL(qmpSendCommand(QMPCommands)),
-                    qmp, SLOT(commandQmp(QMPCommands)));
-
                 connect(qmp, SIGNAL(qemuResumed()), this, SLOT(resume_qemu_btn_state()));
                 connect(qmp, SIGNAL(qemuStopped()), this, SLOT(stop_qemu_btn_state()));
 
@@ -487,7 +484,7 @@ void QemuGUI::play_machine()
         }
         else if (vm_state == VMState::Stopped)
         {
-            emit qmpSendCommand(QMPCommands::Continue);
+            qmp->commandQmp(QMPCommands::Continue);
         }
     }
 }
@@ -519,12 +516,12 @@ void QemuGUI::finish_qemu(int exitCode)
 
 void QemuGUI::pause_machine()
 {
-    emit qmpSendCommand(QMPCommands::Stop);
+    qmp->commandQmp(QMPCommands::Stop);
 }
 
 void QemuGUI::stop_machine()
 {
-    emit qmpSendCommand(QMPCommands::Quit);
+    qmp->commandQmp(QMPCommands::Quit);
 }
 
 void QemuGUI::create_machine()
