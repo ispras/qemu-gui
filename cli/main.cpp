@@ -2,6 +2,8 @@
 #include "GlobalConfig.h"
 #include "CommandLineParameters.h"
 #include "QemuList.h"
+#include "qemu/QemuRunOptions.h"
+#include "qemu/QemuLauncher.h"
 
 QTextStream out(stdout);
 
@@ -14,7 +16,8 @@ void usage()
         "vmlist - output configured VMs\n"
         "vm <vm> cmdline [(record | replay) [<execution>]]"
         " - output command line for running specified VM\n"
-        "vm <vm> executions - list the recorded executions\n";
+        "vm <vm> executions - list the recorded executions\n"
+        "vm <vm> replay <execution> - replay the specified execution\n";
 }
 
 int vmlist()
@@ -76,6 +79,17 @@ int replaylist(VMConfig *vm)
     {
         out << "\t" << s << "\n";
     }
+    return 0;
+}
+
+int replay(VMConfig *vm, const char *rr)
+{
+    RecordReplayParams params = vm->getRRParams(rr);
+    QemuRunOptions opt;
+
+    QemuLauncher launcher(params.getQemu(), vm, opt, LaunchMode::REPLAY, params);
+    launcher.start_qemu();
+
     return 0;
 }
 
@@ -159,6 +173,15 @@ int main(int argc, char *argv[])
         else if (!strcmp(argv[3], "executions"))
         {
             return replaylist(vm);
+        }
+        else if (!strcmp(argv[3], "replay"))
+        {
+            if (argc < 5)
+            {
+                usage();
+                return 1;
+            }
+            return replay(vm, argv[4]);
         }
     }
 

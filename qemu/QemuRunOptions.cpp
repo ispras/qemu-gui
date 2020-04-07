@@ -18,11 +18,21 @@ QemuRunOptions QemuRunOptions::getGlobal()
 
 QString QemuRunOptions::getMonitorCmd()
 {
+    if (getMonitorPort().isEmpty())
+    {
+        return "";
+    }
+
     return " -monitor \"tcp:127.0.0.1:" + getMonitorPort() + ",server,nowait\"";
 }
 
 QString QemuRunOptions::getQmpCmd()
 {
+    if (getQmpPort().isEmpty())
+    {
+        return "";
+    }
+
     return " -qmp \"tcp:127.0.0.1:" + getQmpPort() + ",server,nowait\"";
 }
 
