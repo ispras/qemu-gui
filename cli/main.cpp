@@ -13,7 +13,8 @@ void usage()
         "qemudel <name> - remove QEMU installation\n"
         "vmlist - output configured VMs\n"
         "vm <vm> cmdline [(record | replay) [<execution>]]"
-        " - output command line for running specified VM\n";
+        " - output command line for running specified VM\n"
+        "vm <vm> executions - list the recorded executions\n";
 }
 
 int vmlist()
