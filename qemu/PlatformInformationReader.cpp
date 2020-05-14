@@ -15,7 +15,8 @@ PlatformInformationReader::PlatformInformationReader(const QString &qemu, bool d
         QStringList({ "arm", "virt" }),
         QStringList({ "mips", "none" }),
         QStringList({ "mips64", "none" }),
-        QStringList({ "ppc", "none" })
+        QStringList({ "ppc", "none" }),
+        QStringList({ "riscv64", "none" }),
     };
 
     qmp = NULL;
