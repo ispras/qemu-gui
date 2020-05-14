@@ -212,6 +212,14 @@ void QMPInteractionSettings::cpu_cb(QJsonObject object)
         }
         cbQueue.pop_front();
     }
+    else
+    {
+        /* Some platforms do not provide CPU definitions */
+        if (object.value("error").isObject())
+        {
+            cbQueue.pop_front();
+        }
+    }
 }
 
 void QMPInteractionSettings::listDevices_cb(QJsonObject object)
